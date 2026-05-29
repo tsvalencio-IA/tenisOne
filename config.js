@@ -36,13 +36,13 @@ window.APP_CONFIG = {
     enabled: true,
 
     managerName: "Saulo",
-    managerEmail: "gerente@tenisone.com.br",
+    managerEmail: "saulo@t1.com",
 
     sellers: [
-      { vendorId: "isack", email: "isack@tenisone.com.br" },
-      { vendorId: "viviane", email: "viviane@tenisone.com.br" },
-      { vendorId: "matheus", email: "matheus@tenisone.com.br" },
-      { vendorId: "brian", email: "brian@tenisone.com.br" },
+      { vendorId: "isack", email: "isack@t1.com" },
+      { vendorId: "viviane", email: "viviane@t1.com },
+      { vendorId: "matheus", email: "matheus@t1.com },
+      { vendorId: "brian", email: "brian@t1.com" },
 
       // 5º vendedor:
       // Troque o nome, email e time do vendedor "vendedor5" no bloco
