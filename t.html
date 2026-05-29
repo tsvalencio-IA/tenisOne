@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Tênis One • PRO Automático (Versão Definitiva)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+<style>
+:root {
+  --bg:#061326; --bg2:#081b36; --card:#10294d; --card2:#0d203d;
+  --text:#f2f7ff; --muted:#a9bad2; --line:rgba(255,255,255,.12);
+  --cyan:#58e7ff; --green:#43df8b; --gold:#f5d37c; --red:#ff6f6f;
+  --shadow:0 20px 70px rgba(0,0,0,.34); --r:26px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;font-family:Montserrat,system-ui,sans-serif;background:radial-gradient(circle at 18% -5%,#164a83 0,transparent 33%),radial-gradient(circle at 88% 2%,rgba(67,223,139,.25),transparent 28%),linear-gradient(180deg,#061326,#07172d 58%,#04101f);color:var(--text)}
+body{overflow-x:hidden}
+button,input,select{font-family:inherit}
+.app{max-width:1450px;margin:0 auto;padding:16px}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;align-items:stretch}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035));border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow)}
+.hero-main{padding:22px;overflow:hidden;position:relative}
+.badge{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:rgba(88,231,255,.12);border:1px solid rgba(88,231,255,.28);color:var(--cyan);font-weight:900;font-size:.78rem;text-transform:uppercase;letter-spacing:.8px}
+h1{font-size:clamp(1.65rem,4.5vw,3.1rem);line-height:.98;margin:14px 0 10px;letter-spacing:-1.3px}
+p{color:var(--muted);line-height:1.55}
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px}
+.status-card{padding:16px;border-radius:22px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.status-card span{display:block;font-size:.74rem;color:var(--cyan);font-weight:900;letter-spacing:.8px;text-transform:uppercase}
+.status-card strong{display:block;margin:7px 0 4px;font-size:1.08rem}
+.nav{display:flex;gap:10px;overflow:auto;margin-top:18px;padding-bottom:4px;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav button{border:1px solid transparent;background:rgba(255,255,255,.075);color:var(--text);border-radius:999px;padding:13px 15px;white-space:nowrap;font-weight:900;transition:0.2s}
+.nav button.active{background:linear-gradient(90deg,#41dcff,#73eeff);color:#07172d;box-shadow:0 8px 24px rgba(65,220,255,0.25)}
+.view{display:none;margin-top:16px;animation:fadeIn 0.3s ease}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.view.active{display:block}
+.grid{display:grid;grid-template-columns:1fr 380px;gap:16px}
+.card{padding:18px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.035));border:1px solid var(--line);box-shadow:var(--shadow)}
+.card h2,.card h3{margin-bottom:8px}
+.eyebrow{font-size:.76rem;color:var(--cyan);font-weight:900;letter-spacing:.8px;text-transform:uppercase}
+.viewer{min-height:520px}
+.viewer-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.viewer-top h2{font-size:clamp(1.25rem,3vw,2rem)}
+.viewer-stage{height:430px;border-radius:24px;background:radial-gradient(circle at center,#13345f 0,#08172c 62%,#050d18 100%);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.viewer-stage img{max-width:92%;max-height:92%;object-fit:contain;filter:drop-shadow(0 20px 28px rgba(0,0,0,.48));user-select:none;-webkit-user-drag:none;transition: 0.2s ease-in-out;}
+.turntable-hint{position:absolute;left:12px;bottom:12px;right:12px;display:flex;gap:8px;justify-content:space-between;pointer-events:none;flex-wrap:wrap}
+.pill{padding:8px 11px;border-radius:999px;background:rgba(0,0,0,.44);border:1px solid rgba(255,255,255,.13);font-size:.75rem;font-weight:800;backdrop-filter:blur(10px)}
+.angle-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.angle-row button,.parts button{border:1px solid var(--line);background:rgba(255,255,255,.065);color:var(--text);border-radius:16px;padding:11px 10px;font-weight:900;transition:0.2s}
+.angle-row button:hover,.parts button:hover{background:rgba(255,255,255,.1)}
+.angle-row button.active{border-color:rgba(88,231,255,.65);background:rgba(88,231,255,.12);color:#dffbff}
+.parts{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 12px}
+.parts button.active{background:rgba(245,211,124,.18);border-color:rgba(245,211,124,.55);color:var(--gold)}
+.desc{padding:16px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.desc strong{display:block;font-size:1.25rem;margin-bottom:8px;color:var(--gold)}
+.side-list{display:grid;gap:10px}
+.side-item{padding:14px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid var(--line)}
+.side-item strong{display:block;margin-bottom:6px;color:var(--cyan)}
+.note{font-size:.86rem;color:var(--muted);line-height:1.45}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{border:0;border-radius:16px;padding:13px 15px;font-weight:900;cursor:pointer;transition:0.2s;text-align:center;}
+.btn:active{transform:scale(0.97)}
+.btn.primary{background:linear-gradient(90deg,#41dcff,#73eeff);color:#07172d;box-shadow:0 6px 16px rgba(65,220,255,0.2)}
+.btn.gold{background:linear-gradient(90deg,#f5d37c,#ffe8af);color:#3a2904;box-shadow:0 6px 16px rgba(245,211,124,0.2)}
+.btn.dark{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line)}
+.btn.dark:hover{background:rgba(255,255,255,.12)}
+.btn.green{background:linear-gradient(90deg,#35db82,#7af0ad);color:#052711;box-shadow:0 6px 16px rgba(53,219,130,0.2)}
+.btn.red{background:linear-gradient(90deg,#ff6f6f,#ff9a9a);color:#330707}
+.camera-layout{display:grid;grid-template-columns:1fr 370px;gap:16px}
+.camera-card{position:relative;border-radius:28px;overflow:hidden;background:#040b14;min-height:560px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.camera-card video,.camera-card canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:28px;}
+.camera-card canvas{z-index:3}
+.free-overlay{position:absolute;left:50%;top:68%;width:54%;transform:translate(-50%,-50%) rotate(-10deg);transform-origin:center center;z-index:5;touch-action:none;filter:drop-shadow(0 16px 22px rgba(0,0,0,.55))}
+.free-overlay img{width:100%;display:block}
+.cam-head{position:absolute;left:12px;right:12px;top:12px;z-index:8;display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.cam-toolbar{position:absolute;left:12px;right:12px;bottom:12px;z-index:8;display:flex;gap:8px;flex-wrap:wrap}
+.control-stack{display:grid;gap:12px;align-content:start}
+.control-box{padding:16px;border-radius:22px;background:rgba(255,255,255,.055);border:1px solid var(--line)}
+label{display:block;font-size:.78rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:12px 0 8px}
+input[type=range],select,input[type=file]{width:100%;cursor:pointer;}
+select,input[type=file]{padding:12px;border-radius:14px;background:#09203d;color:var(--text);border:1px solid var(--line)}
+.status-line{margin-top:10px;padding:12px;border-radius:16px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);font-size:.85rem;color:#d9e9ff;line-height:1.4;}
+.status-line.error{background:rgba(255,60,60,.15);border-color:rgba(255,60,60,.3);color:#ffcaca;}
+.status-line.success{background:rgba(53,219,130,.15);border-color:rgba(53,219,130,.3);color:#caffdb;}
+.builder-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px}
+.slot{padding:12px;border-radius:20px;background:rgba(255,255,255,.045);border:1px solid var(--line);text-align:center;}
+.slot img{width:100%;aspect-ratio:1/1;border-radius:15px;object-fit:cover;background:#061326;margin-top:10px;border:1px solid var(--line)}
+.guide-grid{display:grid;gap:10px}
+.hidden{display:none!important}
+@media(max-width:1120px){.hero,.grid,.camera-layout{grid-template-columns:1fr}.status-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.app{padding:12px}.status-grid,.builder-grid,.angle-row{grid-template-columns:1fr 1fr}.viewer-stage{height:360px}.camera-card{min-height:470px}.free-overlay{width:64%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <div class="panel hero-main">
+      <div class="badge">PRO(BETA) • Automático Profissional</div>
+      <h1>Experimentação de tênis com câmera, AR livre e seguir pés automático</h1>
+      <p>Sistema modular robusto com gestão de hardware inteligente: a câmera e a inferência via IA só são acionadas na aba correspondente para máxima performance e economia de bateria.</p>
+      <div class="nav" id="mainNav">
+        <button class="active" data-view="compare">Comparador</button>
+        <button data-view="free">AR livre automático</button>
+        <button data-view="try">Encaixar no pé</button>
+        <button data-view="feet">Seguir pés com IA</button>
+        <button data-view="builder">Gerar com 5 fotos</button>
+      </div>
+    </div>
+    <div class="panel status-grid">
+      <div class="status-card"><span>Câmera</span><strong>Auto Start Dinâmico</strong><div class="note">Dispara apenas no modo ativo.</div></div>
+      <div class="status-card"><span>Inteligência Artificial</span><strong>MediaPipe Pose</strong><div class="note">Detecção avançada de tornozelo e calcanhar.</div></div>
+      <div class="status-card"><span>Arquitetura</span><strong>Sem servidor (Local)</strong><div class="note">Processamento visual 100% no navegador.</div></div>
+    </div>
+  </section>
+
+  <section class="view active" id="view-compare">
+    <div class="grid">
+      <div class="card viewer">
+        <div class="viewer-top">
+          <div><div class="eyebrow">Foto-3D Beta • 5 ângulos</div><h2 id="productName">Olympikus Corre 4</h2><p id="productLine" class="note">Performance e amortecimento</p></div>
+          <div class="btns"><button class="btn dark" id="prevAngle">◀ Giro</button><button class="btn primary" id="nextAngle">Giro ▶</button></div>
+        </div>
+        <div class="viewer-stage">
+          <img id="mainShoe">
+          <div class="turntable-hint"><span class="pill">Visualização 360 simulada</span><span class="pill">Alta performance</span></div>
+        </div>
+        <div class="angle-row" id="angleRow"></div>
+        <div class="parts" id="partsRow"></div>
+        <div class="desc"><strong id="partTitle"></strong><p id="partText" class="note"></p></div>
+      </div>
+      <aside class="card">
+        <div class="eyebrow">Diagnóstico técnico</div><h3>Fluxo comercial dinâmico</h3>
+        <div class="side-list">
+          <div class="side-item"><strong>1. AR livre</strong><p class="note">Abre a câmera e permite posicionar o tênis em qualquer superfície com arraste e controles.</p></div>
+          <div class="side-item"><strong>2. Encaixar no pé</strong><p class="note">Aplica preset de posicionamento sobreposto e permite ajuste fino pelo vendedor.</p></div>
+          <div class="side-item"><strong>3. Seguir pés (IA)</strong><p class="note">Inicia o MediaPipe e rastreia o movimento dinâmico da pisada em tempo real.</p></div>
+          <div class="side-item"><strong>4. 5 fotos</strong><p class="note">Permite a criação instantânea de um pacote visual usando o próprio smartphone.</p></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="view" id="view-free">
+    <div class="camera-layout">
+      <div class="camera-card">
+        <video id="freeVideo" playsinline muted autoplay></video>
+        <div class="free-overlay" id="freeOverlay"><img id="freeShoe"></div>
+        <div class="cam-head"><span class="pill">AR Livre Automático</span><span class="pill" id="freeStatus">Iniciando...</span></div>
+        <div class="cam-toolbar"><span class="pill">Arraste a imagem</span><span class="pill">Ajuste no painel</span></div>
+      </div>
+      <div class="control-stack">
+        <div class="control-box">
+          <h3>Controle de Perspectiva</h3>
+          <p class="note">Ideal para demonstrar o modelo em bancadas ou no chão da loja.</p>
+          <div class="btns" style="margin-top:12px;">
+            <button class="btn primary" id="btnRestartFree">Reiniciar Câmera</button>
+            <button class="btn dark" id="btnResetFree">Centralizar</button>
+          </div>
+        </div>
+        <div class="control-box">
+          <label>Tamanho</label><input id="freeScale" type="range" min="20" max="100" value="54">
+          <label>Rotação</label><input id="freeRot" type="range" min="-90" max="90" value="-10">
+          <label>Altura Base</label><input id="freeY" type="range" min="10" max="95" value="68">
+          <div class="status-line" id="freeMsg">Ao acessar, a câmera é requisitada. Aceite a permissão no navegador.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-try">
+    <div class="camera-layout">
+      <div class="camera-card">
+        <video id="tryVideo" playsinline muted autoplay></video>
+        <div class="free-overlay" id="tryOverlay"><img id="tryShoe"></div>
+        <div class="cam-head"><span class="pill">Experimentar no pé</span><span class="pill" id="tryStatus">Iniciando...</span></div>
+        <div class="cam-toolbar"><span class="pill">Preset lateral</span><span class="pill">Ajuste fino manual</span></div>
+      </div>
+      <div class="control-stack">
+        <div class="control-box">
+          <h3>Sobreposição Assistida</h3>
+          <p class="note">O sistema posiciona próximo ao pé do cliente. Use os ajustes se necessário.</p>
+          <div class="btns" style="margin-top:12px;">
+            <button class="btn primary" id="btnRestartTry">Reiniciar Câmera</button>
+            <button class="btn gold" id="btnPresetTry">Aplicar Preset</button>
+          </div>
+        </div>
+        <div class="control-box">
+          <label>Tamanho</label><input id="tryScale" type="range" min="20" max="100" value="62">
+          <label>Rotação</label><input id="tryRot" type="range" min="-90" max="90" value="-14">
+          <label>Altura Base</label><input id="tryY" type="range" min="10" max="95" value="78">
+          <div class="status-line">Modo seguro: caso a IA falhe por iluminação, este modo sempre funciona.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-feet">
+    <div class="camera-layout">
+      <div class="camera-card">
+        <video id="feetVideo" playsinline muted autoplay class="hidden"></video>
+        <canvas id="feetCanvas"></canvas>
+        <div class="cam-head"><span class="pill">MediaPipe Rastreamento</span><span class="pill" id="feetStatus">Carregando IA...</span></div>
+        <div class="cam-toolbar"><span class="pill" id="feetDetection">Buscando pé...</span><span class="pill">Beta IA</span></div>
+      </div>
+      <div class="control-stack">
+        <div class="control-box">
+          <h3>Inteligência Artificial (Beta)</h3>
+          <p class="note">Detecta articulações via visão computacional e anexa o modelo visual dinamicamente.</p>
+          <div class="btns" style="margin-top:12px;">
+            <button class="btn primary" id="btnRestartFeet">Reiniciar IA</button>
+          </div>
+        </div>
+        <div class="control-box">
+          <label>Pé Rastreado</label>
+          <select id="footMode">
+            <option value="auto">Automático (Detectar o mais visível)</option>
+            <option value="left">Pé Esquerdo</option>
+            <option value="right">Pé Direito</option>
+          </select>
+          <label>Multiplicador de Escala</label><input id="footScale" type="range" min="0.8" max="4.0" step="0.05" value="1.8">
+          <label>Deslocamento Vertical (Y)</label><input id="footY" type="range" min="-150" max="150" value="15">
+          <div class="status-line" id="feetMsg">Mantenha a câmera afastada o suficiente para mostrar o tornozelo e a ponta do pé simultaneamente.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-builder">
+    <div class="grid">
+      <div class="card">
+        <div class="eyebrow">Gerador Visual Nativo</div>
+        <h2>Criação de Banco de Imagens</h2>
+        <p class="note">Faça o upload dos 5 ângulos essenciais. O sistema processará e atualizará todas as views (Giro 3D, AR, IA) instantaneamente, sem necessitar de backend.</p>
+        <div class="builder-grid" id="uploadGrid"></div>
+        <div class="btns" style="margin-top:18px;">
+          <button class="btn green" id="buildPhotos">Aplicar Novas Fotos</button>
+          <button class="btn dark" id="restoreDemo">Restaurar Demo</button>
+        </div>
+        <div class="status-line" id="buildMsg" style="margin-top:16px;">Pronto para receber arquivos locais.</div>
+      </div>
+      <aside class="card">
+        <div class="eyebrow">Diretrizes de Captação</div><h3>Garantia de Qualidade</h3>
+        <div class="guide-grid">
+          <div class="side-item"><strong>1. Frente</strong><p class="note">Ângulo 0°, mostrando a biqueira.</p></div>
+          <div class="side-item"><strong>2. Lateral Externa</strong><p class="note">A imagem principal utilizada pelos módulos de Realidade Aumentada e Rastreamento.</p></div>
+          <div class="side-item"><strong>3. Traseira</strong><p class="note">Foco no contraforte e estabilidade.</p></div>
+          <div class="side-item"><strong>4. Solado</strong><p class="note">Elevação para apresentar o grip.</p></div>
+          <div class="side-item"><strong>5. Lateral Interna</strong><p class="note">Fechamento do ciclo 360.</p></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<script>
+/**
+ * TÊNIS ONE PRO - ENGINE PRINCIPAL
+ * Arquitetura unificada de Estado, UI, AR e Inteligência Artificial (MediaPipe).
+ * 100% Funcional no navegador.
+ */
+
+// 1. GERADOR DINÂMICO DE TEXTURAS (Garante execução autossuficiente)
+function generateShoeTexture(label, baseColor, accentColor) {
+  const c = document.createElement('canvas');
+  c.width = 600; c.height = 600;
+  const ctx = c.getContext('2d');
+  
+  // Fundo
+  ctx.fillStyle = '#0a1930';
+  ctx.fillRect(0,0,600,600);
+  
+  // Glow central
+  const grd = ctx.createRadialGradient(300, 300, 50, 300, 300, 280);
+  grd.addColorStop(0, baseColor);
+  grd.addColorStop(1, 'transparent');
+  ctx.fillStyle = grd;
+  ctx.globalAlpha = 0.5;
+  ctx.fillRect(0,0,600,600);
+  ctx.globalAlpha = 1.0;
+
+  // Silhueta simulada do tênis
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(120, 380);
+  ctx.quadraticCurveTo(180, 220, 380, 250); // Peito do pé
+  ctx.quadraticCurveTo(480, 280, 480, 390); // Calcanhar
+  ctx.quadraticCurveTo(300, 440, 120, 380); // Sola
+  ctx.fill();
+
+  // Detalhe de acento
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = 12;
+  ctx.beginPath();
+  ctx.moveTo(220, 320);
+  ctx.lineTo(380, 340);
+  ctx.stroke();
+  
+  // Texto Identificador
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 42px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, 300, 520);
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillStyle = accentColor;
+  ctx.fillText("PRO DEMO", 300, 555);
+
+  return c.toDataURL('image/jpeg', 0.85);
+}
+
+// 2. CONFIGURAÇÃO DE ESTADO (State Management)
+const state = {
+  view: 'compare',
+  angleIndex: 0,
+  partIndex: 'cabedal',
+  anglesConfig: [
+    { key: "front", label: "Frente" },
+    { key: "side", label: "Lat. Ext" },
+    { key: "back", label: "Traseira" },
+    { key: "sole", label: "Solado" },
+    { key: "inside", label: "Lat. Int" }
+  ],
+  partsConfig: {
+    cabedal: { title: "Cabedal Oxitec 2.0", text: "Estrutura leve e respirável para conforto extremo em treinos frequentes." },
+    entressola: { title: "Entressola Eleva Pro", text: "Espuma de alta resposta e amortecimento contínuo." },
+    solado: { title: "Solado Gripper", text: "Borracha com desenho agressivo para tração urbana." },
+    contraforte: { title: "Contraforte Firme", text: "Segurança e estabilidade no encaixe do calcanhar." }
+  },
+  photos: [], 
+  customUploads: [],
+  streams: {
+    free: null,
+    try: null,
+    feet: null
+  },
+  poseActive: false,
+  cameraHandler: null // Para o MediaPipe
+};
+
+// Gerar pacote inicial de fotos dinâmico
+state.photos = state.anglesConfig.map(a => generateShoeTexture(a.label, '#43df8b', '#58e7ff'));
+
+// 3. SELETORES DE DOM (UI Cache)
+const UI = {
+  navBtns: document.querySelectorAll('#mainNav button'),
+  views: document.querySelectorAll('.view'),
+  mainShoe: document.getElementById('mainShoe'),
+  angleRow: document.getElementById('angleRow'),
+  partsRow: document.getElementById('partsRow'),
+  partTitle: document.getElementById('partTitle'),
+  partText: document.getElementById('partText'),
+  uploadGrid: document.getElementById('uploadGrid'),
+  
+  freeOverlay: document.getElementById('freeOverlay'),
+  freeShoe: document.getElementById('freeShoe'),
+  freeVideo: document.getElementById('freeVideo'),
+  
+  tryOverlay: document.getElementById('tryOverlay'),
+  tryShoe: document.getElementById('tryShoe'),
+  tryVideo: document.getElementById('tryVideo'),
+  
+  feetVideo: document.getElementById('feetVideo'),
+  feetCanvas: document.getElementById('feetCanvas'),
+  feetDetection: document.getElementById('feetDetection')
+};
+
+// 4. LÓGICA DE VISUALIZAÇÃO E ROTEAMENTO (View Controller)
+function switchView(targetView) {
+  // Limpar câmeras ativas ao sair
+  stopAllCameras();
+
+  UI.navBtns.forEach(b => b.classList.toggle('active', b.dataset.view === targetView));
+  UI.views.forEach(v => {
+    v.classList.remove('active');
+    if (v.id === `view-${targetView}`) v.classList.add('active');
+  });
+
+  state.view = targetView;
+
+  // Gerenciamento de ciclo de vida atrelado a visualização
+  if (targetView === 'free') {
+    UI.freeShoe.src = state.photos[1]; // Usa Lateral Externa
+    startStandardCamera(UI.freeVideo, 'free', 'freeStatus', 'freeMsg');
+  } else if (targetView === 'try') {
+    UI.tryShoe.src = state.photos[1];
+    startStandardCamera(UI.tryVideo, 'try', 'tryStatus');
+  } else if (targetView === 'feet') {
+    startMediaPipeTracking();
+  }
+}
+
+// 5. MOTOR DO COMPARADOR 3D (Turntable)
+function renderCompare() {
+  UI.mainShoe.src = state.photos[state.angleIndex];
+  
+  // Renderizar botões de ângulo
+  UI.angleRow.innerHTML = '';
+  state.anglesConfig.forEach((a, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = a.label;
+    if (i === state.angleIndex) btn.classList.add('active');
+    btn.onclick = () => { state.angleIndex = i; renderCompare(); };
+    UI.angleRow.appendChild(btn);
+  });
+
+  // Renderizar partes
+  UI.partsRow.innerHTML = '';
+  Object.keys(state.partsConfig).forEach(k => {
+    const btn = document.createElement('button');
+    btn.textContent = state.partsConfig[k].title.split(' ')[0];
+    if (k === state.partIndex) btn.classList.add('active');
+    btn.onclick = () => { state.partIndex = k; renderCompare(); };
+    UI.partsRow.appendChild(btn);
+  });
+
+  UI.partTitle.textContent = state.partsConfig[state.partIndex].title;
+  UI.partText.textContent = state.partsConfig[state.partIndex].text;
+}
+
+// Lógica de Giro Direto
+document.getElementById('prevAngle').onclick = () => {
+  state.angleIndex = (state.angleIndex - 1 + state.photos.length) % state.photos.length;
+  renderCompare();
+};
+document.getElementById('nextAngle').onclick = () => {
+  state.angleIndex = (state.angleIndex + 1) % state.photos.length;
+  renderCompare();
+};
+
+
+// 6. MOTOR DE AR LIVRE E ENCAIXE (Módulo de Overlay Arrastável)
+function setupOverlayControl(wrapper, ids) {
+  const scale = document.getElementById(ids.scale);
+  const rot = document.getElementById(ids.rot);
+  const y = document.getElementById(ids.y);
+  
+  wrapper.dataset.left = '50';
+  
+  function applyTransforms() {
+    wrapper.style.width = scale.value + '%';
+    wrapper.style.top = y.value + '%';
+    wrapper.style.left = (wrapper.dataset.left || '50') + '%';
+    wrapper.style.transform = `translate(-50%, -50%) rotate(${rot.value}deg)`;
+  }
+  
+  [scale, rot, y].forEach(el => el.addEventListener('input', applyTransforms));
+  applyTransforms();
+
+  // Drag logic for mobile e desktop
+  let isDragging = false, startX = 0, startLeft = 50;
+  wrapper.addEventListener('pointerdown', e => {
+    isDragging = true;
+    startX = e.clientX;
+    startLeft = parseFloat(wrapper.dataset.left || '50');
+    wrapper.setPointerCapture(e.pointerId);
+  });
+  
+  wrapper.addEventListener('pointermove', e => {
+    if (!isDragging) return;
+    const parentWidth = wrapper.parentElement.clientWidth;
+    let newLeft = startLeft + ((e.clientX - startX) / parentWidth) * 100;
+    newLeft = Math.max(5, Math.min(95, newLeft));
+    wrapper.dataset.left = newLeft.toFixed(2);
+    applyTransforms();
+  });
+  
+  wrapper.addEventListener('pointerup', () => isDragging = false);
+  wrapper.addEventListener('pointercancel', () => isDragging = false);
+
+  return {
+    apply: applyTransforms,
+    reset: (l, t, s, r) => {
+      wrapper.dataset.left = l;
+      y.value = t; scale.value = s; rot.value = r;
+      applyTransforms();
+    }
+  };
+}
+
+const freeCtrl = setupOverlayControl(UI.freeOverlay, { scale: 'freeScale', rot: 'freeRot', y: 'freeY' });
+const tryCtrl = setupOverlayControl(UI.tryOverlay, { scale: 'tryScale', rot: 'tryRot', y: 'tryY' });
+
+document.getElementById('btnResetFree').onclick = () => freeCtrl.reset('50', '68', '54', '-10');
+document.getElementById('btnPresetTry').onclick = () => tryCtrl.reset('50', '78', '62', '-14');
+
+
+// 7. GESTÃO DE HARDWARE (Câmera Básica)
+async function startStandardCamera(videoEl, streamKey, statusId, msgId = null) {
+  const statusEl = document.getElementById(statusId);
+  if(statusEl) statusEl.textContent = "Requisitando Câmera...";
+  
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+    videoEl.srcObject = stream;
+    state.streams[streamKey] = stream;
+    if(statusEl) statusEl.textContent = "Câmera Ativa";
+    if(msgId) document.getElementById(msgId).className = "status-line success";
+    if(msgId) document.getElementById(msgId).textContent = "Acesso à câmera garantido com sucesso.";
+  } catch (err) {
+    console.error(err);
+    if(statusEl) statusEl.textContent = "Câmera Bloqueada";
+    if(msgId) document.getElementById(msgId).className = "status-line error";
+    if(msgId) document.getElementById(msgId).textContent = "Permissão negada. Verifique as configurações do navegador ou se está em ambiente HTTPS.";
+  }
+}
+
+function stopAllCameras() {
+  Object.keys(state.streams).forEach(key => {
+    if (state.streams[key]) {
+      state.streams[key].getTracks().forEach(track => track.stop());
+      state.streams[key] = null;
+    }
+  });
+  
+  // Parar processamento do MediaPipe se estiver rodando
+  if (state.cameraHandler) {
+    state.cameraHandler.stop();
+    state.cameraHandler = null;
+    state.poseActive = false;
+  }
+}
+
+document.getElementById('btnRestartFree').onclick = () => startStandardCamera(UI.freeVideo, 'free', 'freeStatus', 'freeMsg');
+document.getElementById('btnRestartTry').onclick = () => startStandardCamera(UI.tryVideo, 'try', 'tryStatus');
+
+
+// 8. MOTOR DE INTELIGÊNCIA ARTIFICIAL (MediaPipe Pose)
+const pose = new Pose({
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+});
+pose.setOptions({
+  modelComplexity: 1, 
+  smoothLandmarks: true,
+  enableSegmentation: false,
+  minDetectionConfidence: 0.65,
+  minTrackingConfidence: 0.65
+});
+pose.onResults(onPoseResults);
+
+// Imagem do tênis a ser desenhada no Canvas (Lateral Externa)
+const trackingShoeImage = new Image();
+
+async function startMediaPipeTracking() {
+  document.getElementById('feetStatus').textContent = "Iniciando IA...";
+  document.getElementById('feetMsg').className = "status-line";
+  trackingShoeImage.src = state.photos[1]; 
+  
+  if (state.cameraHandler) {
+    state.cameraHandler.stop();
+  }
+
+  // CameraUtils encapsula a lógica de frames e feeding pro MediaPipe
+  state.cameraHandler = new Camera(UI.feetVideo, {
+    onFrame: async () => {
+      // Dimensionar o canvas exatamente igual ao vídeo
+      if(UI.feetCanvas.width !== UI.feetVideo.videoWidth) {
+        UI.feetCanvas.width = UI.feetVideo.videoWidth;
+        UI.feetCanvas.height = UI.feetVideo.videoHeight;
+      }
+      if(!state.poseActive) {
+        state.poseActive = true;
+        document.getElementById('feetStatus').textContent = "IA Rodando";
+      }
+      await pose.send({ image: UI.feetVideo });
+    },
+    width: 640,
+    height: 480,
+    facingMode: 'environment'
+  });
+  
+  state.cameraHandler.start().catch(err => {
+    document.getElementById('feetStatus').textContent = "Erro na Câmera";
+    document.getElementById('feetMsg').className = "status-line error";
+    document.getElementById('feetMsg').textContent = "Não foi possível iniciar a câmera para o rastreamento.";
+  });
+}
+
+document.getElementById('startFeet').onclick = () => startMediaPipeTracking();
+document.getElementById('stopFeet').onclick = () => { stopAllCameras(); document.getElementById('feetStatus').textContent = "Parado"; };
+
+function onPoseResults(results) {
+  const canvasCtx = UI.feetCanvas.getContext('2d');
+  const w = UI.feetCanvas.width;
+  const h = UI.feetCanvas.height;
+
+  canvasCtx.save();
+  canvasCtx.clearRect(0, 0, w, h);
+  
+  // Desenhar o feed da câmera como background
+  canvasCtx.drawImage(results.image, 0, 0, w, h);
+
+  if (results.poseLandmarks) {
+    const lm = results.poseLandmarks;
+    // Índices MediaPipe:
+    // Esquerdo: 27 (Tornozelo), 29 (Calcanhar), 31 (Ponta)
+    // Direito: 28 (Tornozelo), 30 (Calcanhar), 32 (Ponta)
+    
+    let target = null;
+    const mode = document.getElementById('footMode').value;
+    
+    const leftScore = (lm[27].visibility + lm[29].visibility + lm[31].visibility);
+    const rightScore = (lm[28].visibility + lm[30].visibility + lm[32].visibility);
+
+    if (mode === 'left' || (mode === 'auto' && leftScore >= rightScore)) {
+      target = { a: lm[27], h: lm[29], t: lm[31], side: 'left' };
+    } else {
+      target = { a: lm[28], h: lm[30], t: lm[32], side: 'right' };
+    }
+
+    // Threshold de segurança: se as articulações chave não estiverem visíveis, ignorar
+    if (target && target.a.visibility > 0.5 && target.t.visibility > 0.5) {
+      UI.feetDetection.textContent = `Pé ${target.side === 'left' ? 'Esquerdo' : 'Direito'} Detectado`;
+      UI.feetDetection.style.color = 'var(--green)';
+      
+      const pxA = { x: target.a.x * w, y: target.a.y * h };
+      const pxT = { x: target.t.x * w, y: target.t.y * h };
+      const pxH = { x: target.h.x * w, y: target.h.y * h };
+
+      // Calcular o vetor do calcanhar à ponta para determinar inclinação e tamanho base
+      const dx = pxT.x - pxH.x;
+      const dy = pxT.y - pxH.y;
+      const angle = Math.atan2(dy, dx);
+      const footLength = Math.hypot(dx, dy);
+
+      const scaleMultiplier = parseFloat(document.getElementById('footScale').value);
+      const yOffset = parseFloat(document.getElementById('footY').value);
+      
+      const shoeSize = footLength * scaleMultiplier;
+
+      // Iniciar a plotagem da imagem
+      canvasCtx.translate(pxA.x, pxA.y + yOffset);
+      canvasCtx.rotate(angle);
+      
+      // Ajuste de offset padrão para centralizar o pivô do tênis sobre o tornozelo
+      canvasCtx.drawImage(
+        trackingShoeImage, 
+        -shoeSize * 0.35, 
+        -shoeSize * 0.6, 
+        shoeSize, 
+        shoeSize * (trackingShoeImage.height / trackingShoeImage.width)
+      );
+    } else {
+      UI.feetDetection.textContent = "Buscando pé...";
+      UI.feetDetection.style.color = 'inherit';
+    }
+  } else {
+      UI.feetDetection.textContent = "Buscando corpo...";
+      UI.feetDetection.style.color = 'inherit';
+  }
+  canvasCtx.restore();
+}
+
+
+// 9. GERADOR LOCAL DE BANCO DE DADOS (5 Fotos Builder)
+function initBuilder() {
+  UI.uploadGrid.innerHTML = '';
+  state.anglesConfig.forEach((a, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    slot.innerHTML = `
+      <label>${a.label}</label>
+      <input type="file" accept="image/*" id="file_${i}">
+      <img id="preview_${i}" src="${state.photos[i]}">
+    `;
+    UI.uploadGrid.appendChild(slot);
+
+    // FileReader para carregamento assíncrono nativo
+    document.getElementById(`file_${i}`).addEventListener('change', e => {
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataUrl = ev.target.result;
+        document.getElementById(`preview_${i}`).src = dataUrl;
+        state.customUploads[i] = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+}
+
+document.getElementById('buildPhotos').onclick = () => {
+  // Verifica se pelo menos a imagem base (Frente ou Lateral) foi carregada
+  let hasUpdates = false;
+  state.customUploads.forEach((dataUrl, i) => {
+    if(dataUrl) {
+      state.photos[i] = dataUrl;
+      hasUpdates = true;
+    }
+  });
+
+  const msg = document.getElementById('buildMsg');
+  if(hasUpdates) {
+    state.angleIndex = 0;
+    renderCompare();
+    msg.className = "status-line success";
+    msg.textContent = "Modelos atualizados! O Giro 3D e os modos AR agora utilizam as suas imagens reais.";
+  } else {
+    msg.className = "status-line error";
+    msg.textContent = "Nenhuma foto foi carregada para atualização.";
+  }
+};
+
+document.getElementById('restoreDemo').onclick = () => {
+  state.customUploads = [];
+  state.photos = state.anglesConfig.map(a => generateShoeTexture(a.label, '#43df8b', '#58e7ff'));
+  initBuilder();
+  state.angleIndex = 0;
+  renderCompare();
+  const msg = document.getElementById('buildMsg');
+  msg.className = "status-line";
+  msg.textContent = "Pacote de demonstração visual restaurado.";
+};
+
+
+// 10. INICIALIZAÇÃO DO SISTEMA
+window.addEventListener('DOMContentLoaded', () => {
+  UI.navBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchView(btn.dataset.view));
+  });
+
+  renderCompare();
+  initBuilder();
+  console.log("Engine Tênis One PRO iniciada sob protocolo de performance máxima.");
+});
+
+</script>
+</body>
+</html>

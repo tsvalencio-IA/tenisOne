@@ -1,43 +1,170 @@
-// Configuration file for the Copa do Mundo das Vendas system.
-//
-// 1. Fill in your Firebase project information below.  You can find these
-//    values in the Firebase console under Project Settings → General → Your apps.
-// 2. Fill in your Cloudinary account information.  You'll need a
-//    `cloudName` and an unsigned `uploadPreset` to allow the browser to upload
-//    images directly.  Create an unsigned preset in the Cloudinary dashboard.
-// 3. Define which email address belongs to the gerente (manager) and which
-//    belong to the vendedores (sellers).  These addresses must match the
-//    accounts created in Firebase Authentication.  The system uses these
-//    addresses to determine permissions at runtime.
+window.APP_CONFIG = {
+  // ---------------------------------------------------------------------------
+  // LOGIN ANTIGO / FALLBACK LOCAL
+  // ---------------------------------------------------------------------------
+  // O sistema profissional usa Firebase Authentication por email e senha.
+  // Estas senhas antigas só serão usadas se o Firebase não estiver configurado
+  // ou se "auth.enabled" estiver como false.
+  managerPassword: "2026",
+  sellerPassword: "vendas",
 
-export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  databaseURL: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  // Mantido do projeto atual: teste gratuito de 3 dias para gravação.
+  // Para liberar gravação permanente no futuro, altere essa lógica somente se
+  // for uma decisão comercial sua.
+  trialDays: 3,
+
+  contactPerson: "Thiago Ventura Valêncio",
+  contactChannel: "WhatsApp",
+
+  // ---------------------------------------------------------------------------
+  // FIREBASE AUTH — IDENTIFICAÇÕES DE ACESSO
+  // ---------------------------------------------------------------------------
+  // AQUI você define qual email é do gerente e qual email pertence a cada vendedor.
+  //
+  // PASSO 1:
+  // Crie estes usuários no Firebase Authentication com o provedor Email/Senha.
+  //
+  // PASSO 2:
+  // Coloque exatamente os mesmos emails abaixo.
+  //
+  // PASSO 3:
+  // Em cada vendedor, mantenha o vendorId igual ao id do vendedor no bloco
+  // campaign.vendors.
+  //
+  // IMPORTANTE:
+  // - O gerente pode gravar, lançar vendas, editar vendedores e fotos.
+  // - Os vendedores apenas visualizam o sistema com seu próprio email.
+  auth: {
+    enabled: true,
+
+    managerName: "Saulo",
+    managerEmail: "gerente@tenisone.com.br",
+
+    sellers: [
+      { vendorId: "isack", email: "isack@tenisone.com.br" },
+      { vendorId: "viviane", email: "viviane@tenisone.com.br" },
+      { vendorId: "matheus", email: "matheus@tenisone.com.br" },
+      { vendorId: "brian", email: "brian@tenisone.com.br" },
+
+      // 5º vendedor:
+      // Troque o nome, o email e o time do vendedor "vendedor5" no bloco
+      // campaign.vendors logo abaixo quando o Saulo confirmar os dados.
+      { vendorId: "vendedor5", email: "vendedor5@tenisone.com.br" }
+    ]
+  },
+
+  campaign: {
+    name: "Copa do Mundo de Vendas Diária",
+    store: "Tênis One — Shopping Cidade Norte",
+    startDate: "2026-06-01",
+    endDate: "2026-06-30",
+    productsRule: "Todos os produtos da loja contam.",
+    bonusRuleNote: "Rodadas, gols e bônus são automáticos. Nesta versão, maior meta batida é calculada como maior faturamento acumulado da dezena; se houver alteração de venda, o bônus é recalculado.",
+    prizes: {
+      teamChampion: "R$ 100,00 via PIX para cada integrante + 1 folga premiada para cada um.",
+      topSeller: "R$ 100,00 via PIX para o artilheiro individual."
+    },
+    teams: {
+      verde: { id: "verde", name: "Time Verde", color: "#0b7f49" },
+      azul: { id: "azul", name: "Time Azul", color: "#143f91" }
+    },
+    vendors: [
+      {
+        id: "isack",
+        name: "Isack",
+        shortName: "Isack",
+        team: "verde",
+        shirtNumber: 10,
+        rarity: "legendary",
+        title: "Craque da Rodada",
+        subtitle: "Rumo à taça de vendas",
+        albumOrder: 1,
+        specialType: "normal",
+        showInAlbum: true,
+        active: true
+      },
+      {
+        id: "viviane",
+        name: "Viviane",
+        shortName: "Viviane",
+        team: "verde",
+        shirtNumber: 8,
+        rarity: "gold",
+        title: "Camisa 10",
+        subtitle: "Força do Time Verde",
+        albumOrder: 2,
+        specialType: "normal",
+        showInAlbum: true,
+        active: true
+      },
+      {
+        id: "matheus",
+        name: "Matheus",
+        shortName: "Matheus",
+        team: "azul",
+        shirtNumber: 7,
+        rarity: "silver",
+        title: "Artilheiro",
+        subtitle: "Pontaria nas vendas",
+        albumOrder: 3,
+        specialType: "normal",
+        showInAlbum: true,
+        active: true
+      },
+      {
+        id: "brian",
+        name: "Brian",
+        shortName: "Brian",
+        team: "azul",
+        shirtNumber: 11,
+        rarity: "classic",
+        title: "Capitão",
+        subtitle: "Liderança em campo",
+        albumOrder: 4,
+        specialType: "normal",
+        showInAlbum: true,
+        active: true
+      },
+      {
+        id: "vendedor5",
+        name: "Vendedor 5",
+        shortName: "Vend. 5",
+        team: "verde",
+        shirtNumber: 5,
+        rarity: "classic",
+        title: "Reforço da Rodada",
+        subtitle: "5º vendedor da campanha",
+        albumOrder: 5,
+        specialType: "normal",
+        showInAlbum: true,
+        active: true
+      }
+    ]
+  },
+
+  // ---------------------------------------------------------------------------
+  // FIREBASE REALTIME DATABASE
+  // ---------------------------------------------------------------------------
+  // AQUI você cola as identificações do seu projeto Firebase.
+  // Firebase Console → Project settings → General → Your apps.
+  firebase: {
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
+  },
+
+  // ---------------------------------------------------------------------------
+  // CLOUDINARY
+  // ---------------------------------------------------------------------------
+  // AQUI você cola as identificações do Cloudinary.
+  // cloudName: nome da nuvem.
+  // uploadPreset: preset unsigned para upload direto pelo navegador.
+  cloudinary: {
+    cloudName: "",
+    uploadPreset: ""
+  }
 };
-
-export const cloudinaryConfig = {
-  cloudName: "",
-  uploadPreset: ""
-};
-
-// Assign the email address of the gerente (manager) account.  Only the
-// manager will be allowed to write to the database, create or edit vendors,
-// upload photos and close rounds.  The email must match a real user
-// registered in Firebase Authentication.
-export const managerEmail = "gerente@example.com";
-
-// List the email addresses of all vendedores (sellers).  These accounts
-// should also exist in Firebase Authentication.  Sellers may log in to
-// view the scoreboard, ranking and album but cannot write data.
-export const sellerEmails = [
-  "vendedor1@example.com",
-  "vendedor2@example.com",
-  "vendedor3@example.com",
-  "vendedor4@example.com",
-  "vendedor5@example.com"
-];

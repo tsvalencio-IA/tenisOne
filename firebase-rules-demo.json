@@ -1,0 +1,10 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null && auth.token.email == 'gerente@tenisone.com.br'",
+    "copaTenisOne": {
+      ".read": "auth != null",
+      ".write": "auth != null && auth.token.email == 'gerente@tenisone.com.br'"
+    }
+  }
+}
