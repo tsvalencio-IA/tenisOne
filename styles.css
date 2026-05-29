@@ -1955,3 +1955,528 @@ nav {
     grid-template-columns: 48px 1fr auto;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* AJUSTES SOLICITADOS: FIGURINHAS + FOTO/CAMERA + ASSINATURA                  */
+/* -------------------------------------------------------------------------- */
+.sticker-premium-frame {
+  background:
+    radial-gradient(circle at top right, rgba(255,255,255,.34), transparent 22%),
+    radial-gradient(circle at 26% 16%, rgba(255,228,158,.30), transparent 24%),
+    linear-gradient(180deg, #f7f2e5, #f5efe1 46%, #f7f4eb 100%);
+}
+
+.sticker-stage {
+  background:
+    radial-gradient(circle at 74% 10%, rgba(255,255,255,.28), transparent 18%),
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.22), transparent 24%),
+    linear-gradient(180deg, #2bb3ed, #1697d8 50%, #0f87cb 100%);
+}
+
+.sticker-stage::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26%;
+  background: linear-gradient(180deg, transparent, rgba(7,56,89,.16));
+  pointer-events: none;
+}
+
+.sticker-premium-photo {
+  inset: 28px 22px 0 102px;
+  align-items: stretch;
+}
+
+.sticker-premium.compact .sticker-premium-photo {
+  inset: 22px 14px 0 67px;
+}
+
+.sticker-photo-shell {
+  width: 100%;
+  height: 100%;
+  border-radius: 24px 24px 16px 16px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255,255,255,.22), transparent 30%),
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.55),
+    0 16px 26px rgba(7, 40, 59, .18);
+}
+
+.sticker-premium.compact .sticker-photo-shell {
+  border-radius: 18px 18px 12px 12px;
+}
+
+.sticker-premium-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  transform: scale(1.02);
+  filter: saturate(1.05) contrast(1.03);
+}
+
+.sticker-premium-placeholder {
+  background: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.06));
+}
+
+.sticker-name-banner {
+  left: 62px;
+  right: 34px;
+  bottom: 84px;
+}
+
+.sticker-role-banner {
+  left: 84px;
+  right: 60px;
+}
+
+.sticker-footer-brand {
+  left: 84px;
+  right: 60px;
+  color: #f9efc6;
+}
+
+.sticker-card-actions-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.sticker-card-actions-3 .full-download {
+  grid-column: 1 / -1;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.editor-actions .btn {
+  flex: 1 1 170px;
+}
+
+.login-powered,
+.powered-footer {
+  text-align: center;
+  color: #6a7b8f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.login-powered {
+  margin-top: 18px;
+}
+
+.powered-footer {
+  margin-top: 18px;
+  padding: 18px 8px 6px;
+}
+
+@media (max-width: 760px) {
+  .sticker-premium-photo {
+    inset: 24px 16px 0 70px;
+  }
+
+  .sticker-photo-shell {
+    border-radius: 16px 16px 12px 12px;
+  }
+
+  .sticker-premium-photo img {
+    object-position: center 16%;
+  }
+
+  .sticker-card-actions-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-actions .btn {
+    flex-basis: 100%;
+  }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* FIGURINHAS ESTILO ÁLBUM DE FUTEBOL — PADRÃO ENVIADO PELO SAULO              */
+/* -------------------------------------------------------------------------- */
+.remember-access-wrap {
+  grid-column: 1 / -1;
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  background: rgba(8, 100, 58, .07);
+  border: 1px solid rgba(8, 100, 58, .18);
+  color: #234;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.remember-access-wrap input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--green);
+}
+
+.soccer-sticker {
+  --team-main: #0b7f49;
+  --team-dark: #064b2d;
+  --team-bright: #16a461;
+  --team-alt: #0b61b5;
+}
+
+.soccer-sticker.azul {
+  --team-main: #143f91;
+  --team-dark: #09285e;
+  --team-bright: #1e73d7;
+  --team-alt: #10a65a;
+}
+
+.soccer-sticker-frame {
+  aspect-ratio: 2.62 / 3.68;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  border: 5px solid #f2d313 !important;
+  background:
+    linear-gradient(110deg, rgba(255,255,255,.86) 0 42%, transparent 42% 100%),
+    linear-gradient(140deg, var(--team-main) 0 24%, #f4d80f 24% 34%, var(--team-alt) 34% 50%, #ffffff 50% 60%, var(--team-main) 60% 100%) !important;
+  box-shadow: 0 20px 42px rgba(0,0,0,.18) !important;
+  overflow: hidden;
+}
+
+.soccer-sticker-frame::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 0 !important;
+  border: 2px solid rgba(255,255,255,.95) !important;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.18) !important;
+  z-index: 20 !important;
+  pointer-events: none !important;
+}
+
+.soccer-sticker-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 11.6%;
+  display: grid;
+  grid-template-columns: 14% 1fr 16%;
+  align-items: center;
+  z-index: 8;
+}
+
+.soccer-sticker-code {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #d6be64, #a8872b);
+  color: #111;
+  font-size: clamp(12px, 3vw, 18px);
+  font-weight: 950;
+  border-right: 2px solid rgba(0,0,0,.2);
+}
+
+.soccer-sticker-top strong {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  background: linear-gradient(180deg, #1f2430, #060b15);
+  color: #fff;
+  font-size: clamp(12px, 3vw, 19px);
+  font-weight: 950;
+  line-height: .95;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.soccer-sticker-flag {
+  height: 100%;
+  background: linear-gradient(180deg, #f7d91b, #f0c908);
+  display: grid;
+  place-items: center;
+  border-left: 2px solid rgba(0,0,0,.18);
+}
+
+.soccer-sticker-flag i {
+  width: 64%;
+  aspect-ratio: 1;
+  display: block;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #143f91 0 28%, transparent 29%),
+    linear-gradient(45deg, transparent 29%, #f5d514 30% 42%, transparent 43%),
+    linear-gradient(-45deg, transparent 29%, #f5d514 30% 42%, transparent 43%),
+    #07964d;
+  border: 2px solid rgba(255,255,255,.85);
+  box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+
+.soccer-sticker-body {
+  position: absolute;
+  inset: 11.6% 0 13.5% 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 84% 88%, rgba(255,255,255,.92) 0 10%, transparent 10.5%),
+    linear-gradient(118deg, rgba(255,255,255,.82) 0 42%, transparent 42.2%),
+    linear-gradient(142deg, var(--team-main) 0 23%, #f5d51d 23.2% 34%, var(--team-alt) 34.2% 52%, #ffffff 52.2% 62%, var(--team-main) 62.2% 100%);
+}
+
+.soccer-sticker-side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 19%;
+  z-index: 7;
+  display: grid;
+  grid-template-rows: 52px 1fr 34px;
+  align-items: center;
+  justify-items: center;
+  color: #f8e49d;
+  background: linear-gradient(180deg, rgba(8,11,23,.18), rgba(8,11,23,.26));
+  border-right: 2px solid rgba(255,255,255,.78);
+}
+
+.soccer-side-cup {
+  font-size: clamp(20px, 4vw, 31px);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.25));
+}
+
+.soccer-side-number {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: rgba(255,255,255,.95);
+  font-size: clamp(38px, 10vw, 66px);
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 3px 0 rgba(0,0,0,.25);
+}
+
+.soccer-side-team {
+  display: grid;
+  place-items: center;
+  width: 82%;
+  height: 24px;
+  border-radius: 4px;
+  background: rgba(0,0,0,.65);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.soccer-sticker-photo {
+  position: absolute;
+  left: 18%;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.soccer-sticker-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.soccer-sticker-photo .soccer-sticker-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.28);
+  font-size: 46px;
+}
+
+.soccer-sticker-art {
+  position: absolute;
+  left: 18%;
+  bottom: 0;
+  width: 34%;
+  height: 42%;
+  z-index: 6;
+  opacity: .92;
+  background:
+    linear-gradient(135deg, transparent 0 24%, rgba(255,255,255,.96) 24% 31%, transparent 31% 100%),
+    linear-gradient(45deg, transparent 0 42%, rgba(18,67,151,.75) 42% 55%, transparent 55% 100%);
+  clip-path: polygon(0 0, 100% 0, 72% 100%, 0 100%);
+  pointer-events: none;
+}
+
+.soccer-sticker-mini-badge {
+  position: absolute;
+  left: 24%;
+  bottom: 5%;
+  z-index: 8;
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: rgba(232,191,64,.9);
+  color: #1c1604;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  box-shadow: 0 2px 5px rgba(0,0,0,.25);
+}
+
+.soccer-sticker-ribbon {
+  position: absolute;
+  right: 6px;
+  top: 15.5%;
+  z-index: 11;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  padding: 8px 4px;
+  border-radius: 4px;
+  background: rgba(4,10,20,.78);
+  color: #f9e5a4;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.soccer-sticker-stats {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5.5%;
+  height: 8.2%;
+  z-index: 9;
+  display: grid;
+  grid-template-columns: 1.25fr .9fr .9fr .9fr;
+  background: linear-gradient(180deg, rgba(8, 8, 14, .96), rgba(0,0,0,.98));
+  border-top: 2px solid rgba(255,255,255,.18);
+}
+
+.soccer-sticker-stats div {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  border-right: 1px solid rgba(255,255,255,.18);
+  padding: 0 3px;
+}
+
+.soccer-sticker-stats div:last-child {
+  border-right: 0;
+}
+
+.soccer-sticker-stats span {
+  color: #cfd6df;
+  font-size: clamp(6px, 1.2vw, 8px);
+  font-weight: 850;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.soccer-sticker-stats strong {
+  max-width: 100%;
+  margin-top: 2px;
+  color: #fff;
+  font-size: clamp(8px, 1.8vw, 12px);
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.soccer-sticker-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5.5%;
+  z-index: 9;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  background: #08111f;
+  color: #f5d514;
+  font-size: clamp(7px, 1.5vw, 10px);
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.soccer-sticker-footer strong {
+  color: #fff;
+}
+
+.sticker-premium.compact .soccer-sticker-top strong {
+  font-size: 10px;
+  padding: 0 4px;
+}
+
+.sticker-premium.compact .soccer-sticker-code {
+  font-size: 10px;
+}
+
+.sticker-premium.compact .soccer-sticker-side {
+  grid-template-rows: 32px 1fr 22px;
+}
+
+.sticker-premium.compact .soccer-side-cup {
+  font-size: 17px;
+}
+
+.sticker-premium.compact .soccer-side-number {
+  font-size: 38px;
+}
+
+.sticker-premium.compact .soccer-side-team {
+  font-size: 7px;
+  height: 16px;
+}
+
+.sticker-premium.compact .soccer-sticker-mini-badge,
+.sticker-premium.compact .soccer-sticker-ribbon {
+  font-size: 7px;
+}
+
+.sticker-premium.compact .soccer-sticker-stats strong {
+  font-size: 7px;
+}
+
+.sticker-premium.compact .soccer-sticker-stats span {
+  font-size: 5px;
+}
+
+@media (max-width: 760px) {
+  .soccer-sticker-frame {
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .soccer-sticker-stats strong {
+    font-size: 10px;
+  }
+
+  .soccer-sticker-stats span {
+    font-size: 6px;
+  }
+
+  .remember-access-wrap {
+    font-size: 12px;
+  }
+}

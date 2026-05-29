@@ -5,6 +5,7 @@ const TRIAL_DAYS = Number(CONFIG.trialDays || 3);
 const CONTACT_TEXT = `${CONFIG.contactChannel || "WhatsApp"} do ${CONFIG.contactPerson || "Thiago Ventura Valêncio"}`;
 const TRIAL_KEY = "tenis_one_copa_trial_started_at_vFinal";
 const LOCAL_STATE_KEY = "tenis_one_copa_state_vFinal";
+const LOGIN_MEMORY_KEY = "tenis_one_copa_login_remember_v1";
 
 const RARITIES = {
   legendary: { key: "legendary", label: "Lendária", shortLabel: "Holo", note: "Destaque máximo da coleção" },
@@ -132,7 +133,11 @@ function createSeedData() {
       customSpecialLabel: vendor.customSpecialLabel || "",
       showInAlbum: vendor.showInAlbum !== false,
       active: vendor.active !== false,
-      imageUrl: vendor.imageUrl || ""
+      imageUrl: vendor.imageUrl || "",
+      position: vendor.position || vendor.role || "Vendedor",
+      height: vendor.height || "1,70m",
+      weight: vendor.weight || "70kg",
+      age: vendor.age || "18"
     };
   });
   return {
@@ -194,6 +199,10 @@ function normalizeData(data) {
     v.showInAlbum = v.showInAlbum !== false;
     v.active = v.active !== false;
     v.imageUrl = v.imageUrl || "";
+    v.position = v.position || v.role || "Vendedor";
+    v.height = v.height || "1,70m";
+    v.weight = v.weight || "70kg";
+    v.age = v.age || "18";
   });
   return merged;
 }
@@ -252,17 +261,49 @@ function getSessionFromEmail(email) {
   return null;
 }
 
+function shouldUseEmailLogin() {
+  return AUTH_ENABLED;
+}
+
+function loadRememberedLogin() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LOGIN_MEMORY_KEY) || "null");
+    if (!saved) return;
+    if ($("loginEmail") && saved.email) $("loginEmail").value = saved.email;
+    if ($("loginPassword") && saved.password) $("loginPassword").value = saved.password;
+    if ($("rememberAccess")) $("rememberAccess").checked = true;
+  } catch {
+    localStorage.removeItem(LOGIN_MEMORY_KEY);
+  }
+}
+
+function saveRememberedLogin() {
+  if (!$("rememberAccess")) return;
+  if ($("rememberAccess").checked) {
+    localStorage.setItem(LOGIN_MEMORY_KEY, JSON.stringify({
+      email: $("loginEmail")?.value.trim() || "",
+      password: $("loginPassword")?.value || ""
+    }));
+  } else {
+    localStorage.removeItem(LOGIN_MEMORY_KEY);
+  }
+}
+
 function configureLoginMode() {
-  const professional = useFirebaseAuth();
+  const emailLogin = shouldUseEmailLogin();
+  const professionalReady = useFirebaseAuth();
 
-  $("loginEmailWrap")?.classList.toggle("hidden", !professional);
-  $("authLoginHint")?.classList.toggle("hidden", !professional);
-  $("legacyLoginHint")?.classList.toggle("hidden", professional);
-  $("legacyRoleWrap")?.classList.toggle("hidden", professional);
-  $("sellerPickerWrap")?.classList.toggle("hidden", professional || $("loginRole")?.value !== "seller");
+  $("loginEmailWrap")?.classList.toggle("hidden", !emailLogin);
+  $("authLoginHint")?.classList.toggle("hidden", !emailLogin);
+  $("legacyLoginHint")?.classList.toggle("hidden", emailLogin);
+  $("legacyRoleWrap")?.classList.toggle("hidden", emailLogin);
+  $("sellerPickerWrap")?.classList.toggle("hidden", emailLogin || $("loginRole")?.value !== "seller");
+  $("rememberAccess")?.closest("label")?.classList.toggle("hidden", !emailLogin);
 
-  if (professional) {
-    $("loginPassword").placeholder = "Senha cadastrada no Firebase Auth";
+  if (emailLogin) {
+    $("loginPassword").placeholder = professionalReady
+      ? "Senha cadastrada no Firebase Auth"
+      : "Senha do Firebase Auth";
   } else {
     $("loginPassword").placeholder = "Digite a senha de acesso";
   }
@@ -612,49 +653,63 @@ function buildStickerCard(vendor, index, options = {}) {
   const team = vendor.team === "azul" ? "azul" : "verde";
   const teamLabel = teamName(team);
   const number = getVendorNumber(vendor, index);
+  const stickerNumber = getStickerNumber(index);
   const compact = !!options.compact;
   const showManagerActions = !!options.showManagerActions && session.role === "manager";
   const photo = vendor.imageUrl
     ? `<img src="${escapeHtml(vendor.imageUrl)}" alt="${escapeHtml(vendor.name)}" />`
-    : `<div class="sticker-premium-placeholder">⚽</div>`;
-  const displayName = (vendor.shortName || vendor.name || "Vendedor").slice(0, 14);
+    : `<div class="soccer-sticker-placeholder">📸</div>`;
+
+  const fullName = String(vendor.name || "Vendedor").trim().toUpperCase();
+  const position = String(vendor.position || vendor.role || vendor.title || "Vendedor").trim();
+  const height = String(vendor.height || "1,70m").trim();
+  const weight = String(vendor.weight || "70kg").trim();
+  const age = String(vendor.age || "18").trim();
   const special = getSpecialLabel(vendor);
 
   return `
-    <article class="sticker-premium ${team} rarity-${rarity.key} ${compact ? "compact" : ""}" data-sticker-vendor="${escapeHtml(vendor.id)}">
-      <div class="sticker-premium-frame">
-        <div class="sticker-premium-header">
-          <span>★</span>
-          <strong>COPA DAS VENDAS</strong>
-          <span>★</span>
+    <article class="sticker-premium soccer-sticker ${team} rarity-${rarity.key} ${compact ? "compact" : ""}" data-sticker-vendor="${escapeHtml(vendor.id)}">
+      <div class="sticker-premium-frame soccer-sticker-frame">
+        <div class="soccer-sticker-top">
+          <span class="soccer-sticker-code">${stickerNumber}</span>
+          <strong>${escapeHtml(fullName)}</strong>
+          <span class="soccer-sticker-flag"><i></i></span>
         </div>
-        <div class="sticker-rarity-badge ${rarity.key}">${escapeHtml(rarity.label)}</div>
-        <div class="sticker-shield-badge">
-          <div class="sticker-shield-icon">🏆</div>
-          <div class="sticker-shield-text"><small>Copa</small><strong>Vendas</strong><span>2026</span></div>
+
+        <div class="soccer-sticker-body">
+          <div class="soccer-sticker-side">
+            <span class="soccer-side-cup">🏆</span>
+            <span class="soccer-side-number">${number}</span>
+            <span class="soccer-side-team">${team === "verde" ? "VDE" : "AZL"}</span>
+          </div>
+          <div class="soccer-sticker-photo">
+            ${photo}
+          </div>
+          <div class="soccer-sticker-art"></div>
+          <div class="soccer-sticker-mini-badge">${escapeHtml(rarity.shortLabel)}</div>
         </div>
-        <div class="sticker-side-rail ${team}">
-          <div class="sticker-side-title">${escapeHtml(teamLabel)}</div>
-          <div class="sticker-side-stripes"></div>
-          <div class="sticker-side-shirt-number">${number}</div>
+
+        ${special ? `<div class="soccer-sticker-ribbon">${escapeHtml(special)}</div>` : ""}
+
+        <div class="soccer-sticker-stats">
+          <div><span>Função</span><strong>${escapeHtml(position)}</strong></div>
+          <div><span>Altura</span><strong>${escapeHtml(height)}</strong></div>
+          <div><span>Peso</span><strong>${escapeHtml(weight)}</strong></div>
+          <div><span>Idade</span><strong>${escapeHtml(age)}</strong></div>
         </div>
-        <div class="sticker-stage ${team}">
-          <div class="sticker-stage-number">${number}</div>
-          <div class="sticker-stage-accent"></div>
-          <div class="sticker-premium-photo"><div class="sticker-photo-shell">${photo}</div></div>
+
+        <div class="soccer-sticker-footer">
+          <span>${escapeHtml(teamLabel)}</span>
+          <strong>Copa de Vendas</strong>
         </div>
-        ${special ? `<div class="sticker-special-ribbon">${escapeHtml(special)}</div>` : ""}
-        <div class="sticker-name-banner ${team}">${escapeHtml(displayName)}</div>
-        <div class="sticker-role-banner">${escapeHtml(vendor.title || "Craque de vendas")}</div>
-        <div class="sticker-footer-brand">${escapeHtml(vendor.subtitle || "Tênis One | Copa das Vendas")}</div>
       </div>
 
       <div class="sticker-caption-block">
         <div class="sticker-caption-top">
-          <span class="sticker-caption-chip ${rarity.key}">${escapeHtml(rarity.shortLabel)}</span>
-          <span class="sticker-caption-number">#${getStickerNumber(index)}</span>
+          <span class="sticker-caption-chip ${rarity.key}">${escapeHtml(rarity.label)}</span>
+          <span class="sticker-caption-number">#${stickerNumber}</span>
         </div>
-        <p class="sticker-caption-note">${escapeHtml(rarity.note)} • ${escapeHtml(teamLabel)}</p>
+        <p class="sticker-caption-note">${escapeHtml(position)} • ${escapeHtml(teamLabel)} • ${escapeHtml(height)} • ${escapeHtml(weight)} • ${escapeHtml(age)} anos</p>
         ${showManagerActions ? `
           <div class="sticker-card-actions sticker-card-actions-3">
             <button class="btn btn-light" data-upload="${escapeHtml(vendor.id)}">Enviar foto</button>
@@ -1052,6 +1107,18 @@ function renderVendorAdmin() {
           <label>Número da camisa
             <input data-field="shirtNumber" type="number" min="1" max="99" value="${escapeHtml(vendor.shirtNumber || "")}" />
           </label>
+          <label>Função / posição
+            <input data-field="position" maxlength="18" value="${escapeHtml(vendor.position || vendor.role || vendor.title || "Vendedor")}" />
+          </label>
+          <label>Altura
+            <input data-field="height" maxlength="8" placeholder="Ex.: 1,75m" value="${escapeHtml(vendor.height || "")}" />
+          </label>
+          <label>Peso
+            <input data-field="weight" maxlength="8" placeholder="Ex.: 88kg" value="${escapeHtml(vendor.weight || "")}" />
+          </label>
+          <label>Idade
+            <input data-field="age" maxlength="4" placeholder="Ex.: 18" value="${escapeHtml(vendor.age || "")}" />
+          </label>
           <label>Raridade
             <select data-field="rarity">${raritySelectOptions(vendor.rarity)}</select>
           </label>
@@ -1149,6 +1216,10 @@ function saveVendorFromForm(vendorId) {
     shortName: get("shortName").trim() || get("name").trim() || "Vendedor",
     team: get("team") || "verde",
     shirtNumber: Number(get("shirtNumber") || 0),
+    position: get("position").trim() || "Vendedor",
+    height: get("height").trim() || "1,70m",
+    weight: get("weight").trim() || "70kg",
+    age: get("age").trim() || "18",
     rarity: get("rarity") || "classic",
     title: title || "Craque de vendas",
     subtitle: get("subtitle").trim(),
@@ -1172,6 +1243,10 @@ function addVendor() {
     shortName: "Novo",
     team: "verde",
     shirtNumber: vendorsArray().length + 1,
+    position: "Vendedor",
+    height: "1,70m",
+    weight: "70kg",
+    age: "18",
     rarity: "classic",
     title: "Craque de vendas",
     subtitle: "Copa das Vendas",
@@ -1630,18 +1705,23 @@ function bindEvents() {
   $("loginBtn").addEventListener("click", async () => {
     const password = $("loginPassword").value;
 
-    if (useFirebaseAuth()) {
+    if (shouldUseEmailLogin()) {
       const email = $("loginEmail").value.trim();
       if (!email || !password) return toast("Informe email e senha.");
 
       const nextSession = getSessionFromEmail(email);
-      if (!nextSession) return toast("Email sem permissão. Confira o config.js.");
+      if (!nextSession) return toast("Email sem permissão. Confira managerEmail e sellers no config.js.");
+
+      if (!useFirebaseAuth() || !state.auth) {
+        return toast("Firebase Auth ainda não está pronto. Confira apiKey, authDomain, databaseURL e appId no config.js e publique no GitHub Pages.");
+      }
 
       try {
+        saveRememberedLogin();
         await services.signInWithEmailAndPassword(state.auth, email, password);
       } catch (err) {
         console.warn(err);
-        toast("Não foi possível entrar. Verifique email, senha e Firebase Auth.");
+        toast("Não foi possível entrar. Confira se o email existe no Firebase Authentication e se a senha está correta.");
       }
       return;
     }
@@ -1670,8 +1750,12 @@ function bindEvents() {
     }
     $("appShell").classList.add("hidden");
     $("loginScreen").classList.remove("hidden");
-    $("loginPassword").value = "";
-    if ($("loginEmail")) $("loginEmail").value = "";
+    if ($("rememberAccess")?.checked) {
+      loadRememberedLogin();
+    } else {
+      $("loginPassword").value = "";
+      if ($("loginEmail")) $("loginEmail").value = "";
+    }
     configureLoginMode();
   });
 
@@ -1711,6 +1795,7 @@ function bindEvents() {
 window.addEventListener("DOMContentLoaded", async () => {
   await initStorage();
   bindEvents();
+  loadRememberedLogin();
   renderVendorSelects();
   updateTrialUI();
   render();

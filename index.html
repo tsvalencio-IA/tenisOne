@@ -31,6 +31,11 @@
           <input id="loginPassword" type="password" placeholder="Senha do Firebase Auth" autocomplete="current-password" />
         </label>
 
+        <label class="remember-access-wrap">
+          <input id="rememberAccess" type="checkbox" />
+          <span>Salvar email e senha neste aparelho</span>
+        </label>
+
         <label id="legacyRoleWrap" class="hidden">
           Perfil de acesso
           <select id="loginRole">
@@ -50,12 +55,13 @@
       <div id="trialLoginNotice" class="trial-notice hidden"></div>
 
       <div class="login-hint" id="authLoginHint">
-        <strong>Login profissional:</strong> use o email e a senha cadastrados no Firebase Authentication.<br>
-        O gerente e os vendedores são definidos no arquivo <strong>config.js</strong>.
+        <strong>Login profissional:</strong> digite o email e a senha cadastrados no Firebase Authentication.<br>
+        O gerente e os vendedores são liberados no arquivo <strong>config.js</strong>.
       </div>
       <div class="login-hint hidden" id="legacyLoginHint">
         <strong>Acesso local:</strong> gerente 2026 / vendedores vendas.
       </div>
+      <div class="login-powered">Powered by thIAguinho Soluções Digitais</div>
     </div>
   </section>
 
@@ -396,6 +402,7 @@
         </article>
       </section>
     </section>
+      <footer class="powered-footer">Powered by thIAguinho Soluções Digitais</footer>
   </main>
 </body>
 </html>

@@ -88,3 +88,12 @@ Antes de publicar as regras, confira o email do gerente dentro do arquivo de reg
 Suba estes arquivos no GitHub Pages ou em outra hospedagem HTTPS.
 
 A câmera e os uploads funcionam melhor em HTTPS.
+
+
+## Atualização desta versão
+
+- O login profissional agora sempre mostra campo de email e senha quando `auth.enabled` está `true` no `config.js`.
+- Para o usuário não precisar digitar tudo de novo, existe a opção **Salvar email e senha neste aparelho**. Use somente em aparelho confiável da loja.
+- Para entrar, o email precisa existir no Firebase Authentication e também estar liberado em `managerEmail` ou em `auth.sellers` no `config.js`.
+- As figurinhas agora seguem o padrão visual solicitado pelo Saulo, com campos: **Função**, **Altura**, **Peso** e **Idade**.
+- Esses campos podem ser editados em **Gerenciar vendedores e figurinhas**.

@@ -28,6 +28,8 @@ window.APP_CONFIG = {
   // PASSO 3:
   // Em cada vendedor, mantenha o vendorId igual ao id do vendedor no bloco
   // campaign.vendors.
+  // Para as figurinhas no padrão enviado pelo Saulo, cada vendedor também pode ter:
+  // position / height / weight / age.
   //
   // IMPORTANTE:
   // - O gerente pode gravar, lançar vendas, editar vendedores e fotos.
@@ -36,13 +38,13 @@ window.APP_CONFIG = {
     enabled: true,
 
     managerName: "Saulo",
-    managerEmail: "saulo@t1.com",
+    managerEmail: "gerente@tenisone.com.br",
 
     sellers: [
-      { vendorId: "isack", email: "isack@t1.com" },
-      { vendorId: "viviane", email: "viviane@t1.com },
-      { vendorId: "matheus", email: "matheus@t1.com },
-      { vendorId: "brian", email: "brian@t1.com" },
+      { vendorId: "isack", email: "isack@tenisone.com.br" },
+      { vendorId: "viviane", email: "viviane@tenisone.com.br" },
+      { vendorId: "matheus", email: "matheus@tenisone.com.br" },
+      { vendorId: "brian", email: "brian@tenisone.com.br" },
 
       // 5º vendedor:
       // Troque o nome, email e time do vendedor "vendedor5" no bloco
@@ -73,6 +75,10 @@ window.APP_CONFIG = {
         shortName: "Isack",
         team: "verde",
         shirtNumber: 10,
+        position: "Goleiro",
+        height: "1,75m",
+        weight: "88kg",
+        age: "18",
         rarity: "legendary",
         title: "Craque da Rodada",
         subtitle: "Rumo à taça de vendas",
@@ -87,6 +93,10 @@ window.APP_CONFIG = {
         shortName: "Viviane",
         team: "verde",
         shirtNumber: 8,
+        position: "Atacante",
+        height: "1,65m",
+        weight: "58kg",
+        age: "22",
         rarity: "gold",
         title: "Camisa 10",
         subtitle: "Força do Time Verde",
@@ -101,6 +111,10 @@ window.APP_CONFIG = {
         shortName: "Matheus",
         team: "azul",
         shirtNumber: 7,
+        position: "Meia",
+        height: "1,78m",
+        weight: "76kg",
+        age: "21",
         rarity: "silver",
         title: "Artilheiro",
         subtitle: "Pontaria nas vendas",
@@ -115,6 +129,10 @@ window.APP_CONFIG = {
         shortName: "Brian",
         team: "azul",
         shirtNumber: 11,
+        position: "Lateral",
+        height: "1,74m",
+        weight: "72kg",
+        age: "20",
         rarity: "classic",
         title: "Capitão",
         subtitle: "Liderança em campo",
@@ -129,6 +147,10 @@ window.APP_CONFIG = {
         shortName: "Vend. 5",
         team: "verde",
         shirtNumber: 5,
+        position: "Reforço",
+        height: "1,70m",
+        weight: "70kg",
+        age: "20",
         rarity: "classic",
         title: "Reforço da Rodada",
         subtitle: "5º vendedor da campanha",
