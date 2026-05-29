@@ -641,7 +641,7 @@ function buildStickerCard(vendor, index, options = {}) {
         <div class="sticker-stage ${team}">
           <div class="sticker-stage-number">${number}</div>
           <div class="sticker-stage-accent"></div>
-          <div class="sticker-premium-photo">${photo}</div>
+          <div class="sticker-premium-photo"><div class="sticker-photo-shell">${photo}</div></div>
         </div>
         ${special ? `<div class="sticker-special-ribbon">${escapeHtml(special)}</div>` : ""}
         <div class="sticker-name-banner ${team}">${escapeHtml(displayName)}</div>
@@ -656,8 +656,9 @@ function buildStickerCard(vendor, index, options = {}) {
         </div>
         <p class="sticker-caption-note">${escapeHtml(rarity.note)} • ${escapeHtml(teamLabel)}</p>
         ${showManagerActions ? `
-          <div class="sticker-card-actions">
+          <div class="sticker-card-actions sticker-card-actions-3">
             <button class="btn btn-light" data-upload="${escapeHtml(vendor.id)}">Enviar foto</button>
+            <button class="btn btn-primary" data-camera="${escapeHtml(vendor.id)}">Bater foto</button>
             <button class="btn btn-outline" data-clear-photo="${escapeHtml(vendor.id)}">Limpar foto</button>
             <button class="btn btn-blue full-download" data-download-sticker="${escapeHtml(vendor.id)}">Baixar PNG</button>
           </div>
@@ -1088,6 +1089,7 @@ function renderVendorAdmin() {
 
         <div class="editor-actions">
           <button class="btn btn-light" data-upload="${escapeHtml(vendor.id)}">Enviar foto</button>
+          <button class="btn btn-blue" data-camera="${escapeHtml(vendor.id)}">Bater foto</button>
           <button class="btn btn-primary" data-save-vendor="${escapeHtml(vendor.id)}">Salvar alterações</button>
           <button class="btn btn-outline" data-reset-vendor="${escapeHtml(vendor.id)}">Limpar foto</button>
           <button class="btn btn-danger" data-delete-vendor="${escapeHtml(vendor.id)}">Excluir</button>
@@ -1196,7 +1198,10 @@ function deleteVendor(vendorId) {
 
 function bindPhotoButtons() {
   document.querySelectorAll("[data-upload]").forEach((button) => {
-    button.addEventListener("click", () => uploadPhoto(button.dataset.upload));
+    button.addEventListener("click", () => uploadPhoto(button.dataset.upload, "upload"));
+  });
+  document.querySelectorAll("[data-camera]").forEach((button) => {
+    button.addEventListener("click", () => uploadPhoto(button.dataset.camera, "camera"));
   });
   document.querySelectorAll("[data-clear-photo]").forEach((button) => {
     button.addEventListener("click", async () => {
@@ -1379,8 +1384,8 @@ async function recalculateAllAutomatics() {
   toast("Placar, rodadas e bônus recalculados automaticamente.");
 }
 
-async function uploadPhoto(vendorId) {
-  if (!ensureCanSave("enviar foto")) return;
+async function uploadPhoto(vendorId, mode = "upload") {
+  if (!ensureCanSave(mode === "camera" ? "bater foto" : "enviar foto")) return;
   const cloudinaryReady = isConfigured(CONFIG.cloudinary, ["cloudName", "uploadPreset"]);
   if (cloudinaryReady && await loadPhotoWidget()) {
     const widget = window.cloudinary.createUploadWidget(
@@ -1388,17 +1393,20 @@ async function uploadPhoto(vendorId) {
         cloudName: CONFIG.cloudinary.cloudName,
         uploadPreset: CONFIG.cloudinary.uploadPreset,
         folder: "tenis-one-copa-vendas",
-        sources: ["local", "camera"],
+        sources: mode === "camera" ? ["camera"] : ["local", "camera"],
         multiple: false,
         cropping: true,
-        croppingAspectRatio: 4 / 5
+        croppingAspectRatio: 4 / 5,
+        showAdvancedOptions: true,
+        croppingShowDimensions: true,
+        clientAllowedFormats: ["jpg", "jpeg", "png", "webp"]
       },
       async (error, result) => {
         if (error) return toast("Erro ao atualizar a foto.");
         if (result && result.event === "success") {
           state.data.vendors[vendorId].imageUrl = result.info.secure_url;
           await persist();
-          toast("Foto atualizada pelo gerente.");
+          toast(mode === "camera" ? "Foto capturada e salva." : "Foto enviada e salva.");
         }
       }
     );
@@ -1409,6 +1417,7 @@ async function uploadPhoto(vendorId) {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
+  if (mode === "camera") input.capture = "environment";
   input.onchange = () => {
     const file = input.files?.[0];
     if (!file) return;
@@ -1416,7 +1425,7 @@ async function uploadPhoto(vendorId) {
     reader.onload = async () => {
       state.data.vendors[vendorId].imageUrl = reader.result;
       await persist();
-      toast("Foto salva pelo gerente.");
+      toast(mode === "camera" ? "Foto capturada e salva." : "Foto salva pelo gerente.");
     };
     reader.readAsDataURL(file);
   };
@@ -1676,7 +1685,7 @@ function bindEvents() {
   $("saleForm").addEventListener("submit", saveSale);
   $("finalizeSelectedDayBtn")?.addEventListener("click", () => closeRound($("saleDate").value));
   $("finalizeDailyBtn")?.addEventListener("click", () => closeRound($("saleDate").value));
-  $("closeTodayBtn").addEventListener("click", () => closeRound(isoToday()));
+  $("closeTodayBtn")?.addEventListener("click", () => closeRound(isoToday()));
   $("closeRoundBtn").addEventListener("click", () => closeRound($("roundDate").value));
   $("applyBonusBtn").addEventListener("click", applyBonus);
   $("recalculateAllBtn")?.addEventListener("click", recalculateAllAutomatics);
