@@ -1,0 +1,9 @@
+{
+  // These rules restrict write access to the gerente (manager) only.
+  // Only authenticated users can read data.  You should replace
+  // `manager@example.com` with the same value configured in config.js.
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null && auth.token.email == 'gerente@example.com'"
+  }
+}
