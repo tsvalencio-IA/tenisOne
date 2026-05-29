@@ -1,17 +1,15 @@
 window.APP_CONFIG = {
   // ---------------------------------------------------------------------------
-  // LOGIN ANTIGO / FALLBACK LOCAL
+  // ACESSO
   // ---------------------------------------------------------------------------
-  // O sistema profissional usa Firebase Authentication por email e senha.
-  // Estas senhas antigas só serão usadas se o Firebase não estiver configurado
-  // ou se "auth.enabled" estiver como false.
+  // O sistema usa Firebase Authentication por email e senha.
+  // As senhas abaixo só ficam como acesso local de contingência caso o
+  // Firebase ainda não esteja configurado.
   managerPassword: "2026",
   sellerPassword: "vendas",
 
-  // Mantido do projeto atual: teste gratuito de 3 dias para gravação.
-  // Para liberar gravação permanente no futuro, altere essa lógica somente se
-  // for uma decisão comercial sua.
-  trialDays: 3,
+  // Produção: gravação liberada para a campanha.
+  trialDays: 0,
 
   contactPerson: "Thiago Ventura Valêncio",
   contactChannel: "WhatsApp",
@@ -47,7 +45,7 @@ window.APP_CONFIG = {
       { vendorId: "brian", email: "brian@tenisone.com.br" },
 
       // 5º vendedor:
-      // Troque o nome, o email e o time do vendedor "vendedor5" no bloco
+      // Troque o nome, email e time do vendedor "vendedor5" no bloco
       // campaign.vendors logo abaixo quando o Saulo confirmar os dados.
       { vendorId: "vendedor5", email: "vendedor5@tenisone.com.br" }
     ]
@@ -59,7 +57,7 @@ window.APP_CONFIG = {
     startDate: "2026-06-01",
     endDate: "2026-06-30",
     productsRule: "Todos os produtos da loja contam.",
-    bonusRuleNote: "Rodadas, gols e bônus são automáticos. Nesta versão, maior meta batida é calculada como maior faturamento acumulado da dezena; se houver alteração de venda, o bônus é recalculado.",
+    bonusRuleNote: "Rodadas, gols e bônus são automáticos. Na regra atual, maior meta batida é calculada como maior faturamento acumulado da dezena; se houver alteração de venda, o bônus é recalculado.",
     prizes: {
       teamChampion: "R$ 100,00 via PIX para cada integrante + 1 folga premiada para cada um.",
       topSeller: "R$ 100,00 via PIX para o artilheiro individual."

@@ -14,10 +14,10 @@
 
   <section id="loginScreen" class="login-screen">
     <div class="login-card">
-      <div class="login-badge">⚽ Demonstração oficial</div>
+      <div class="login-badge">⚽ Copa oficial</div>
       <h1>Copa do Mundo das Vendas</h1>
       <p>
-        Sistema demonstrativo da gincana da Tênis One: placar por duplas, ranking individual,
+        Sistema oficial da gincana da Tênis One: placar por duplas, ranking individual,
         rodadas por dia, bônus por dezena e álbum de figurinhas controlado pelo gerente.
       </p>
 
@@ -48,16 +48,15 @@
 
       <button id="loginBtn" class="btn btn-primary wide">Entrar no sistema</button>
 
-      <div id="trialLoginNotice" class="trial-notice"></div>
+      <div id="trialLoginNotice" class="trial-notice hidden"></div>
 
       <div class="login-hint" id="authLoginHint">
         <strong>Login profissional:</strong> use o email e a senha cadastrados no Firebase Authentication.<br>
         O gerente e os vendedores são definidos no arquivo <strong>config.js</strong>.
       </div>
       <div class="login-hint hidden" id="legacyLoginHint">
-        <strong>Modo fallback local:</strong> gerente 2026 / vendedores vendas.
+        <strong>Acesso local:</strong> gerente 2026 / vendedores vendas.
       </div>
-      <div class="login-hint"><a href="guia-gerente.html">Abrir guia do gerente</a></div>
     </div>
   </section>
 
@@ -88,8 +87,8 @@
       </nav>
 
       <div class="side-footer">
-        <div id="trialStatus" class="trial-status"></div>
-        <a class="btn btn-light wide" href="guia-gerente.html">Guia do gerente</a><button id="logoutBtn" class="btn btn-outline wide">Sair</button>
+        <div id="trialStatus" class="trial-status hidden"></div>
+        <button id="logoutBtn" class="btn btn-outline wide">Sair</button>
       </div>
     </aside>
 
@@ -100,7 +99,6 @@
           <h1 id="pageTitle">Placar da Gincana</h1>
         </div>
         <div class="top-actions manager-only">
-          <button id="seedBtn" class="btn btn-light">Recriar dados demo</button>
           <button id="downloadReportBtn" class="btn btn-blue">Relatório PDF</button>
         </div>
       </header>
@@ -255,7 +253,7 @@
             <p class="muted">
               O bônus não precisa ser lançado manualmente. Quando o gerente salva ou corrige uma venda,
               o sistema recalcula a rodada do dia e atualiza automaticamente o bônus da dezena.
-              Nesta versão, “maior meta batida” é tratado como maior faturamento acumulado da dezena.
+              A regra “maior meta batida” é tratada como maior faturamento acumulado da dezena.
             </p>
 
             <div class="form-grid">

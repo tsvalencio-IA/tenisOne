@@ -79,46 +79,31 @@ function teamAccent(teamId) {
 }
 
 function getTrialInfo() {
-  let startRaw = localStorage.getItem(TRIAL_KEY);
-  if (!startRaw) {
-    startRaw = new Date().toISOString();
-    localStorage.setItem(TRIAL_KEY, startRaw);
-  }
-  let startDate = new Date(startRaw);
-  if (Number.isNaN(startDate.getTime())) {
-    startDate = new Date();
-    localStorage.setItem(TRIAL_KEY, startDate.toISOString());
-  }
-  const expiresAt = new Date(startDate.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
-  const remainingMs = expiresAt.getTime() - Date.now();
   return {
-    startDate,
-    expiresAt,
-    expired: remainingMs <= 0,
-    daysLeft: Math.max(0, Math.ceil(remainingMs / (24 * 60 * 60 * 1000)))
+    startDate: null,
+    expiresAt: null,
+    expired: false,
+    daysLeft: null,
+    production: true
   };
 }
 
 function updateTrialUI() {
-  const info = getTrialInfo();
-  const validText = `Teste gratuito: ${info.daysLeft} dia(s) restante(s). Depois disso, novos dados não serão salvos. Sugestões e alterações: ${CONTACT_TEXT}.`;
-  const expiredText = `Teste gratuito encerrado. Novos dados não serão salvos. Envie sugestões e alterações para o ${CONTACT_TEXT}.`;
   ["trialLoginNotice", "trialStatus"].forEach((id) => {
     const el = $(id);
     if (!el) return;
-    el.textContent = info.expired ? expiredText : validText;
-    el.classList.toggle("expired", info.expired);
+    el.textContent = "";
+    el.classList.add("hidden");
+    el.classList.remove("expired");
   });
   document.querySelectorAll(".manager-action, #saleForm button, #closeTodayBtn, #closeRoundBtn, #applyBonusBtn, #seedBtn, #addVendorBtn, [data-save-vendor], [data-upload], [data-delete-vendor], [data-reset-vendor]")
-    .forEach((el) => el.classList.toggle("trial-lock", info.expired));
-  return info;
+    .forEach((el) => el.classList.remove("trial-lock"));
+  return getTrialInfo();
 }
 
 function ensureCanSave(action = "salvar novos dados") {
-  const info = updateTrialUI();
-  if (!info.expired) return true;
-  toast(`Teste gratuito encerrado. Não é possível ${action}. Envie sugestões e alterações para o ${CONTACT_TEXT}.`);
-  return false;
+  updateTrialUI();
+  return true;
 }
 
 function toast(message) {
@@ -1609,12 +1594,12 @@ function bindEvents() {
   $("applyBonusBtn").addEventListener("click", applyBonus);
   $("recalculateAllBtn")?.addEventListener("click", recalculateAllAutomatics);
   $("addVendorBtn").addEventListener("click", addVendor);
-  $("seedBtn").addEventListener("click", async () => {
+  $("seedBtn")?.addEventListener("click", async () => {
     if (!ensureCanSave("recriar dados")) return;
-    if (!confirm("Recriar os dados demonstrativos? Isso substitui os dados atuais desta demo.")) return;
+    if (!confirm("Restaurar os dados iniciais da campanha? Isso substitui os dados atuais.")) return;
     state.data = createSeedData();
     await persist();
-    toast("Dados demonstrativos recriados.");
+    toast("Dados iniciais restaurados.");
   });
 
   $("downloadReportBtn").addEventListener("click", exportReportPDF);
