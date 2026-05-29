@@ -38,7 +38,7 @@ window.APP_CONFIG = {
     enabled: true,
 
     managerName: "Saulo",
-    managerEmail: "gerente@tenisone.com.br",
+    managerEmail: "sauloe@t1.com",
 
     sellers: [
       { vendorId: "isack", email: "isack@tenisone.com.br" },
@@ -167,15 +167,15 @@ window.APP_CONFIG = {
   // ---------------------------------------------------------------------------
   // AQUI você cola as identificações do seu projeto Firebase.
   // Firebase Console → Project settings → General → Your apps.
-  firebase: {
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
-  },
+  const firebaseConfig = {
+  apiKey: "AIzaSyCKjUnYqe5ZEiSPBJeaHeMALgRoZyA0xHw",
+  authDomain: "tenis1-32523.firebaseapp.com",
+  databaseURL: "https://tenis1-32523-default-rtdb.firebaseio.com",
+  projectId: "tenis1-32523",
+  storageBucket: "tenis1-32523.firebasestorage.app",
+  messagingSenderId: "1093444270871",
+  appId: "1:1093444270871:web:100f1ecf5d2ecec6d95552"
+};
 
   // ---------------------------------------------------------------------------
   // CLOUDINARY
