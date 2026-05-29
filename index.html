@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Copa do Mundo das Vendas — Tênis One</title>
+  <title>Copa de Vendas — Corrida das Dezenas</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <script src="config.js" defer></script>
@@ -15,10 +15,9 @@
   <section id="loginScreen" class="login-screen">
     <div class="login-card">
       <div class="login-badge">⚽ Copa oficial</div>
-      <h1>Copa do Mundo das Vendas</h1>
+      <h1>Copa de Vendas</h1>
       <p>
-        Sistema oficial da gincana da Tênis One: placar por duplas, ranking individual,
-        rodadas por dia, bônus por dezena e álbum de figurinhas controlado pelo gerente.
+        Sistema oficial da gincana da Tênis One: corrida das dezenas com placar por equipes, ranking individual, rodadas por dia, bônus por dezena e álbum de figurinhas controlado pelo gerente.
       </p>
 
       <div class="login-grid">
@@ -65,8 +64,8 @@
       <div class="brand">
         <div class="brand-icon">🏆</div>
         <div>
-          <strong>Copa das Vendas</strong>
-          <span>Tênis One</span>
+          <strong>Copa de Vendas</strong>
+          <span>Corrida das Dezenas</span>
         </div>
       </div>
 
@@ -96,7 +95,7 @@
       <header class="topbar">
         <div>
           <p class="eyebrow">Tênis One — Shopping Cidade Norte</p>
-          <h1 id="pageTitle">Placar da Gincana</h1>
+          <h1 id="pageTitle">Corrida das Dezenas</h1>
         </div>
         <div class="top-actions manager-only">
           <button id="downloadReportBtn" class="btn btn-blue">Relatório PDF</button>
@@ -104,38 +103,66 @@
       </header>
 
       <section id="dashboard" class="view active">
-        <div class="hero-score">
-          <div class="team-score green">
-            <span>Time Verde</span>
-            <strong id="greenGoals">0</strong>
-            <small>gols</small>
-            <p id="greenSales">R$ 0,00</p>
-          </div>
-          <div class="score-center">
-            <span>Placar geral</span>
-            <strong>VS</strong>
-            <button id="closeTodayBtn" class="btn btn-primary manager-only">Finalizar dia de hoje</button>
-          </div>
-          <div class="team-score blue">
-            <span>Time Azul</span>
-            <strong id="blueGoals">0</strong>
-            <small>gols</small>
-            <p id="blueSales">R$ 0,00</p>
-          </div>
-        </div>
+        <article class="race-board-wrap">
+          <div class="race-board-header">🏆 Copa de Vendas: Corrida das Dezenas 🏆</div>
 
-        <div class="grid-3">
-          <article class="stat-card">
+          <div class="race-board-grid">
+            <section class="race-team-panel green">
+              <div class="race-team-title">[Seleção Verde]</div>
+              <div id="boardGreenRoster" class="race-team-roster"></div>
+            </section>
+
+            <section class="race-team-panel blue">
+              <div class="race-team-title">[Seleção Azul]</div>
+              <div id="boardBlueRoster" class="race-team-roster"></div>
+            </section>
+
+            <section class="race-dezena-panel">
+              <div class="race-dezena-title">1ª Dezena <small>(dias 01-10)</small></div>
+              <div id="boardDezena1" class="race-days-list"></div>
+            </section>
+
+            <section class="race-dezena-panel">
+              <div class="race-dezena-title">2ª Dezena <small>(dias 11-20)</small></div>
+              <div id="boardDezena2" class="race-days-list"></div>
+            </section>
+
+            <section class="race-dezena-panel">
+              <div class="race-dezena-title">3ª Dezena: o mata-mata <small>(dias 21-fim)</small></div>
+              <div id="boardDezena3" class="race-days-list"></div>
+            </section>
+          </div>
+
+          <div class="race-board-bottom">
+            <div class="race-goals-panel green">
+              <span>Total de gols</span>
+              <strong id="greenGoalsBoard">0</strong>
+            </div>
+
+            <div class="race-goals-panel blue">
+              <span>Total de gols</span>
+              <strong id="blueGoalsBoard">0</strong>
+            </div>
+
+            <div class="race-artilharia-panel">
+              <div class="race-artilharia-title">⭐ Corrida pela artilharia <small>(maior faturamento individual)</small></div>
+              <div id="boardTopRanking" class="race-top-ranking"></div>
+            </div>
+          </div>
+        </article>
+
+        <div class="grid-3 board-summary-grid">
+          <article class="stat-card accent-yellow">
             <span>Rodada atual vale</span>
             <strong id="todayGoals">0 gol(s)</strong>
             <p id="todayDezena">Conforme a dezena do mês</p>
           </article>
-          <article class="stat-card">
+          <article class="stat-card accent-green">
             <span>Artilheiro individual</span>
             <strong id="topSellerName">A definir</strong>
             <p id="topSellerAmount">R$ 0,00</p>
           </article>
-          <article class="stat-card">
+          <article class="stat-card accent-blue">
             <span>Líder atual</span>
             <strong id="leaderTeam">Empate</strong>
             <p>Critério: gols, depois faturamento</p>
@@ -143,7 +170,7 @@
         </div>
 
         <div class="grid-2">
-          <article class="card">
+          <article class="card card-themed">
             <div class="card-head">
               <div>
                 <p class="eyebrow">Ranking individual</p>
@@ -153,7 +180,7 @@
             <div id="sellerRanking" class="ranking-list"></div>
           </article>
 
-          <article class="card">
+          <article class="card card-themed">
             <div class="card-head">
               <div>
                 <p class="eyebrow">Times</p>

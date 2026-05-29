@@ -759,7 +759,7 @@ function setView(viewId) {
   if (btn) btn.classList.add("active");
 
   const titles = {
-    dashboard: "Placar da Gincana",
+    dashboard: "Corrida das Dezenas",
     sellerPanel: "Meu desempenho",
     sales: "Lançar vendas",
     rounds: "Rodadas e bônus",
@@ -791,24 +791,111 @@ function renderVendorSelects() {
   });
 }
 
+function buildBoardVendorSlot(vendor, slotNumber) {
+  if (!vendor) {
+    return `
+      <div class="race-vendor-slot empty">
+        <div class="race-vendor-photo empty"></div>
+        <div class="race-vendor-name">A definir</div>
+      </div>
+    `;
+  }
+
+  const photo = vendor.imageUrl
+    ? `<img src="${escapeHtml(vendor.imageUrl)}" alt="${escapeHtml(vendor.name)}" />`
+    : `<div class="race-vendor-initial">${escapeHtml((vendor.shortName || vendor.name || '?').slice(0, 1).toUpperCase())}</div>`;
+
+  return `
+    <div class="race-vendor-slot ${escapeHtml(vendor.team)}">
+      <div class="race-vendor-photo">${photo}</div>
+      <div class="race-vendor-name">${escapeHtml(vendor.shortName || vendor.name)}</div>
+    </div>
+  `;
+}
+
+function buildBoardRoster(teamId) {
+  const vendors = vendorsArray({ activeOnly: true }).filter((vendor) => vendor.team === teamId);
+  const mainSlots = [vendors[0] || null, vendors[1] || null];
+  const extras = vendors.slice(2);
+
+  return `
+    <div class="race-roster-grid">
+      ${mainSlots.map((vendor, index) => buildBoardVendorSlot(vendor, index + 1)).join('')}
+    </div>
+    ${extras.length ? `<div class="race-team-extras">Reserva(s): ${extras.map((vendor) => escapeHtml(vendor.shortName || vendor.name)).join(' • ')}</div>` : ''}
+  `;
+}
+
+function buildBoardMarker(teamId, active, extraClass = '') {
+  return `<span class="race-marker ${escapeHtml(teamId)} ${active ? 'active' : ''} ${extraClass}"></span>`;
+}
+
+function buildBoardDezena(dezena) {
+  const [startDate, endDate] = dateRangeForDezena(dezena);
+  const startDay = Number(String(startDate).slice(-2));
+  const endDay = Number(String(endDate).slice(-2));
+  const rows = [];
+
+  for (let day = startDay; day <= endDay; day += 1) {
+    const isoDate = `${String(startDate).slice(0, 8)}${String(day).padStart(2, '0')}`;
+    const round = state.data.rounds?.[isoDate];
+    rows.push(`
+      <div class="race-day-row ${round?.winnerTeam ? 'has-winner' : ''}">
+        <strong>Dia ${String(day).padStart(2, '0')}</strong>
+        <div class="race-day-markers">
+          ${buildBoardMarker('verde', round?.winnerTeam === 'verde')}
+          ${buildBoardMarker('azul', round?.winnerTeam === 'azul')}
+        </div>
+      </div>
+    `);
+  }
+
+  const bonus = state.data.bonuses?.[`dezena_${dezena}`];
+  rows.push(`
+    <div class="race-day-row finish-row ${bonus?.winnerTeam ? 'has-winner' : ''}">
+      <strong>Fim da Dezena</strong>
+      <div class="race-day-markers">
+        ${buildBoardMarker('verde', bonus?.winnerTeam === 'verde', 'bonus')}
+        ${buildBoardMarker('azul', bonus?.winnerTeam === 'azul', 'bonus')}
+      </div>
+    </div>
+  `);
+
+  return rows.join('');
+}
+
 function renderDashboard() {
   const score = calculateScore();
   const ranking = calculateSellerRanking();
   const leader = getLeaderTeam();
   const today = isoToday();
 
-  $("greenGoals").textContent = score.verde.goals;
-  $("blueGoals").textContent = score.azul.goals;
-  $("greenSales").textContent = brl(score.verde.sales);
-  $("blueSales").textContent = brl(score.azul.sales);
-  $("todayGoals").textContent = `${getGoalsForDate(today)} gol(s)`;
-  $("todayDezena").textContent = `${getDezena(today)}ª dezena da campanha`;
-  $("topSellerName").textContent = ranking[0]?.name || "A definir";
-  $("topSellerAmount").textContent = ranking[0] ? brl(ranking[0].total) : brl(0);
-  $("leaderTeam").textContent = leader ? teamName(leader) : "Empate";
+  if ($('greenGoalsBoard')) $('greenGoalsBoard').textContent = score.verde.goals;
+  if ($('blueGoalsBoard')) $('blueGoalsBoard').textContent = score.azul.goals;
+  if ($('todayGoals')) $('todayGoals').textContent = `${getGoalsForDate(today)} gol(s)`;
+  if ($('todayDezena')) $('todayDezena').textContent = `${getDezena(today)}ª dezena da campanha`;
+  if ($('topSellerName')) $('topSellerName').textContent = ranking[0]?.name || 'A definir';
+  if ($('topSellerAmount')) $('topSellerAmount').textContent = ranking[0] ? brl(ranking[0].total) : brl(0);
+  if ($('leaderTeam')) $('leaderTeam').textContent = leader ? teamName(leader) : 'Empate';
 
-  $("sellerRanking").innerHTML = ranking.map((row, idx) => `
-    <div class="ranking-row ${idx === 0 ? "first" : ""}">
+  if ($('boardGreenRoster')) $('boardGreenRoster').innerHTML = buildBoardRoster('verde');
+  if ($('boardBlueRoster')) $('boardBlueRoster').innerHTML = buildBoardRoster('azul');
+  if ($('boardDezena1')) $('boardDezena1').innerHTML = buildBoardDezena(1);
+  if ($('boardDezena2')) $('boardDezena2').innerHTML = buildBoardDezena(2);
+  if ($('boardDezena3')) $('boardDezena3').innerHTML = buildBoardDezena(3);
+
+  if ($('boardTopRanking')) {
+    $('boardTopRanking').innerHTML = ranking.slice(0, 4).map((row, idx) => `
+      <div class="race-ranking-row place-${idx + 1}">
+        <span class="race-ranking-medal">${idx + 1}º</span>
+        <strong>${escapeHtml(row.name)}</strong>
+        <b>${brl(row.total)}</b>
+      </div>
+    `).join('') || `<div class="race-ranking-row"><strong>Aguardando vendas</strong></div>`;
+  }
+
+  $('sellerRanking').innerHTML = ranking.map((row, idx) => `
+    <div class="ranking-row ${idx === 0 ? 'first' : ''}">
       <span>${idx + 1}</span>
       <div>
         <strong>${escapeHtml(row.name)}</strong>
@@ -816,16 +903,16 @@ function renderDashboard() {
       </div>
       <b>${brl(row.total)}</b>
     </div>
-  `).join("");
+  `).join('');
 
-  $("teamSummary").innerHTML = ["verde", "azul"].map((team) => `
+  $('teamSummary').innerHTML = ['verde', 'azul'].map((team) => `
     <div class="team-box ${team}">
       <span>${escapeHtml(teamName(team))}</span>
       <strong>${score[team].goals} gol(s)</strong>
       <p>${brl(score[team].sales)} em vendas</p>
       <small>${score[team].wins} rodada(s) vencida(s)</small>
     </div>
-  `).join("");
+  `).join('');
 }
 
 function renderSellerPanel() {

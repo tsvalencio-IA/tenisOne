@@ -1581,3 +1581,377 @@ nav {
     width: 100%;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* DASHBOARD ESTILO SAULO — CORRIDA DAS DEZENAS                               */
+/* -------------------------------------------------------------------------- */
+.race-board-wrap {
+  margin-bottom: 20px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 4px solid #d2b100;
+  box-shadow: 0 26px 54px rgba(0,0,0,.12);
+  background: #f3d80b;
+}
+
+.race-board-header {
+  background: linear-gradient(180deg, #f4d80f, #eacb08);
+  color: #111;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: clamp(22px, 3.2vw, 46px);
+  letter-spacing: -.04em;
+  padding: 16px 20px;
+  border-bottom: 4px solid rgba(8, 8, 8, .15);
+}
+
+.race-board-grid {
+  display: grid;
+  grid-template-columns: 1.08fr 1.08fr .94fr .94fr 1.02fr;
+  gap: 14px;
+  padding: 14px;
+  align-items: start;
+}
+
+.race-team-panel,
+.race-dezena-panel,
+.race-goals-panel,
+.race-artilharia-panel {
+  background: rgba(255,255,255,.58);
+  border: 4px solid rgba(13, 13, 13, .12);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.race-team-panel.green { border-color: rgba(11, 127, 73, .75); }
+.race-team-panel.blue { border-color: rgba(20, 63, 145, .75); }
+
+.race-team-title,
+.race-dezena-title {
+  padding: 12px 10px;
+  text-align: center;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: -.02em;
+  font-size: 17px;
+}
+
+.race-team-title {
+  font-size: 18px;
+}
+
+.race-team-panel.green .race-team-title { background: linear-gradient(180deg, #1b934d, #0b7f49); }
+.race-team-panel.blue .race-team-title { background: linear-gradient(180deg, #2660d0, #143f91); }
+.race-dezena-title {
+  background: linear-gradient(180deg, #225dc0, #143f91);
+  line-height: 1.1;
+}
+.race-dezena-title small {
+  display: block;
+  font-size: 12px;
+  opacity: .96;
+  margin-top: 5px;
+}
+
+.race-team-roster {
+  padding: 12px;
+}
+
+.race-roster-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.race-vendor-slot {
+  background: #fff;
+  border: 2px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  align-items: start;
+  min-height: 220px;
+}
+
+.race-vendor-slot.empty {
+  opacity: .7;
+}
+
+.race-vendor-photo {
+  aspect-ratio: 4 / 5;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f5f5f5, #ececec);
+  display: grid;
+  place-items: center;
+}
+
+.race-vendor-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.race-vendor-initial {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eef4ff;
+  color: #143f91;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.race-vendor-name {
+  background: #fff;
+  border: 2px solid rgba(0,0,0,.1);
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 16px;
+  line-height: 1.05;
+}
+
+.race-team-extras {
+  margin-top: 10px;
+  background: rgba(255,255,255,.78);
+  border: 2px dashed rgba(0,0,0,.12);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #334;
+}
+
+.race-days-list {
+  padding: 8px 10px 10px;
+  display: grid;
+  gap: 6px;
+  background: rgba(255,255,255,.9);
+}
+
+.race-day-row {
+  display: grid;
+  grid-template-columns: 1fr 84px;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+.race-day-row:last-child { border-bottom: 0; }
+.race-day-row strong {
+  font-size: 14px;
+  color: #222;
+}
+
+.race-day-markers {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  justify-items: center;
+}
+
+.race-marker {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,.18);
+  background: #ececec;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.55);
+}
+
+.race-marker.verde.active {
+  background: #19a14e;
+  border-color: #0b7f49;
+}
+
+.race-marker.azul.active {
+  background: #1d6dd8;
+  border-color: #143f91;
+}
+
+.race-marker.bonus.active {
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.55), 0 0 0 3px rgba(245,197,66,.75);
+}
+
+.finish-row {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 2px solid rgba(0,0,0,.08);
+}
+
+.race-board-bottom {
+  display: grid;
+  grid-template-columns: 220px 220px minmax(0, 1fr);
+  gap: 14px;
+  padding: 0 14px 14px;
+  align-items: stretch;
+}
+
+.race-goals-panel {
+  padding: 14px;
+  text-align: center;
+}
+
+.race-goals-panel.green { background: linear-gradient(180deg, #1a8d49, #0b7f49); }
+.race-goals-panel.blue { background: linear-gradient(180deg, #2762d2, #143f91); }
+
+.race-goals-panel span {
+  display: block;
+  color: rgba(255,255,255,.92);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.race-goals-panel strong {
+  display: block;
+  margin-top: 12px;
+  padding: 12px 10px;
+  border-radius: 8px;
+  font-family: "Arial Black", Arial, sans-serif;
+  font-size: clamp(52px, 6vw, 82px);
+  line-height: .9;
+  color: #081008;
+  background: #111;
+  letter-spacing: -.08em;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,.08);
+}
+
+.race-artilharia-panel {
+  padding: 12px;
+  background: #fffef7;
+}
+
+.race-artilharia-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.race-artilharia-title small {
+  font-size: 12px;
+  font-weight: 800;
+  color: #555;
+}
+
+.race-top-ranking {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.race-ranking-row {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.race-ranking-row strong,
+.race-ranking-row b {
+  font-size: 14px;
+}
+
+.race-ranking-row strong { color: #222; }
+.race-ranking-row b { color: #0b7f49; }
+
+.race-ranking-medal {
+  display: inline-grid;
+  place-items: center;
+  min-height: 34px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  font-weight: 900;
+}
+
+.place-1 .race-ranking-medal { background: #fff2c4; color: #8a6500; }
+.place-2 .race-ranking-medal { background: #eef2f7; color: #667085; }
+.place-3 .race-ranking-medal { background: #f6dfd1; color: #8c4d28; }
+
+.board-summary-grid { margin-bottom: 18px; }
+.card-themed { background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.94)); }
+
+.accent-yellow,
+.accent-green,
+.accent-blue {
+  position: relative;
+  overflow: hidden;
+}
+
+.accent-yellow::before,
+.accent-green::before,
+.accent-blue::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 8px;
+}
+
+.accent-yellow::before { background: #f4cf16; }
+.accent-green::before { background: #0b7f49; }
+.accent-blue::before { background: #143f91; }
+
+@media (max-width: 1260px) {
+  .race-board-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .race-board-bottom {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .race-artilharia-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .race-board-wrap {
+    border-radius: 20px;
+  }
+
+  .race-board-header {
+    font-size: 20px;
+    line-height: 1.05;
+    padding: 14px 12px;
+  }
+
+  .race-board-grid,
+  .race-board-bottom,
+  .race-top-ranking,
+  .race-roster-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .race-day-row {
+    grid-template-columns: 1fr 74px;
+  }
+
+  .race-vendor-slot {
+    min-height: auto;
+  }
+
+  .race-goals-panel strong {
+    font-size: 56px;
+  }
+
+  .race-ranking-row {
+    grid-template-columns: 48px 1fr auto;
+  }
+}
