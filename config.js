@@ -38,7 +38,7 @@ window.APP_CONFIG = {
     enabled: true,
 
     managerName: "Saulo",
-    managerEmail: "sauloe@t1.com",
+    managerEmail: "saulo@t1.com",
 
     sellers: [
       { vendorId: "isack", email: "isack@tenisone.com.br" },
