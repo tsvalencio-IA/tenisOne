@@ -3,8 +3,8 @@ window.APP_CONFIG = {
   // ACESSO
   // ---------------------------------------------------------------------------
   // O sistema usa Firebase Authentication por email e senha.
-  // As senhas abaixo só ficam como acesso local de contingência caso o
-  // Firebase ainda não esteja configurado.
+  // As senhas abaixo ficam apenas como contingência local se o Firebase ainda
+  // não estiver disponível no momento do teste.
   managerPassword: "2026",
   sellerPassword: "vendas",
 
@@ -28,8 +28,6 @@ window.APP_CONFIG = {
   // PASSO 3:
   // Em cada vendedor, mantenha o vendorId igual ao id do vendedor no bloco
   // campaign.vendors.
-  // Para as figurinhas no padrão enviado pelo Saulo, cada vendedor também pode ter:
-  // position / height / weight / age.
   //
   // IMPORTANTE:
   // - O gerente pode gravar, lançar vendas, editar vendedores e fotos.
@@ -65,8 +63,8 @@ window.APP_CONFIG = {
       topSeller: "R$ 100,00 via PIX para o artilheiro individual."
     },
     teams: {
-      verde: { id: "verde", name: "Time Verde", color: "#0b7f49" },
-      azul: { id: "azul", name: "Time Azul", color: "#143f91" }
+      verde: { id: "verde", name: "Seleção Verde", color: "#0b7f49" },
+      azul: { id: "azul", name: "Seleção Azul", color: "#143f91" }
     },
     vendors: [
       {
@@ -78,6 +76,7 @@ window.APP_CONFIG = {
         position: "Goleiro",
         height: "1,75m",
         weight: "88kg",
+        birthDate: "A definir",
         age: "18",
         rarity: "legendary",
         title: "Craque da Rodada",
@@ -96,10 +95,11 @@ window.APP_CONFIG = {
         position: "Atacante",
         height: "1,65m",
         weight: "58kg",
+        birthDate: "A definir",
         age: "22",
         rarity: "gold",
         title: "Camisa 10",
-        subtitle: "Força do Time Verde",
+        subtitle: "Força da Seleção Verde",
         albumOrder: 2,
         specialType: "normal",
         showInAlbum: true,
@@ -114,6 +114,7 @@ window.APP_CONFIG = {
         position: "Meia",
         height: "1,78m",
         weight: "76kg",
+        birthDate: "A definir",
         age: "21",
         rarity: "silver",
         title: "Artilheiro",
@@ -132,6 +133,7 @@ window.APP_CONFIG = {
         position: "Lateral",
         height: "1,74m",
         weight: "72kg",
+        birthDate: "A definir",
         age: "20",
         rarity: "classic",
         title: "Capitão",
@@ -150,6 +152,7 @@ window.APP_CONFIG = {
         position: "Reforço",
         height: "1,70m",
         weight: "70kg",
+        birthDate: "A definir",
         age: "20",
         rarity: "classic",
         title: "Reforço da Rodada",
@@ -165,17 +168,17 @@ window.APP_CONFIG = {
   // ---------------------------------------------------------------------------
   // FIREBASE REALTIME DATABASE
   // ---------------------------------------------------------------------------
-  // AQUI você cola as identificações do seu projeto Firebase.
+  // AQUI já estão as identificações do projeto Firebase informado.
   // Firebase Console → Project settings → General → Your apps.
-  const firebaseConfig = {
-  apiKey: "AIzaSyCKjUnYqe5ZEiSPBJeaHeMALgRoZyA0xHw",
-  authDomain: "tenis1-32523.firebaseapp.com",
-  databaseURL: "https://tenis1-32523-default-rtdb.firebaseio.com",
-  projectId: "tenis1-32523",
-  storageBucket: "tenis1-32523.firebasestorage.app",
-  messagingSenderId: "1093444270871",
-  appId: "1:1093444270871:web:100f1ecf5d2ecec6d95552"
-};
+  firebase: {
+    apiKey: "AIzaSyCKjUnYqe5ZEiSPBJeaHeMALgRoZyA0xHw",
+    authDomain: "tenis1-32523.firebaseapp.com",
+    databaseURL: "https://tenis1-32523-default-rtdb.firebaseio.com",
+    projectId: "tenis1-32523",
+    storageBucket: "tenis1-32523.firebasestorage.app",
+    messagingSenderId: "1093444270871",
+    appId: "1:1093444270871:web:100f1ecf5d2ecec6d95552"
+  },
 
   // ---------------------------------------------------------------------------
   // CLOUDINARY

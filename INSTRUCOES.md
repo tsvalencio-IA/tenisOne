@@ -1,65 +1,24 @@
 # Copa das Vendas Tênis One — configuração de produção
 
-Este pacote contém somente os arquivos necessários para a equipe usar a gincana hoje.
+Este pacote está preparado para uso com a equipe.
 
 ## Arquivo principal
 
-Abra e publique:
+Publique estes arquivos no GitHub Pages e abra:
 
 `index.html`
 
-## Onde colocar Firebase
+## Acesso por email e senha
 
-Abra:
+O sistema usa Firebase Authentication por email e senha.
 
-`config.js`
-
-Preencha este bloco:
+No `config.js`, o gerente já está configurado como:
 
 ```js
-firebase: {
-  apiKey: "",
-  authDomain: "",
-  databaseURL: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
-}
+managerEmail: "saulo@t1.com"
 ```
 
-Essas informações ficam no Firebase Console, em Project settings, na configuração do app Web.
-
-## Onde colocar Cloudinary
-
-No mesmo `config.js`, preencha:
-
-```js
-cloudinary: {
-  cloudName: "",
-  uploadPreset: ""
-}
-```
-
-O `uploadPreset` precisa ser unsigned para permitir envio direto das fotos das figurinhas pelo navegador.
-
-## Onde colocar o email do gerente
-
-No `config.js`, preencha:
-
-```js
-auth: {
-  enabled: true,
-  managerName: "Saulo",
-  managerEmail: "gerente@tenisone.com.br"
-}
-```
-
-Troque `gerente@tenisone.com.br` pelo email real cadastrado no Firebase Authentication.
-
-## Onde colocar os emails dos vendedores
-
-No `config.js`, preencha a lista:
+Os vendedores continuam no bloco:
 
 ```js
 sellers: [
@@ -71,29 +30,86 @@ sellers: [
 ]
 ```
 
-O `vendorId` precisa bater com o `id` do vendedor em `campaign.vendors`.
+Cada email precisa existir em Firebase Authentication, no provedor Email/Senha.
 
-## Regras do banco
+## Firebase Realtime Database
+
+O `config.js` já está preenchido com os dados do projeto Firebase enviados.
 
 Use o arquivo:
 
 `firebase-rules.json`
 
-Cole o conteúdo dele em Realtime Database, na aba Rules.
+Cole o conteúdo dele em:
 
-Antes de publicar as regras, confira o email do gerente dentro do arquivo de regras e troque pelo mesmo email configurado em `config.js`.
+Firebase Console → Realtime Database → Rules
 
-## Publicação
+As regras já estão configuradas para permitir escrita somente ao email:
 
-Suba estes arquivos no GitHub Pages ou em outra hospedagem HTTPS.
+`saulo@t1.com`
 
-A câmera e os uploads funcionam melhor em HTTPS.
+Os vendedores autenticados conseguem ler, mas não conseguem gravar.
 
+## Cloudinary
 
-## Atualização desta versão
+No `config.js`, preencha quando tiver:
 
-- O login profissional agora sempre mostra campo de email e senha quando `auth.enabled` está `true` no `config.js`.
-- Para o usuário não precisar digitar tudo de novo, existe a opção **Salvar email e senha neste aparelho**. Use somente em aparelho confiável da loja.
-- Para entrar, o email precisa existir no Firebase Authentication e também estar liberado em `managerEmail` ou em `auth.sellers` no `config.js`.
-- As figurinhas agora seguem o padrão visual solicitado pelo Saulo, com campos: **Função**, **Altura**, **Peso** e **Idade**.
-- Esses campos podem ser editados em **Gerenciar vendedores e figurinhas**.
+```js
+cloudinary: {
+  cloudName: "",
+  uploadPreset: ""
+}
+```
+
+O `uploadPreset` precisa ser `unsigned`.
+
+Se Cloudinary ainda estiver vazio, o sistema permite escolher ou bater foto localmente; porém para uso profissional com banco real, o correto é preencher Cloudinary para não salvar fotos grandes diretamente no banco.
+
+## Figurinhas
+
+As figurinhas foram atualizadas para o padrão visual pedido, sem logos oficiais.
+
+Campos disponíveis no cadastro do vendedor:
+
+- nome completo
+- nome curto
+- equipe
+- número da camisa
+- função / posição
+- altura
+- peso
+- nascimento
+- idade
+- raridade
+- título/destaque
+- subtítulo
+
+A figurinha mostra:
+
+- foto grande
+- moldura premium
+- selo da Copa das Vendas 2026
+- equipe
+- nascimento/idade
+- altura
+- peso
+- nome
+- função/posição
+
+## Câmera e upload
+
+No painel de vendedores, o gerente pode usar:
+
+- `Enviar foto`
+- `Bater foto`
+
+Em celular, a opção `Bater foto` abre a câmera do aparelho quando o navegador permitir.
+
+## Observação importante
+
+Depois de subir no GitHub Pages, faça um hard refresh no navegador do celular:
+
+- Android/Chrome: menu do navegador → atualizar
+- ou limpe cache do site
+
+Isso evita abrir uma versão antiga do `index.html`, `app.js` ou `config.js`.

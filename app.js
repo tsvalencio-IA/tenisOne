@@ -137,6 +137,7 @@ function createSeedData() {
       position: vendor.position || vendor.role || "Vendedor",
       height: vendor.height || "1,70m",
       weight: vendor.weight || "70kg",
+      birthDate: vendor.birthDate || vendor.nascimento || "",
       age: vendor.age || "18"
     };
   });
@@ -202,6 +203,7 @@ function normalizeData(data) {
     v.position = v.position || v.role || "Vendedor";
     v.height = v.height || "1,70m";
     v.weight = v.weight || "70kg";
+    v.birthDate = v.birthDate || v.nascimento || "";
     v.age = v.age || "18";
   });
   return merged;
@@ -658,50 +660,72 @@ function buildStickerCard(vendor, index, options = {}) {
   const showManagerActions = !!options.showManagerActions && session.role === "manager";
   const photo = vendor.imageUrl
     ? `<img src="${escapeHtml(vendor.imageUrl)}" alt="${escapeHtml(vendor.name)}" />`
-    : `<div class="soccer-sticker-placeholder">📸</div>`;
+    : `<div class="saulo-sticker-placeholder">📸</div>`;
 
   const fullName = String(vendor.name || "Vendedor").trim().toUpperCase();
+  const displayName = String(vendor.name || "Vendedor").trim();
   const position = String(vendor.position || vendor.role || vendor.title || "Vendedor").trim();
   const height = String(vendor.height || "1,70m").trim();
   const weight = String(vendor.weight || "70kg").trim();
-  const age = String(vendor.age || "18").trim();
+  const birthDate = String(vendor.birthDate || vendor.nascimento || "").trim();
+  const age = String(vendor.age || "").trim();
+  const birthLabel = birthDate ? "Nascimento" : "Idade";
+  const birthValue = birthDate || age || "A definir";
   const special = getSpecialLabel(vendor);
+  const editionText = `${team === "verde" ? "Verde" : "Azul"} • ${rarity.shortLabel || rarity.label}`;
+  const initials = (team === "verde" ? "SV" : "SA");
 
   return `
-    <article class="sticker-premium soccer-sticker ${team} rarity-${rarity.key} ${compact ? "compact" : ""}" data-sticker-vendor="${escapeHtml(vendor.id)}">
-      <div class="sticker-premium-frame soccer-sticker-frame">
-        <div class="soccer-sticker-top">
-          <span class="soccer-sticker-code">${stickerNumber}</span>
+    <article class="sticker-premium saulo-sticker ${team} rarity-${rarity.key} ${compact ? "compact" : ""}" data-sticker-vendor="${escapeHtml(vendor.id)}">
+      <div class="sticker-premium-frame saulo-sticker-frame">
+        <div class="saulo-holo-layer"></div>
+        <div class="saulo-stadium-light"></div>
+
+        <div class="saulo-brand-badge">
+          <span class="saulo-brand-symbol">★</span>
+          <span>Copa das Vendas<br>2026</span>
+        </div>
+
+        <div class="saulo-team-badge">
+          <div class="saulo-team-flag"><i></i></div>
+          <strong>${escapeHtml(teamLabel)}</strong>
+          <em>${escapeHtml(initials)}</em>
+        </div>
+
+        <div class="saulo-left-stats">
+          <div class="saulo-stat-box">
+            <span class="saulo-stat-icon">▦</span>
+            <small>${escapeHtml(birthLabel)}</small>
+            <strong>${escapeHtml(birthValue)}</strong>
+          </div>
+          <div class="saulo-stat-box">
+            <span class="saulo-stat-icon">↕</span>
+            <small>Altura</small>
+            <strong>${escapeHtml(height)}</strong>
+          </div>
+          <div class="saulo-stat-box">
+            <span class="saulo-stat-icon">◉</span>
+            <small>Peso</small>
+            <strong>${escapeHtml(weight)}</strong>
+          </div>
+        </div>
+
+        <div class="saulo-photo-area">
+          ${photo}
+        </div>
+
+        <div class="saulo-confetti c1"></div>
+        <div class="saulo-confetti c2"></div>
+        <div class="saulo-confetti c3"></div>
+
+        <div class="saulo-name-plate">
+          <span class="saulo-ball-badge">⚽</span>
           <strong>${escapeHtml(fullName)}</strong>
-          <span class="soccer-sticker-flag"><i></i></span>
+          <span class="saulo-cup-badge">🏆</span>
         </div>
 
-        <div class="soccer-sticker-body">
-          <div class="soccer-sticker-side">
-            <span class="soccer-side-cup">🏆</span>
-            <span class="soccer-side-number">${number}</span>
-            <span class="soccer-side-team">${team === "verde" ? "VDE" : "AZL"}</span>
-          </div>
-          <div class="soccer-sticker-photo">
-            ${photo}
-          </div>
-          <div class="soccer-sticker-art"></div>
-          <div class="soccer-sticker-mini-badge">${escapeHtml(rarity.shortLabel)}</div>
-        </div>
-
-        ${special ? `<div class="soccer-sticker-ribbon">${escapeHtml(special)}</div>` : ""}
-
-        <div class="soccer-sticker-stats">
-          <div><span>Função</span><strong>${escapeHtml(position)}</strong></div>
-          <div><span>Altura</span><strong>${escapeHtml(height)}</strong></div>
-          <div><span>Peso</span><strong>${escapeHtml(weight)}</strong></div>
-          <div><span>Idade</span><strong>${escapeHtml(age)}</strong></div>
-        </div>
-
-        <div class="soccer-sticker-footer">
-          <span>${escapeHtml(teamLabel)}</span>
-          <strong>Copa de Vendas</strong>
-        </div>
+        <div class="saulo-position-bar">${escapeHtml(position.toUpperCase())}</div>
+        <div class="saulo-card-number">#${stickerNumber} • ${escapeHtml(editionText)}</div>
       </div>
 
       <div class="sticker-caption-block">
@@ -709,7 +733,7 @@ function buildStickerCard(vendor, index, options = {}) {
           <span class="sticker-caption-chip ${rarity.key}">${escapeHtml(rarity.label)}</span>
           <span class="sticker-caption-number">#${stickerNumber}</span>
         </div>
-        <p class="sticker-caption-note">${escapeHtml(position)} • ${escapeHtml(teamLabel)} • ${escapeHtml(height)} • ${escapeHtml(weight)} • ${escapeHtml(age)} anos</p>
+        <p class="sticker-caption-note">${escapeHtml(displayName)} • ${escapeHtml(position)} • ${escapeHtml(teamLabel)} • ${escapeHtml(height)} • ${escapeHtml(weight)} • ${escapeHtml(birthLabel)}: ${escapeHtml(birthValue)}</p>
         ${showManagerActions ? `
           <div class="sticker-card-actions sticker-card-actions-3">
             <button class="btn btn-light" data-upload="${escapeHtml(vendor.id)}">Enviar foto</button>
@@ -1116,6 +1140,9 @@ function renderVendorAdmin() {
           <label>Peso
             <input data-field="weight" maxlength="8" placeholder="Ex.: 88kg" value="${escapeHtml(vendor.weight || "")}" />
           </label>
+          <label>Nascimento
+            <input data-field="birthDate" maxlength="12" placeholder="Ex.: 27/12/1987" value="${escapeHtml(vendor.birthDate || vendor.nascimento || "")}" />
+          </label>
           <label>Idade
             <input data-field="age" maxlength="4" placeholder="Ex.: 18" value="${escapeHtml(vendor.age || "")}" />
           </label>
@@ -1219,6 +1246,7 @@ function saveVendorFromForm(vendorId) {
     position: get("position").trim() || "Vendedor",
     height: get("height").trim() || "1,70m",
     weight: get("weight").trim() || "70kg",
+    birthDate: get("birthDate").trim(),
     age: get("age").trim() || "18",
     rarity: get("rarity") || "classic",
     title: title || "Craque de vendas",
@@ -1246,6 +1274,7 @@ function addVendor() {
     position: "Vendedor",
     height: "1,70m",
     weight: "70kg",
+    birthDate: "",
     age: "18",
     rarity: "classic",
     title: "Craque de vendas",
