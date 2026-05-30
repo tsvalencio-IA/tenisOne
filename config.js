@@ -187,7 +187,7 @@ window.APP_CONFIG = {
   // cloudName: nome da nuvem.
   // uploadPreset: preset unsigned para upload direto pelo navegador.
   cloudinary: {
-    cloudName: "",
-    uploadPreset: ""
+    cloudName: "dd6ppm6nf",
+    uploadPreset: "tenis1"
   }
 };
