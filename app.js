@@ -516,15 +516,31 @@ function recomputeRoundForDate(date) {
     if (date) delete state.data.rounds[date];
     return null;
   }
-  const round = buildAutomaticRound(date);
+
+  const previous = state.data.rounds?.[date] || {};
+  const round = {
+    ...buildAutomaticRound(date),
+    status: previous.status || "aberto",
+    finalizedAt: previous.finalizedAt || "",
+    finalizedBy: previous.finalizedBy || ""
+  };
+
   state.data.rounds[date] = round;
   return round;
 }
 
-function buildAutomaticBonus(dezena) {
+function isEndDateOfDezena(date) {
+  const dezena = getDezena(date);
+  const [, end] = dateRangeForDezena(dezena);
+  return String(date) === String(end);
+}
+
+function buildAutomaticBonus(dezena, options = {}) {
   const [start, end] = dateRangeForDezena(dezena);
   const totals = getTeamTotalsForRange(start, end);
   const winnerTeam = winnerFromTotals(totals);
+  const previous = state.data.bonuses?.[`dezena_${dezena}`] || {};
+  const applied = options.apply === true || previous.status === "aplicado";
   return {
     id: `dezena_${dezena}`,
     dezena: Number(dezena),
@@ -532,43 +548,54 @@ function buildAutomaticBonus(dezena) {
     endDate: end,
     teamTotals: totals,
     winnerTeam,
-    goalsAwarded: winnerTeam ? 3 : 0,
+    goalsAwarded: applied && winnerTeam ? 3 : 0,
+    previewGoals: winnerTeam ? 3 : 0,
+    status: applied ? "aplicado" : "previa",
     source: "automatico",
-    ruleUsed: "Automático: maior faturamento acumulado da dezena.",
-    closedBy: "sistema",
+    ruleUsed: applied
+      ? "Bônus aplicado: maior faturamento acumulado da dezena."
+      : "Prévia automática: maior faturamento acumulado da dezena.",
+    closedBy: applied ? "gerente" : "sistema",
     closedAt: new Date().toISOString()
   };
 }
 
-function recomputeBonusForDezena(dezena) {
+function recomputeBonusForDezena(dezena, options = {}) {
   if (!dezena || !hasSalesForDezena(dezena)) {
     if (dezena) delete state.data.bonuses[`dezena_${dezena}`];
     return null;
   }
-  const bonus = buildAutomaticBonus(dezena);
+  const bonus = buildAutomaticBonus(dezena, options);
   state.data.bonuses[`dezena_${dezena}`] = bonus;
   return bonus;
 }
 
-function recomputeAutomaticsForDate(date) {
+function recomputeAutomaticsForDate(date, options = {}) {
   const round = recomputeRoundForDate(date);
-  const bonus = recomputeBonusForDezena(getDezena(date));
+  const applyBonus = options.applyBonus === true;
+  const bonus = recomputeBonusForDezena(getDezena(date), { apply: applyBonus });
   return { round, bonus };
 }
 
-function recomputeAllAutomatics() {
+function recomputeAllAutomatics(options = {}) {
+  const previousBonuses = { ...(state.data.bonuses || {}) };
   state.data.rounds = {};
   state.data.bonuses = {};
   const dates = [...new Set(salesArray().map((sale) => sale.date).filter(Boolean))].sort();
   dates.forEach((date) => recomputeRoundForDate(date));
-  [1, 2, 3].forEach((dezena) => recomputeBonusForDezena(dezena));
+  [1, 2, 3].forEach((dezena) => {
+    const id = `dezena_${dezena}`;
+    recomputeBonusForDezena(dezena, {
+      apply: options.applyBonuses === true || previousBonuses[id]?.status === "aplicado"
+    });
+  });
 }
 
 function calculateScore() {
   const score = { verde: { goals: 0, sales: 0, wins: 0 }, azul: { goals: 0, sales: 0, wins: 0 } };
   salesArray().forEach((sale) => {
     const vendor = getVendor(sale.vendorId);
-    if (!vendor) return;
+    if (!vendor || !score[vendor.team]) return;
     score[vendor.team].sales += Number(sale.amount || 0);
   });
   roundsArray().forEach((round) => {
@@ -578,7 +605,7 @@ function calculateScore() {
     }
   });
   bonusesArray().forEach((bonus) => {
-    if (bonus.winnerTeam && score[bonus.winnerTeam]) {
+    if (bonus.winnerTeam && score[bonus.winnerTeam] && bonus.status === "aplicado") {
       score[bonus.winnerTeam].goals += Number(bonus.goalsAwarded || 0);
     }
   });
@@ -654,7 +681,6 @@ function buildStickerCard(vendor, index, options = {}) {
   const rarity = RARITIES[vendor.rarity] || RARITIES.classic;
   const team = vendor.team === "azul" ? "azul" : "verde";
   const teamLabel = teamName(team);
-  const number = getVendorNumber(vendor, index);
   const stickerNumber = getStickerNumber(index);
   const compact = !!options.compact;
   const showManagerActions = !!options.showManagerActions && session.role === "manager";
@@ -669,11 +695,8 @@ function buildStickerCard(vendor, index, options = {}) {
   const weight = String(vendor.weight || "70kg").trim();
   const birthDate = String(vendor.birthDate || vendor.nascimento || "").trim();
   const age = String(vendor.age || "").trim();
-  const birthLabel = birthDate ? "Nascimento" : "Idade";
-  const birthValue = birthDate || age || "A definir";
-  const special = getSpecialLabel(vendor);
-  const editionText = `${team === "verde" ? "Verde" : "Azul"} • ${rarity.shortLabel || rarity.label}`;
-  const initials = (team === "verde" ? "SV" : "SA");
+  const birthValue = birthDate || (age ? `${age} anos` : "A definir");
+  const editionText = `${teamLabel} • ${rarity.shortLabel || rarity.label}`;
 
   return `
     <article class="sticker-premium saulo-sticker ${team} rarity-${rarity.key} ${compact ? "compact" : ""}" data-sticker-vendor="${escapeHtml(vendor.id)}">
@@ -682,20 +705,20 @@ function buildStickerCard(vendor, index, options = {}) {
         <div class="saulo-stadium-light"></div>
 
         <div class="saulo-brand-badge">
-          <span class="saulo-brand-symbol">★</span>
-          <span>Copa das Vendas<br>2026</span>
+          <span class="saulo-brand-symbol">🏆</span>
+          <span>Copa das<br>Vendas 2026</span>
         </div>
 
         <div class="saulo-team-badge">
           <div class="saulo-team-flag"><i></i></div>
           <strong>${escapeHtml(teamLabel)}</strong>
-          <em>${escapeHtml(initials)}</em>
+          <em>${team === "verde" ? "SV" : "SA"}</em>
         </div>
 
         <div class="saulo-left-stats">
           <div class="saulo-stat-box">
             <span class="saulo-stat-icon">▦</span>
-            <small>${escapeHtml(birthLabel)}</small>
+            <small>Nascimento</small>
             <strong>${escapeHtml(birthValue)}</strong>
           </div>
           <div class="saulo-stat-box">
@@ -733,7 +756,7 @@ function buildStickerCard(vendor, index, options = {}) {
           <span class="sticker-caption-chip ${rarity.key}">${escapeHtml(rarity.label)}</span>
           <span class="sticker-caption-number">#${stickerNumber}</span>
         </div>
-        <p class="sticker-caption-note">${escapeHtml(displayName)} • ${escapeHtml(position)} • ${escapeHtml(teamLabel)} • ${escapeHtml(height)} • ${escapeHtml(weight)} • ${escapeHtml(birthLabel)}: ${escapeHtml(birthValue)}</p>
+        <p class="sticker-caption-note">${escapeHtml(displayName)} • ${escapeHtml(position)} • ${escapeHtml(teamLabel)} • ${escapeHtml(height)} • ${escapeHtml(weight)} • Nasc.: ${escapeHtml(birthValue)}</p>
         ${showManagerActions ? `
           <div class="sticker-card-actions sticker-card-actions-3">
             <button class="btn btn-light" data-upload="${escapeHtml(vendor.id)}">Enviar foto</button>
@@ -895,14 +918,13 @@ function buildBoardVendorSlot(vendor, slotNumber) {
 
 function buildBoardRoster(teamId) {
   const vendors = vendorsArray({ activeOnly: true }).filter((vendor) => vendor.team === teamId);
-  const mainSlots = [vendors[0] || null, vendors[1] || null];
-  const extras = vendors.slice(2);
+  const visibleVendors = vendors.length ? vendors : [null];
 
   return `
-    <div class="race-roster-grid">
-      ${mainSlots.map((vendor, index) => buildBoardVendorSlot(vendor, index + 1)).join('')}
+    <div class="race-roster-grid dynamic">
+      ${visibleVendors.map((vendor, index) => buildBoardVendorSlot(vendor, index + 1)).join('')}
     </div>
-    ${extras.length ? `<div class="race-team-extras">Reserva(s): ${extras.map((vendor) => escapeHtml(vendor.shortName || vendor.name)).join(' • ')}</div>` : ''}
+    <div class="race-team-count">${vendors.length} vendedor(es) ativo(s) na ${escapeHtml(teamName(teamId))}</div>
   `;
 }
 
@@ -1030,6 +1052,13 @@ function renderSellerPanel() {
   `;
 }
 
+function getTeamVendorNames(teamId) {
+  const names = vendorsArray({ activeOnly: true })
+    .filter((vendor) => vendor.team === teamId)
+    .map((vendor) => vendor.shortName || vendor.name);
+  return names.length ? names.map(escapeHtml).join(" + ") : "Sem vendedores ativos";
+}
+
 function renderDailySales() {
   const date = $("saleDate")?.value || isoToday();
   if ($("dailyTitle")) $("dailyTitle").textContent = date.split("-").reverse().join("/");
@@ -1048,14 +1077,14 @@ function renderDailySales() {
     </div>
     <div class="daily-group-summary">
       <div class="daily-group-card verde ${winnerTeam === "verde" ? "winner" : ""}">
-        <span>Time Verde</span>
+        <span>${escapeHtml(teamName("verde"))}</span>
         <strong>${brl(totals.verde || 0)}</strong>
-        <small>Isack + Viviane</small>
+        <small>${getTeamVendorNames("verde")}</small>
       </div>
       <div class="daily-group-card azul ${winnerTeam === "azul" ? "winner" : ""}">
-        <span>Time Azul</span>
+        <span>${escapeHtml(teamName("azul"))}</span>
         <strong>${brl(totals.azul || 0)}</strong>
-        <small>Matheus + Brian</small>
+        <small>${getTeamVendorNames("azul")}</small>
       </div>
       <div class="daily-result-card">
         <span>Resultado do dia</span>
@@ -1095,12 +1124,15 @@ function renderRounds() {
     </div>
   `).join("");
 
-  const bonusRows = bonusesArray().sort((a, b) => Number(b.dezena) - Number(a.dezena)).map((bonus) => `
-    <div class="timeline-row bonus">
-      <strong>Bônus automático ${bonus.dezena}ª dezena — ${bonus.winnerTeam ? teamName(bonus.winnerTeam) : "Sem vencedor"}</strong>
-      <span>${bonus.startDate} a ${bonus.endDate} • +${bonus.goalsAwarded || 0} gol(s) • ${escapeHtml(bonus.ruleUsed || "")}</span>
-    </div>
-  `).join("");
+  const bonusRows = bonusesArray().sort((a, b) => Number(b.dezena) - Number(a.dezena)).map((bonus) => {
+    const applied = bonus.status === "aplicado";
+    return `
+      <div class="timeline-row bonus ${applied ? "closed" : "preview"}">
+        <strong>${applied ? "Bônus aplicado" : "Prévia do bônus"} ${bonus.dezena}ª dezena — ${bonus.winnerTeam ? teamName(bonus.winnerTeam) : "Sem vencedor"}</strong>
+        <span>${bonus.startDate} a ${bonus.endDate} • ${applied ? `+${bonus.goalsAwarded || 0} gol(s) no placar` : `prévia de +${bonus.previewGoals || 0} gol(s)`} • ${escapeHtml(bonus.ruleUsed || "")}</span>
+      </div>
+    `;
+  }).join("");
 
   $("roundHistory").innerHTML = bonusRows + roundRows || `<p class="muted">Nenhuma rodada calculada ainda. Ao salvar vendas, o sistema atualiza automaticamente.</p>`;
 }
@@ -1443,10 +1475,10 @@ async function saveSale(event) {
   const round = state.data.rounds[date];
   const bonus = state.data.bonuses[`dezena_${getDezena(date)}`];
   const roundText = round?.winnerTeam
-    ? `${teamName(round.winnerTeam)} recebeu ${round.goalsAwarded} gol(s) da rodada.`
+    ? `${teamName(round.winnerTeam)} está vencendo o dia e receberá ${round.goalsAwarded} gol(s) ao finalizar.`
     : "Rodada empatada no momento.";
   const bonusText = bonus?.winnerTeam
-    ? `Bônus da ${getDezena(date)}ª dezena recalculado para ${teamName(bonus.winnerTeam)}.`
+    ? `Prévia do bônus da ${getDezena(date)}ª dezena: ${teamName(bonus.winnerTeam)} lidera.`
     : `Bônus da ${getDezena(date)}ª dezena sem vencedor no momento.`;
   toast(`Venda salva. ${roundText} ${bonusText}`);
 }
@@ -1454,7 +1486,8 @@ async function saveSale(event) {
 async function closeRound(date) {
   if (!ensureCanSave("finalizar dia")) return;
   if (!date) return toast("Escolha uma data para finalizar.");
-  const { round, bonus } = recomputeAutomaticsForDate(date);
+  const shouldApplyBonus = isEndDateOfDezena(date);
+  const { round, bonus } = recomputeAutomaticsForDate(date, { applyBonus: shouldApplyBonus });
   if (!round) return toast("Nenhuma venda encontrada para essa data.");
   state.data.rounds[date] = {
     ...round,
@@ -1467,86 +1500,111 @@ async function closeRound(date) {
     ? `${teamName(round.winnerTeam)} venceu o dia e recebeu ${round.goalsAwarded} gol(s).`
     : "Dia finalizado empatado. Nenhum gol aplicado.";
   const bonusText = bonus?.winnerTeam
-    ? ` Bônus da ${round.dezena}ª dezena atualizado para ${teamName(bonus.winnerTeam)}.`
+    ? (bonus.status === "aplicado"
+      ? ` Bônus da ${round.dezena}ª dezena aplicado para ${teamName(bonus.winnerTeam)}.`
+      : ` Prévia da ${round.dezena}ª dezena: ${teamName(bonus.winnerTeam)} lidera o bônus.`)
     : ` Bônus da ${round.dezena}ª dezena sem vencedor no momento.`;
   toast(`Dia ${date.split("-").reverse().join("/")} finalizado. ${roundText}${bonusText}`);
 }
 
 async function applyBonus() {
-  if (!ensureCanSave("recalcular bônus automático")) return;
+  if (!ensureCanSave("aplicar bônus automático")) return;
   const dezena = Number($("bonusDezena").value || 1);
-  const bonus = recomputeBonusForDezena(dezena);
+  const bonus = recomputeBonusForDezena(dezena, { apply: true });
   await persist();
   if (!bonus) return toast(`Nenhuma venda encontrada na ${dezena}ª dezena.`);
-  toast(bonus.winnerTeam ? `Bônus automático: ${teamName(bonus.winnerTeam)} recebeu +3 gols.` : "Bônus automático recalculado sem vencedor.");
+  toast(bonus.winnerTeam ? `Bônus aplicado: ${teamName(bonus.winnerTeam)} recebeu +3 gols.` : "Bônus recalculado sem vencedor.");
 }
 
 async function recalculateAllAutomatics() {
   if (!ensureCanSave("recalcular placar automático")) return;
   recomputeAllAutomatics();
   await persist();
-  toast("Placar, rodadas e bônus recalculados automaticamente.");
+  toast("Placar, rodadas e prévias de bônus recalculados automaticamente.");
+}
+
+function choosePhotoFile(mode = "upload") {
+  return new Promise((resolve) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    if (mode === "camera") {
+      input.setAttribute("capture", "user");
+      input.capture = "user";
+    }
+    input.style.position = "fixed";
+    input.style.left = "-9999px";
+    input.style.opacity = "0";
+    document.body.appendChild(input);
+    input.addEventListener("change", () => {
+      const file = input.files?.[0] || null;
+      input.remove();
+      resolve(file);
+    }, { once: true });
+    input.click();
+  });
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadImageToCloudinary(file) {
+  const cloudName = CONFIG.cloudinary?.cloudName?.trim();
+  const uploadPreset = CONFIG.cloudinary?.uploadPreset?.trim();
+  if (!cloudName || !uploadPreset) throw new Error("Cloudinary não configurado no config.js.");
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("upload_preset", uploadPreset);
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/image/upload`, {
+    method: "POST",
+    body: form
+  });
+
+  const text = await response.text();
+  let data = {};
+  try { data = JSON.parse(text); } catch (err) { data = { error: { message: text } }; }
+
+  if (!response.ok || !data.secure_url) {
+    const msg = data?.error?.message || `Erro HTTP ${response.status}`;
+    throw new Error(msg);
+  }
+
+  return data.secure_url;
 }
 
 async function uploadPhoto(vendorId, mode = "upload") {
   if (!ensureCanSave(mode === "camera" ? "bater foto" : "enviar foto")) return;
+  const vendor = state.data.vendors[vendorId];
+  if (!vendor) return toast("Vendedor não encontrado.");
+
+  const file = await choosePhotoFile(mode);
+  if (!file) return;
+
   const cloudinaryReady = isConfigured(CONFIG.cloudinary, ["cloudName", "uploadPreset"]);
-  if (cloudinaryReady && await loadPhotoWidget()) {
-    const widget = window.cloudinary.createUploadWidget(
-      {
-        cloudName: CONFIG.cloudinary.cloudName,
-        uploadPreset: CONFIG.cloudinary.uploadPreset,
-        folder: "tenis-one-copa-vendas",
-        sources: mode === "camera" ? ["camera"] : ["local", "camera"],
-        multiple: false,
-        cropping: true,
-        croppingAspectRatio: 4 / 5,
-        showAdvancedOptions: true,
-        croppingShowDimensions: true,
-        clientAllowedFormats: ["jpg", "jpeg", "png", "webp"]
-      },
-      async (error, result) => {
-        if (error) return toast("Erro ao atualizar a foto.");
-        if (result && result.event === "success") {
-          state.data.vendors[vendorId].imageUrl = result.info.secure_url;
-          await persist();
-          toast(mode === "camera" ? "Foto capturada e salva." : "Foto enviada e salva.");
-        }
-      }
-    );
-    widget.open();
-    return;
-  }
-
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  if (mode === "camera") input.capture = "environment";
-  input.onchange = () => {
-    const file = input.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      state.data.vendors[vendorId].imageUrl = reader.result;
+  try {
+    if (cloudinaryReady) {
+      toast(mode === "camera" ? "Enviando foto da câmera..." : "Enviando foto...");
+      vendor.imageUrl = await uploadImageToCloudinary(file);
       await persist();
-      toast(mode === "camera" ? "Foto capturada e salva." : "Foto salva pelo gerente.");
-    };
-    reader.readAsDataURL(file);
-  };
-  input.click();
-}
+      toast(mode === "camera" ? "Foto capturada e enviada ao Cloudinary." : "Foto enviada ao Cloudinary.");
+      return;
+    }
 
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const existing = Array.from(document.scripts).find((script) => script.src === src);
-    if (existing) return resolve();
-    const script = document.createElement("script");
-    script.src = src;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
+    vendor.imageUrl = await readFileAsDataUrl(file);
+    await persist();
+    toast("Foto salva localmente. Para produção, configure Cloudinary.");
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    toast(`Erro no Cloudinary: ${err.message || "verifique cloudName e uploadPreset unsigned."}`);
+  }
 }
 
 async function loadPhotoWidget() {

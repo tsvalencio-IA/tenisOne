@@ -3103,3 +3103,321 @@ nav {
     font-size: 8px;
   }
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* ENTREGA FINAL — FIGURINHA PREMIUM SAULO + ROSTER DINÂMICO + CÂMERA          */
+/* -------------------------------------------------------------------------- */
+.race-roster-grid.dynamic {
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+}
+
+.race-team-count {
+  margin-top: 10px;
+  text-align: center;
+  color: rgba(16,32,24,.70);
+  background: rgba(255,255,255,.70);
+  border: 1px dashed rgba(0,0,0,.14);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.saulo-sticker {
+  --saulo-primary: #0b7f49;
+  --saulo-secondary: #143f91;
+  --saulo-gold: #d8a81f;
+  --saulo-navy: #061835;
+}
+
+.saulo-sticker.azul {
+  --saulo-primary: #143f91;
+  --saulo-secondary: #0b7f49;
+}
+
+.saulo-sticker-frame {
+  aspect-ratio: 4 / 5 !important;
+  border-radius: 30px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  border: 9px solid rgba(255,255,255,.96) !important;
+  background:
+    radial-gradient(circle at 83% 38%, rgba(255,255,255,.90) 0 1.5%, transparent 1.9%),
+    radial-gradient(circle at 88% 48%, rgba(255,255,255,.55) 0 1.2%, transparent 1.5%),
+    linear-gradient(180deg, #07132e 0%, #082b5e 46%, #042918 100%) !important;
+  box-shadow:
+    0 30px 70px rgba(0,0,0,.25),
+    inset 0 0 0 3px rgba(255,255,255,.88),
+    inset 0 0 0 10px rgba(6,24,53,.88) !important;
+}
+
+.saulo-holo-layer {
+  opacity: .58 !important;
+  background:
+    repeating-conic-gradient(from 10deg at 50% 50%,
+      rgba(255,255,255,.55) 0 8deg,
+      rgba(72,230,255,.18) 8deg 15deg,
+      rgba(255,225,54,.24) 15deg 24deg,
+      rgba(98,255,164,.22) 24deg 33deg,
+      rgba(255,255,255,.14) 33deg 43deg),
+    linear-gradient(130deg, rgba(255,255,255,.60), rgba(255,255,255,0) 24%, rgba(255,255,255,.22) 62%, rgba(255,255,255,0));
+}
+
+.saulo-stadium-light {
+  background:
+    radial-gradient(circle at 84% 38%, rgba(255,255,255,.78), transparent 6%),
+    radial-gradient(circle at 89% 48%, rgba(255,255,255,.52), transparent 4%),
+    radial-gradient(ellipse at center 84%, rgba(8,74,43,.90) 0 16%, transparent 44%),
+    linear-gradient(160deg, rgba(6,56,102,.86), rgba(4,21,54,.26) 43%, rgba(0,99,54,.78)),
+    repeating-linear-gradient(95deg, transparent 0 18px, rgba(255,213,38,.24) 18px 21px, transparent 21px 42px) !important;
+}
+
+.saulo-sticker-frame::before {
+  inset: 18px !important;
+  border-radius: 23px !important;
+  border: 4px solid rgba(225,181,44,.96) !important;
+}
+
+.saulo-sticker-frame::after {
+  inset: 22px !important;
+  border-radius: 18px !important;
+  background:
+    linear-gradient(145deg, transparent 0 20%, rgba(8,126,72,.76) 20.2% 29%, rgba(240,205,22,.78) 29.2% 37%, transparent 37.2%),
+    linear-gradient(35deg, transparent 0 68%, rgba(8,126,72,.70) 68.2% 76%, rgba(240,205,22,.74) 76.2% 84%, transparent 84.2%) !important;
+}
+
+.saulo-brand-badge {
+  left: 24px !important;
+  top: 22px !important;
+  width: 26% !important;
+  height: 19% !important;
+  border-radius: 0 0 17px 0 !important;
+  background: linear-gradient(135deg, #070d2a, #092452 62%, rgba(8,28,69,.82)) !important;
+}
+
+.saulo-brand-symbol {
+  background: linear-gradient(180deg, #fffbe6, #e5f0ff) !important;
+  color: var(--saulo-primary) !important;
+}
+
+.saulo-team-badge {
+  right: 34px !important;
+  top: 30px !important;
+  min-width: 132px !important;
+}
+
+.saulo-team-flag {
+  width: 116px !important;
+  height: 66px !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(135deg, var(--saulo-primary), #0fb862 54%, #f2d31b 54% 63%, var(--saulo-secondary) 63%) !important;
+  border: 4px solid rgba(255,255,255,.92) !important;
+}
+
+.saulo-team-flag i {
+  width: 54px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.03)),
+    var(--saulo-secondary) !important;
+  position: relative;
+}
+
+.saulo-team-flag i::after {
+  content: "T1";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: .06em;
+}
+
+.saulo-team-badge strong {
+  font-size: clamp(14px, 3vw, 25px) !important;
+  letter-spacing: .08em !important;
+}
+
+.saulo-team-badge em {
+  display: none !important;
+}
+
+.saulo-left-stats {
+  left: 25px !important;
+  top: 25.5% !important;
+  width: 27% !important;
+  gap: 10px !important;
+}
+
+.saulo-stat-box {
+  min-height: 74px !important;
+  grid-template-columns: 44px 1fr !important;
+  padding: 8px 10px !important;
+  border-radius: 0 13px 13px 0 !important;
+  background: linear-gradient(180deg, #071a3d, #06142e) !important;
+  border: 2px solid rgba(242,211,19,.88) !important;
+}
+
+.saulo-stat-box small {
+  color: #f4d80f !important;
+  font-size: clamp(7px, 1.4vw, 13px) !important;
+  letter-spacing: .02em !important;
+}
+
+.saulo-stat-box strong {
+  color: #fff !important;
+  font-size: clamp(11px, 2.4vw, 23px) !important;
+}
+
+.saulo-photo-area {
+  inset: 8% 7% 14% 18% !important;
+  z-index: 6 !important;
+  border-radius: 14px !important;
+  align-items: flex-end !important;
+  background:
+    radial-gradient(circle at 58% 38%, rgba(255,255,255,.14), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)) !important;
+}
+
+.saulo-photo-area img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 17% !important;
+  filter: saturate(1.08) contrast(1.05) !important;
+}
+
+.saulo-name-plate {
+  left: 40px !important;
+  right: 40px !important;
+  bottom: 34px !important;
+  height: 106px !important;
+  grid-template-columns: 88px 1fr 72px !important;
+  border-radius: 0 0 19px 19px !important;
+  background: linear-gradient(180deg, rgba(11,31,70,.98), rgba(3,15,38,.99)) !important;
+  border: 3px solid rgba(224,178,39,.96) !important;
+}
+
+.saulo-name-plate strong {
+  font-size: clamp(19px, 4.8vw, 46px) !important;
+  letter-spacing: .045em !important;
+}
+
+.saulo-ball-badge,
+.saulo-cup-badge {
+  width: 74px !important;
+  height: 74px !important;
+  border-radius: 20px !important;
+}
+
+.saulo-position-bar {
+  left: 132px !important;
+  right: 132px !important;
+  bottom: 24px !important;
+  height: 28px !important;
+  background: rgba(4, 18, 41, .86) !important;
+}
+
+.timeline-row.preview {
+  border-style: dashed;
+  opacity: .92;
+}
+
+@media (max-width: 760px) {
+  .race-roster-grid.dynamic {
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  }
+
+  .saulo-sticker-frame {
+    max-width: 365px !important;
+  }
+
+  .saulo-brand-badge {
+    width: 27% !important;
+    height: 18% !important;
+    font-size: 7px !important;
+  }
+
+  .saulo-team-badge {
+    right: 22px !important;
+    top: 21px !important;
+    min-width: 88px !important;
+  }
+
+  .saulo-team-flag {
+    width: 80px !important;
+    height: 46px !important;
+  }
+
+  .saulo-team-flag i {
+    width: 38px !important;
+    height: 24px !important;
+  }
+
+  .saulo-team-flag i::after {
+    font-size: 10px;
+  }
+
+  .saulo-left-stats {
+    left: 18px !important;
+    width: 29% !important;
+    gap: 6px !important;
+  }
+
+  .saulo-stat-box {
+    min-height: 50px !important;
+    grid-template-columns: 27px 1fr !important;
+    padding: 5px 6px !important;
+  }
+
+  .saulo-stat-icon {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 14px !important;
+  }
+
+  .saulo-stat-box small {
+    font-size: 6px !important;
+  }
+
+  .saulo-stat-box strong {
+    font-size: 10px !important;
+  }
+
+  .saulo-photo-area {
+    inset: 9% 7% 14% 19% !important;
+  }
+
+  .saulo-name-plate {
+    left: 24px !important;
+    right: 24px !important;
+    bottom: 21px !important;
+    height: 72px !important;
+    grid-template-columns: 48px 1fr 42px !important;
+    padding: 7px 9px 14px !important;
+  }
+
+  .saulo-name-plate strong {
+    font-size: 19px !important;
+  }
+
+  .saulo-ball-badge,
+  .saulo-cup-badge {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .saulo-position-bar {
+    left: 72px !important;
+    right: 72px !important;
+    bottom: 16px !important;
+    height: 18px !important;
+    font-size: 8px !important;
+  }
+}
