@@ -39,7 +39,7 @@ window.APP_CONFIG = {
     managerEmail: "saulo@t1.com",
 
     sellers: [
-      { vendorId: "vendedor", email: "vendedor@t1.com" },
+      { vendorId: "isack", email: "vendedor@t1.com" },
       { vendorId: "viviane", email: "viviane@tenisone.com.br" },
       { vendorId: "matheus", email: "matheus@tenisone.com.br" },
       { vendorId: "brian", email: "brian@tenisone.com.br" },
