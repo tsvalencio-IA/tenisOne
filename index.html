@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -114,12 +114,12 @@
 
           <div class="race-board-grid">
             <section class="race-team-panel green">
-              <div class="race-team-title">[Seleção Verde]</div>
+              <div class="race-team-title">[BRASIL]</div>
               <div id="boardGreenRoster" class="race-team-roster"></div>
             </section>
 
             <section class="race-team-panel blue">
-              <div class="race-team-title">[Seleção Azul]</div>
+              <div class="race-team-title">[FRANÇA]</div>
               <div id="boardBlueRoster" class="race-team-roster"></div>
             </section>
 
@@ -242,8 +242,8 @@
             </form>
 
             <p class="note">
-              Controle exclusivo do gerente. Cada vendedor tem um lançamento por dia; se salvar novamente na mesma data,
-              o valor anterior será atualizado. Ao salvar, o sistema já recalcula a rodada do dia, os gols e o bônus da dezena automaticamente.
+              Controle exclusivo do gerente. O mesmo vendedor pode ter varios lancamentos no mesmo dia; o sistema soma todos automaticamente.
+              Ao salvar, a rodada do dia, os gols e o bonus da dezena sao recalculados.
             </p>
           </article>
 
@@ -285,8 +285,8 @@
             <p class="eyebrow">Automação do bônus da dezena</p>
             <p class="muted">
               O bônus não precisa ser lançado manualmente. Quando o gerente salva ou corrige uma venda,
-              o sistema recalcula a rodada do dia e mostra a prévia do bônus da dezena.
-              O bônus de +3 gols entra no placar quando a dezena é aplicada/fechada pelo gerente.
+              o sistema recalcula a rodada do dia e atualiza automaticamente o bônus da dezena.
+              A regra “maior meta batida” é tratada como maior faturamento acumulado da dezena.
             </p>
 
             <div class="form-grid">
@@ -298,7 +298,7 @@
                   <option value="3">3ª dezena — dias 21 a 30</option>
                 </select>
               </label>
-              <button id="applyBonusBtn" class="btn btn-light">Aplicar bônus da dezena</button>
+              <button id="applyBonusBtn" class="btn btn-light">Recalcular bônus automático</button>
               <button id="recalculateAllBtn" class="btn btn-blue full-span">Recalcular placar completo</button>
             </div>
           </article>

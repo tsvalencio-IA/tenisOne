@@ -53,7 +53,7 @@ button, input, select {
 }
 
 .login-card::after {
-  content: "⚽";
+  content: "CV";
   position: absolute;
   right: 22px;
   top: 18px;
@@ -460,6 +460,21 @@ nav {
 
 .sale-row {
   grid-template-columns: 1fr auto;
+}
+
+.daily-vendor-row b {
+  color: var(--green-dark);
+  font-size: 18px;
+}
+
+.daily-entry-row {
+  background: #fbfdfc;
+}
+
+.daily-entry-row .btn {
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 12px;
 }
 
 .timeline-row.bonus {
@@ -875,473 +890,806 @@ nav {
 .album-special-icon { font-size: 34px; }
 .album-special-slot { font-size: 28px; font-weight: 900; color: rgba(255,210,110,.95); }
 
-.sticker-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(340px, 1fr));
-  gap: 24px;
-  align-items: start;
-}
 
-.sticker-premium {
+
+/* -------------------------------------------------------------------------- */
+/* COMPONENTE OFICIAL DE FIGURINHA                                             */
+/* -------------------------------------------------------------------------- */
+.official-sticker-shell {
   display: grid;
   gap: 13px;
+  justify-items: center;
   min-width: 0;
 }
 
-.sticker-premium-frame {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  border-radius: 34px;
-  padding: 14px;
-  background: linear-gradient(180deg, #f5efe1, #f8f4ea);
-  border: 2px solid rgba(215,183,118,.55);
-  box-shadow: 0 30px 64px rgba(10,31,22,.16), inset 0 0 0 2px rgba(255,255,255,.55);
-  overflow: hidden;
+.official-sticker {
+  --team: #0b7f49;
+  --team-dark: #063f29;
+  --team-soft: #15a862;
+  --team-brush: #f5d437;
+  --team-brush-2: #0aa05a;
+  --foil-a: #fff5b8;
+  --foil-b: #d7a532;
+  --foil-c: #8b651a;
+  --ink: #061637;
+  --name-h: 17%;
+  width: min(100%, 378px);
+  color: #fff;
+  isolation: isolate;
+  container-type: inline-size;
 }
 
-.sticker-premium-frame::before {
+.official-sticker--azul {
+  --team: #15499f;
+  --team-dark: #0a265f;
+  --team-soft: #4a80dc;
+  --team-brush: #f4f7ff;
+  --team-brush-2: #2d6bd5;
+}
+
+.official-sticker.rarity-legendary {
+  --foil-a: #fff9ca;
+  --foil-b: #dca529;
+  --foil-c: #705116;
+}
+
+.official-sticker.rarity-silver {
+  --foil-a: #ffffff;
+  --foil-b: #b9c3cf;
+  --foil-c: #6f7b86;
+}
+
+.official-sticker--export {
+  width: 640px;
+}
+
+.official-sticker-frame {
+  position: relative;
+  aspect-ratio: 4 / 5.25;
+  overflow: hidden;
+  border-radius: 8.5cqw;
+  border: 2.65cqw solid var(--foil-b);
+  background:
+    linear-gradient(135deg, var(--foil-a) 0%, var(--foil-b) 22%, #fff0a3 39%, var(--foil-c) 62%, var(--foil-a) 100%);
+  box-shadow:
+    0 24px 56px rgba(8, 30, 20, .24),
+    inset 0 0 0 .9cqw rgba(255,255,255,.68);
+}
+
+.official-sticker-frame::before {
   content: "";
   position: absolute;
-  inset: 8px;
-  border-radius: 28px;
-  border: 4px solid #0a4f33;
-  box-shadow: inset 0 0 0 2px rgba(255,210,110,.66);
-  z-index: 2;
+  inset: 1.4cqw;
+  z-index: 12;
+  border: .55cqw solid rgba(255,255,255,.9);
+  border-radius: 6.2cqw;
   pointer-events: none;
 }
 
-.sticker-premium.azul .sticker-premium-frame::before {
-  border-color: var(--blue-dark);
-}
-
-.sticker-premium.compact .sticker-premium-frame {
-  border-radius: 24px;
-  padding: 10px;
-}
-
-.sticker-premium.compact .sticker-premium-frame::before {
-  inset: 6px;
-  border-radius: 20px;
-}
-
-.sticker-premium-header {
+.official-sticker-frame::after {
+  content: "";
   position: absolute;
-  top: 14px;
-  left: 30px;
-  right: 30px;
-  z-index: 7;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #f9e2a7;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: .14em;
-  font-size: 13px;
-  text-shadow: 0 2px 2px rgba(0,0,0,.18);
-}
-
-.sticker-premium-header strong {
-  font-size: 15px;
-}
-
-.sticker-premium.compact .sticker-premium-header {
-  top: 10px;
-  left: 18px;
-  right: 18px;
-  font-size: 9px;
-  letter-spacing: .08em;
-}
-
-.sticker-premium.compact .sticker-premium-header strong {
-  font-size: 10px;
-}
-
-.sticker-rarity-badge {
-  position: absolute;
-  top: 56px;
-  right: 24px;
-  z-index: 8;
-  padding: 9px 14px;
-  border-radius: 16px;
-  color: white;
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  box-shadow: 0 10px 20px rgba(0,0,0,.15);
-}
-
-.sticker-rarity-badge.legendary { background: linear-gradient(180deg, #3d7ee8, #1951b5); }
-.sticker-rarity-badge.gold { background: linear-gradient(180deg, #cb9a2c, #9c6a12); }
-.sticker-rarity-badge.silver { background: linear-gradient(180deg, #8a95a5, #667085); }
-.sticker-rarity-badge.classic { background: linear-gradient(180deg, var(--green), var(--green-dark)); }
-
-.sticker-premium.compact .sticker-rarity-badge {
-  top: 40px;
-  right: 16px;
-  padding: 6px 9px;
-  font-size: 9px;
-  border-radius: 12px;
-}
-
-.sticker-shield-badge {
-  position: absolute;
-  top: 104px;
-  right: 26px;
-  z-index: 7;
-  width: 118px;
-  height: 130px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  color: white;
-  background: linear-gradient(180deg, #103d2a, #0c6a41);
-  clip-path: polygon(50% 0%, 90% 12%, 100% 40%, 88% 85%, 50% 100%, 12% 85%, 0% 40%, 10% 12%);
-  box-shadow: 0 16px 26px rgba(0,0,0,.14), inset 0 0 0 3px rgba(255,210,110,.35);
-}
-
-.sticker-premium.azul .sticker-shield-badge {
-  background: linear-gradient(180deg, #11397e, var(--blue-dark));
-}
-
-.sticker-shield-icon { font-size: 28px; line-height: 1; }
-.sticker-shield-text { display: grid; gap: 1px; }
-.sticker-shield-text small { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; opacity: .88; }
-.sticker-shield-text strong { font-size: 20px; line-height: .9; text-transform: uppercase; letter-spacing: -.04em; }
-.sticker-shield-text span { font-size: 10px; letter-spacing: .12em; opacity: .9; }
-
-.sticker-premium.compact .sticker-shield-badge {
-  top: 74px;
-  right: 16px;
-  width: 72px;
-  height: 82px;
-}
-
-.sticker-premium.compact .sticker-shield-icon { font-size: 16px; }
-.sticker-premium.compact .sticker-shield-text small { font-size: 7px; }
-.sticker-premium.compact .sticker-shield-text strong { font-size: 12px; }
-.sticker-premium.compact .sticker-shield-text span { font-size: 7px; }
-
-.sticker-side-rail {
-  position: absolute;
-  top: 90px;
-  left: 18px;
-  bottom: 134px;
-  width: 86px;
-  z-index: 7;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(235,239,238,.98));
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,.82), 0 10px 18px rgba(0,0,0,.08);
-  display: grid;
-  align-content: start;
-  justify-items: center;
-  padding: 18px 10px 12px;
-}
-
-.sticker-premium.compact .sticker-side-rail {
-  top: 64px;
-  left: 14px;
-  bottom: 96px;
-  width: 56px;
-  border-radius: 16px;
-  padding: 11px 7px 8px;
-}
-
-.sticker-side-title {
-  writing-mode: horizontal-tb;
-  transform: none;
-  text-transform: uppercase;
-  letter-spacing: .045em;
-  font-size: 12px;
-  line-height: 1.05;
-  font-weight: 900;
-  color: var(--green-dark);
-  text-align: center;
-  max-width: 64px;
-  white-space: normal;
-}
-
-.sticker-premium.azul .sticker-side-title {
-  writing-mode: horizontal-tb;
-  transform: none;
-  text-transform: uppercase;
-  letter-spacing: .045em;
-  font-size: 12px;
-  line-height: 1.05;
-  font-weight: 900;
-  color: var(--green-dark);
-  text-align: center;
-  max-width: 64px;
-  white-space: normal;
-}
-.sticker-premium.compact .sticker-side-title {
-  font-size: 7.8px;
-  letter-spacing: .025em;
-  max-width: 42px;
-  line-height: 1.05;
-}
-
-.sticker-side-stripes {
-  width: 34px;
-  height: 70px;
-  margin: 12px 0;
-  background: repeating-linear-gradient(150deg, currentColor 0 10px, transparent 10px 18px);
-  color: var(--green);
-}
-
-.sticker-premium.azul .sticker-side-stripes { color: var(--blue); }
-.sticker-premium.compact .sticker-side-stripes { width: 22px; height: 42px; margin: 8px 0; }
-
-.sticker-side-shirt-number {
-  width: 50px;
-  height: 50px;
-  border-radius: 14px;
-  background: var(--green-dark);
-  color: white;
-  display: grid;
-  place-items: center;
-  font-size: 26px;
-  font-weight: 900;
-}
-
-.sticker-premium.azul .sticker-side-shirt-number { background: var(--blue); }
-.sticker-premium.compact .sticker-side-shirt-number { width: 30px; height: 30px; font-size: 15px; border-radius: 10px; }
-
-.sticker-stage {
-  position: absolute;
-  inset: 52px 16px 112px 16px;
-  overflow: hidden;
-  border-radius: 28px;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
   background:
-    linear-gradient(120deg, rgba(255,255,255,.16), transparent 30%, rgba(255,255,255,.16) 48%, transparent 65%),
-    linear-gradient(180deg, #20a7e2, #148fd1);
+    linear-gradient(115deg, rgba(255,255,255,.22), transparent 27% 70%, rgba(255,255,255,.12)),
+    radial-gradient(circle at 88% 41%, rgba(255,255,255,.62) 0 1.4%, rgba(255,255,255,.24) 2.1%, transparent 7.5%);
+  mix-blend-mode: screen;
 }
 
-.sticker-premium.compact .sticker-stage {
-  inset: 40px 10px 82px 10px;
-  border-radius: 18px;
-}
-
-.sticker-stage-number {
+.official-sticker-stadium,
+.official-sticker-brush,
+.official-sticker-lights,
+.official-sticker-confetti,
+.official-sticker-lines {
   position: absolute;
-  left: 98px;
-  top: 18px;
-  font-size: 315px;
-  line-height: .85;
-  font-weight: 900;
-  color: rgba(10,95,57,.94);
-  letter-spacing: -.1em;
+  pointer-events: none;
 }
 
-.sticker-premium.azul .sticker-stage-number { color: rgba(20,63,145,.92); }
-.sticker-premium.compact .sticker-stage-number { left: 60px; top: 18px; font-size: 165px; }
-
-.sticker-stage-accent {
-  position: absolute;
-  left: 118px;
-  top: 178px;
-  width: 90px;
-  height: 90px;
-  background: #f5d13f;
-  border-radius: 8px;
+.official-sticker-stadium {
+  inset: 2.8%;
+  z-index: 0;
+  border-radius: 6.2cqw;
+  background:
+    radial-gradient(ellipse at 50% 93%, rgba(22,128,70,.92) 0 14%, rgba(7,44,34,.52) 15% 20%, transparent 21%),
+    radial-gradient(ellipse at 50% 78%, rgba(255,255,255,.18) 0 4%, transparent 5%),
+    linear-gradient(180deg, #061739 0%, var(--team-dark) 35%, var(--team) 64%, #051a2f 100%);
 }
 
-.sticker-premium.compact .sticker-stage-accent { left: 72px; top: 104px; width: 54px; height: 54px; }
-
-.sticker-premium-photo {
+.official-sticker-stadium::before {
+  content: "";
   position: absolute;
-  inset: 34px 26px 0 110px;
+  left: -8%;
+  right: -8%;
+  bottom: 9%;
+  height: 25%;
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.15) 0 2px, transparent 2px 8px),
+    linear-gradient(180deg, rgba(9,29,57,.05), rgba(3,14,31,.82));
+  opacity: .7;
+}
+
+.official-sticker-stadium::after {
+  content: "";
+  position: absolute;
+  left: -15%;
+  right: -15%;
+  top: 50%;
+  height: 40%;
+  border-top: .45cqw solid rgba(255,255,255,.24);
+  border-radius: 50% 50% 0 0;
+  opacity: .82;
+}
+
+.official-sticker-brush-a {
+  z-index: 1;
+  left: 20%;
+  top: 6%;
+  width: 67%;
+  height: 35%;
+  transform: rotate(-9deg);
+  background:
+    linear-gradient(150deg, transparent 0 10%, var(--team-brush) 11% 25%, transparent 26% 36%, rgba(255,255,255,.35) 37% 47%, transparent 48% 100%),
+    linear-gradient(24deg, transparent 0 15%, var(--team-brush-2) 16% 42%, transparent 43% 100%);
+  opacity: .95;
+}
+
+.official-sticker-brush-b {
+  z-index: 2;
+  right: -9%;
+  bottom: 11%;
+  width: 50%;
+  height: 22%;
+  transform: rotate(-19deg);
+  background: linear-gradient(145deg, transparent 0 15%, var(--team-brush-2) 16% 42%, var(--team-brush) 43% 54%, transparent 55% 100%);
+  opacity: .8;
+}
+
+.official-sticker-lights {
+  z-index: 2;
+  inset: 0;
+  background:
+    radial-gradient(circle at 88% 39%, rgba(255,255,255,.92) 0 1.6%, rgba(139,211,255,.38) 2.3%, transparent 11%),
+    radial-gradient(circle at 77% 47%, rgba(255,255,255,.72) 0 1.1%, rgba(139,211,255,.24) 1.8%, transparent 8%),
+    radial-gradient(circle at 15% 58%, rgba(255,255,255,.28) 0 1%, transparent 7%);
+}
+
+.official-sticker-confetti {
   z-index: 4;
-  display: grid;
-  align-items: end;
-  justify-items: center;
+  inset: 12% 4% 16% 4%;
+  background:
+    linear-gradient(35deg, transparent 0 32%, rgba(255,217,67,.9) 33% 35%, transparent 36% 100%),
+    linear-gradient(125deg, transparent 0 72%, rgba(255,255,255,.72) 73% 75%, transparent 76% 100%),
+    linear-gradient(78deg, transparent 0 61%, rgba(18,168,93,.7) 62% 64%, transparent 65% 100%);
+  opacity: .58;
 }
 
-.sticker-premium.compact .sticker-premium-photo { inset: 24px 16px 0 70px; }
+.official-sticker-lines {
+  z-index: 3;
+  left: 8%;
+  right: 8%;
+  bottom: 12.5%;
+  height: 35%;
+  border: .45cqw solid rgba(255,255,255,.28);
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0;
+}
 
-.sticker-premium-photo img {
+.official-sticker-photo {
+  position: absolute;
+  left: 13%;
+  right: 3.5%;
+  top: 10.5%;
+  bottom: 12.5%;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 5.5cqw 5.5cqw 2.5cqw 2.5cqw;
+  background: transparent;
+}
+
+.official-sticker-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(4,15,32,.02) 0 58%, rgba(4,15,32,.18) 76%, rgba(4,15,32,.58) 100%),
+    radial-gradient(ellipse at 54% 37%, transparent 0 41%, rgba(1,10,25,.22) 86%);
+  pointer-events: none;
+}
+
+.official-sticker-photo img {
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
-  object-position: center top;
-  filter: saturate(1.03) contrast(1.02);
+  object-position: center 22%;
+  filter: saturate(1.08) contrast(1.04);
 }
 
-.sticker-premium-placeholder {
+.official-sticker-placeholder {
   width: 100%;
   height: 100%;
   display: grid;
   place-items: center;
-  font-size: 90px;
   color: rgba(255,255,255,.92);
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255,255,255,.25) 0 12%, transparent 13%),
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.03));
+  font-size: clamp(26px, 14cqw, 58px);
+  font-weight: 900;
 }
 
-.sticker-premium.compact .sticker-premium-placeholder { font-size: 48px; }
-
-.sticker-special-ribbon {
+.official-sticker-badge {
   position: absolute;
-  left: 30px;
-  right: 30px;
-  top: 242px;
-  z-index: 9;
-  min-height: 34px;
+  left: 4.7%;
+  top: 4.6%;
+  z-index: 8;
+  width: 27.5%;
+  min-height: 18.8%;
   display: grid;
+  align-content: center;
   place-items: center;
+  gap: .55cqw;
+  padding: 1.6cqw 1.3cqw;
+  border-radius: 4.2cqw .6cqw 4.2cqw .6cqw;
+  background: linear-gradient(180deg, #102b63, #061531);
+  border-right: .75cqw solid var(--foil-a);
+  border-bottom: .75cqw solid var(--foil-a);
+  text-align: center;
+  box-shadow: 0 10px 18px rgba(0,0,0,.28);
+}
+
+.official-sticker-tournament-mark {
+  position: relative;
+  width: 11.4cqw;
+  height: 10.6cqw;
+  display: block;
+}
+
+.official-sticker-tournament-mark::before,
+.official-sticker-tournament-mark::after,
+.tournament-cup,
+.tournament-base {
+  position: absolute;
+  content: "";
+  display: block;
+}
+
+.official-sticker-tournament-mark::before,
+.official-sticker-tournament-mark::after {
+  top: 2.1cqw;
+  width: 3.1cqw;
+  height: 4.1cqw;
+  border: .7cqw solid rgba(255,245,184,.95);
+  border-radius: 50%;
+}
+
+.official-sticker-tournament-mark::before {
+  left: .1cqw;
+  border-right: 0;
+}
+
+.official-sticker-tournament-mark::after {
+  right: .1cqw;
+  border-left: 0;
+}
+
+.tournament-cup {
+  left: 2.25cqw;
+  top: .5cqw;
+  width: 6.9cqw;
+  height: 5.5cqw;
+  border-radius: 1.1cqw 1.1cqw 3.1cqw 3.1cqw;
+  background: linear-gradient(135deg, #fff8be, #d9a62d 50%, #7f5a12 100%);
+  box-shadow: inset .65cqw .45cqw .8cqw rgba(255,255,255,.5), inset -.55cqw -.55cqw .8cqw rgba(73,44,0,.22);
+}
+
+.tournament-cup::before {
+  content: "";
+  position: absolute;
+  left: 2.65cqw;
+  bottom: -2.55cqw;
+  width: 1.55cqw;
+  height: 3cqw;
   border-radius: 999px;
-  background: rgba(16,32,24,.82);
-  color: #fff2bd;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+  background: linear-gradient(180deg, #fff0a1, #bd8521);
 }
 
-.sticker-premium.compact .sticker-special-ribbon {
-  left: 18px;
-  right: 18px;
-  top: 152px;
-  min-height: 22px;
-  font-size: 8px;
+.tournament-base {
+  left: 2.1cqw;
+  bottom: .2cqw;
+  width: 7.2cqw;
+  height: 2.25cqw;
+  border-radius: 999px 999px .8cqw .8cqw;
+  background: linear-gradient(180deg, #fff0a1, #a57420);
+  box-shadow: inset 0 .35cqw .45cqw rgba(255,255,255,.28);
 }
 
-.sticker-name-banner {
-  position: absolute;
-  left: 64px;
-  right: 38px;
-  bottom: 82px;
-  z-index: 10;
-  min-height: 84px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  padding: 10px 22px;
-  border-radius: 26px;
-  color: #fff3cf;
-  text-transform: uppercase;
-  font-size: clamp(38px, 5.2vw, 64px);
-  font-weight: 900;
-  letter-spacing: -.08em;
-  background: linear-gradient(180deg, var(--green), var(--green-dark));
-  box-shadow: inset 0 0 0 3px rgba(255,210,110,.5), 0 14px 28px rgba(0,0,0,.16);
-  text-shadow: 0 3px 0 rgba(0,0,0,.16);
-  line-height: .9;
-}
-
-.sticker-premium.azul .sticker-name-banner {
-  background: linear-gradient(180deg, var(--blue), var(--blue-dark));
-}
-
-.sticker-premium.compact .sticker-name-banner {
-  left: 42px;
-  right: 22px;
-  bottom: 58px;
-  min-height: 46px;
-  border-radius: 16px;
-  font-size: 23px;
-  padding: 8px 12px;
-}
-
-.sticker-role-banner {
-  position: absolute;
-  left: 86px;
-  right: 64px;
-  bottom: 46px;
-  z-index: 10;
-  min-height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  color: #11422d;
-  font-size: 18px;
-  font-weight: 900;
-  background: linear-gradient(180deg, #f7f8f8, #e7edeb);
-  text-align: center;
-  padding: 0 10px;
-}
-
-.sticker-premium.compact .sticker-role-banner {
-  left: 54px;
-  right: 34px;
-  bottom: 30px;
-  min-height: 22px;
-  font-size: 10px;
-}
-
-.sticker-footer-brand {
-  position: absolute;
-  left: 90px;
-  right: 66px;
-  bottom: 14px;
-  z-index: 10;
-  text-align: center;
-  color: #f8e2a0;
-  font-size: 14px;
+.official-sticker-badge span,
+.official-sticker-badge small {
+  font-size: clamp(5px, 2.2cqw, 9px);
+  line-height: 1;
   font-weight: 900;
   letter-spacing: .04em;
-  white-space: nowrap;
+}
+
+.official-sticker-badge strong {
+  font-size: clamp(8px, 3.35cqw, 14px);
+  line-height: .95;
+  font-weight: 900;
+}
+
+.official-sticker-team-card {
+  position: absolute;
+  right: 5.2%;
+  top: 5%;
+  z-index: 8;
+  width: 31.5%;
+  min-height: 19%;
+  display: grid;
+  gap: .7cqw;
+  place-items: center;
+  padding: 1.65cqw 1.4cqw 1.35cqw;
+  text-align: center;
+  color: #061531;
+  border-radius: 4cqw;
+  border: .75cqw solid rgba(255,246,208,.95);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,241,180,.94)),
+    linear-gradient(135deg, var(--team) 0 22%, transparent 22% 100%);
   overflow: hidden;
-  text-overflow: ellipsis;
+  box-shadow: 0 10px 18px rgba(0,0,0,.22);
 }
 
-.sticker-premium.compact .sticker-footer-brand {
-  left: 64px;
-  right: 42px;
-  bottom: 10px;
-  font-size: 8px;
+.official-sticker-team-mark {
+  position: relative;
+  z-index: 1;
+  width: 17.2cqw;
+  height: 10.8cqw;
+  display: grid;
+  place-items: center;
 }
 
-.sticker-caption-block {
-  padding: 14px 16px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, #ffffff, #fbfcff);
-  border: 1px solid rgba(8,100,58,.08);
-  box-shadow: 0 12px 28px rgba(12,36,24,.06);
+.team-mark-shield {
+  position: relative;
+  width: 15.6cqw;
+  height: 10.2cqw;
+  display: block;
+  overflow: hidden;
+  border-radius: 2.4cqw 2.4cqw 4.3cqw 4.3cqw;
+  border: .45cqw solid #fff;
+  box-shadow:
+    inset 0 0 0 .35cqw rgba(255,255,255,.32),
+    0 .9cqw 1.6cqw rgba(0,0,0,.18);
 }
 
-.sticker-caption-top {
+.official-sticker-team-mark--verde .team-mark-shield {
+  background: linear-gradient(145deg, #008b49, #06683a);
+}
+
+.official-sticker-team-mark--verde .team-mark-shield::before {
+  content: "";
+  position: absolute;
+  left: 3.25cqw;
+  top: 1.25cqw;
+  width: 8.3cqw;
+  height: 8.3cqw;
+  transform: rotate(45deg);
+  border-radius: .7cqw;
+  background: linear-gradient(135deg, #ffe25f, #d7a91f);
+}
+
+.official-sticker-team-mark--verde .team-mark-shield i {
+  position: absolute;
+  left: 5.35cqw;
+  top: 2.35cqw;
+  width: 4.3cqw;
+  height: 4.3cqw;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #377dff, #062c86 70%);
+  box-shadow: inset 0 0 0 .35cqw rgba(255,255,255,.8);
+}
+
+.official-sticker-team-mark--verde .team-mark-shield b {
+  position: absolute;
+  left: 6.9cqw;
+  top: 3.75cqw;
+  width: 1.15cqw;
+  height: 1.15cqw;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: -1.65cqw .35cqw 0 rgba(255,255,255,.85), 1.55cqw -.25cqw 0 rgba(255,255,255,.85);
+}
+
+.official-sticker-team-mark--azul .team-mark-shield {
+  background: linear-gradient(90deg, #123d95 0 33%, #fff 33% 66%, #e13b45 66% 100%);
+}
+
+.official-sticker-team-mark--azul .team-mark-shield::before {
+  content: "";
+  position: absolute;
+  left: 4.8cqw;
+  top: 1.1cqw;
+  width: 5.5cqw;
+  height: 6.5cqw;
+  border-radius: 3cqw 3cqw 1.2cqw 1.2cqw;
+  background: linear-gradient(180deg, #fff5b8, #d4a12c);
+  box-shadow: inset .45cqw .45cqw .7cqw rgba(255,255,255,.45);
+}
+
+.official-sticker-team-mark--azul .team-mark-shield i {
+  position: absolute;
+  left: 6.5cqw;
+  top: 2.65cqw;
+  width: 2.1cqw;
+  height: 3.4cqw;
+  border-radius: 999px;
+  background: #123d95;
+  opacity: .72;
+}
+
+.official-sticker-team-mark--azul .team-mark-shield b {
+  position: absolute;
+  left: 5.8cqw;
+  bottom: 1cqw;
+  width: 3.4cqw;
+  height: .9cqw;
+  border-radius: 999px;
+  background: #102b63;
+}
+
+.official-sticker-team-mark em {
+  position: absolute;
+  right: -.45cqw;
+  bottom: -.2cqw;
+  min-width: 4.7cqw;
+  height: 4.7cqw;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: .35cqw solid rgba(255,245,184,.95);
+  background: #061531;
+  color: #fff5b8;
+  font-style: normal;
+  font-size: clamp(6px, 2.3cqw, 10px);
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 .5cqw 1cqw rgba(0,0,0,.22);
+}
+
+.official-sticker-team-card::before {
+  content: "";
+  position: absolute;
+  inset: 15% 50% 15% -12%;
+  border-radius: 999px;
+  background: var(--team);
+  opacity: .22;
+}
+
+.official-sticker-team-card small,
+.official-sticker-team-card span {
+  position: relative;
+  z-index: 1;
+  color: var(--team-dark);
+  font-size: clamp(5px, 2cqw, 8px);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.official-sticker-team-card strong {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  font-size: clamp(8px, 4.1cqw, 16px);
+  line-height: .92;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.official-sticker-stats {
+  position: absolute;
+  left: 4.5%;
+  top: 27.5%;
+  z-index: 9;
+  width: 34%;
+  display: grid;
+  gap: 1.55cqw;
+}
+
+.official-sticker-stats div {
+  min-height: 11.8cqw;
+  display: grid;
+  grid-template-columns: 22% 1fr;
+  align-items: center;
+  gap: .9cqw;
+  padding: 1.15cqw 1.3cqw 1.15cqw 1.05cqw;
+  border-radius: .8cqw 3.4cqw 3.4cqw .8cqw;
+  border: .55cqw solid var(--foil-a);
+  background: rgba(5, 17, 42, .96);
+  box-shadow: 0 8px 15px rgba(0,0,0,.25);
+}
+
+.official-sticker-stats i {
+  width: 5.2cqw;
+  height: 5.2cqw;
+  display: grid;
+  place-items: center;
+  border-radius: 1.2cqw;
+  background: rgba(255,255,255,.95);
+  color: var(--team-dark);
+  font-style: normal;
+  font-size: clamp(6px, 2.8cqw, 11px);
+  line-height: 1;
+  font-weight: 900;
+}
+
+.official-sticker-stats span {
+  display: grid;
+  min-width: 0;
+}
+
+.official-sticker-stats small {
+  color: #ffe472;
+  font-size: clamp(4px, 1.85cqw, 8px);
+  line-height: 1;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.official-sticker-stats strong {
+  margin-top: .8cqw;
+  color: #fff;
+  font-size: clamp(5px, 3.1cqw, 15px);
+  line-height: .92;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.official-sticker-footer {
+  position: absolute;
+  left: 17%;
+  right: 5.2%;
+  bottom: 3.6%;
+  z-index: 10;
+  min-height: var(--name-h);
+  display: grid;
+  align-content: center;
+  gap: .9cqw;
+  justify-items: center;
+  padding: 2.5cqw 10.5cqw 2.1cqw 10.5cqw;
+  border: .65cqw solid var(--foil-a);
+  border-radius: 1.2cqw 3.5cqw 3.5cqw 1.2cqw;
+  background:
+    linear-gradient(180deg, #102b63, #061431 80%),
+    linear-gradient(90deg, rgba(255,255,255,.12), transparent);
+  box-shadow: 0 12px 22px rgba(0,0,0,.28);
+  text-align: center;
+}
+
+.official-sticker-footer strong {
+  max-width: 100%;
+  color: #fff;
+  font-size: clamp(15px, 7.2cqw, 34px);
+  line-height: .88;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+  text-shadow: 0 .3cqw .2cqw rgba(0,0,0,.42);
+}
+
+.official-sticker-footer span {
+  color: #fff2aa;
+  font-size: clamp(6px, 2.5cqw, 11px);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.official-sticker-footer small {
+  color: rgba(255,255,255,.86);
+  font-size: clamp(5px, 2.1cqw, 9px);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+.official-sticker-footer-medal,
+.official-sticker-footer-cup {
+  position: absolute;
+  bottom: 3.5%;
+  z-index: 11;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+}
+
+.official-sticker-footer-medal {
+  left: 5.2%;
+  width: 19%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: .75cqw solid var(--foil-a);
+  background:
+    radial-gradient(circle at 50% 48%, #fff 0 23%, transparent 24%),
+    radial-gradient(circle at 50% 50%, #09204d 0 45%, #061431 46% 100%);
+  box-shadow: inset 0 0 0 .6cqw rgba(255,255,255,.3), 0 8px 18px rgba(0,0,0,.25);
+  font-size: clamp(10px, 5.3cqw, 22px);
+}
+
+.official-sticker-footer-cup {
+  right: 5.2%;
+  width: 11.5%;
+  height: 15%;
+  border-radius: 4.5cqw 4.5cqw 2cqw 2cqw;
+  border: .45cqw solid var(--foil-a);
+  background: linear-gradient(180deg, #fff1a5, var(--foil-b) 48%, var(--foil-c));
+  color: #061431;
+  font-size: clamp(8px, 3.6cqw, 16px);
+}
+
+.official-sticker--mini {
+  width: min(100%, 142px);
+}
+
+.official-sticker--mini .official-sticker-frame {
+  border-width: .95cqw;
+  border-radius: 3.5cqw;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 0 0 .3cqw rgba(255,255,255,.46);
+}
+
+.official-sticker--mini .official-sticker-frame::before {
+  inset: .8cqw;
+  border-width: .25cqw;
+  border-radius: 2.7cqw;
+}
+
+.official-sticker--mini .official-sticker-photo {
+  left: 13%;
+  right: 4%;
+  top: 11%;
+  bottom: 13%;
+  border-radius: 2.6cqw;
+}
+
+.official-sticker-caption {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.official-sticker-caption-top {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin-bottom: 8px;
 }
 
-.sticker-caption-chip, .sticker-caption-number {
+.official-sticker-caption-chip,
+.official-sticker-caption-number {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 30px;
   border-radius: 999px;
-  font-size: 12px;
+  padding: 7px 10px;
+  font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: .06em;
 }
 
-.sticker-caption-chip.legendary { background: #eaf2ff; color: #1951b5; }
-.sticker-caption-chip.gold { background: #fff3d6; color: #9c6a12; }
-.sticker-caption-chip.silver { background: #eef2f7; color: #667085; }
-.sticker-caption-chip.classic { background: #edf8f1; color: var(--green-dark); }
-.sticker-caption-number { background: #f2f5f4; color: #51635a; }
+.official-sticker-caption-chip.legendary { background: #eaf2ff; color: #1951b5; }
+.official-sticker-caption-chip.gold { background: #fff3d6; color: #9c6a12; }
+.official-sticker-caption-chip.silver { background: #eef2f7; color: #667085; }
+.official-sticker-caption-chip.classic { background: #edf8f1; color: var(--green-dark); }
+.official-sticker-caption-number { background: #f2f5f4; color: #51635a; }
 
-.sticker-caption-note {
-  margin: 0 0 12px;
+.official-sticker-caption p {
+  margin: 0;
   color: #56665c;
   font-weight: 800;
 }
 
-.sticker-card-actions {
+.official-sticker-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-.sticker-card-actions .full-download {
+.official-sticker-actions .full-download {
   grid-column: 1 / -1;
 }
+
+.official-album-book {
+  display: block;
+  background: #efe7c9;
+  border: 2px solid rgba(144,118,57,.26);
+  box-shadow: 0 30px 70px rgba(0,0,0,.14);
+}
+
+.official-album-page {
+  min-height: auto;
+  padding: 24px;
+  background: linear-gradient(180deg, #f8f2df, #efe4c7);
+}
+
+.official-album-grid,
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.official-album-slot,
+.sticker-grid > .official-sticker-shell {
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+}
+
+.album-foot-note {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #5c513a;
+  text-align: center;
+  font-weight: 700;
+}
+
+.vendor-editor-preview {
+  display: grid;
+  place-items: center;
+}
+
+.vendor-editor-preview .official-sticker--mini {
+  width: min(100%, 156px);
+}
+
+.seller-hero .official-sticker {
+  width: min(100%, 260px);
+}
+
+.race-roster-grid.dynamic-roster {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.race-vendor-slot {
+  place-items: center;
+  min-height: auto;
+}
+
+.race-vendor-slot .official-sticker--mini {
+  width: min(100%, 132px);
+}
+
+.race-vendor-slot.empty {
+  min-height: 160px;
+  place-items: center;
+}
+
+.canvas-export-host,
+.sticker-export-source {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: max-content;
+  pointer-events: none;
+  opacity: 1;
+  z-index: -1;
+}
+
+.canvas-export-host .official-sticker,
+.sticker-export-source .official-sticker {
+  transform: none;
+}
+
 
 .seller-hero {
   display: grid;
@@ -1401,59 +1749,35 @@ nav {
   z-index: 999;
 }
 
+
+
 @media (max-width: 1180px) {
   .app-shell { grid-template-columns: 1fr; }
   .sidebar { position: relative; height: auto; }
   .hero-score { grid-template-columns: 1fr; }
   .grid-2, .grid-3, .album-showcase, .vendor-editor, .seller-hero { grid-template-columns: 1fr; }
-  .sticker-grid { grid-template-columns: 1fr; }
   .album-spread-book { grid-template-columns: 1fr; }
-  .page-left { border-right: 0; border-bottom: 3px solid rgba(68,52,34,.16); }
+}
+
+@media (max-width: 1020px) {
+  .official-album-grid,
+  .sticker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
   .content { padding: 18px; }
   .login-card { padding: 22px; }
-  .login-grid, .form-grid, .form-grid.compact, .team-summary, .album-stats, .album-card-row, .album-empty-row, .report-summary { grid-template-columns: 1fr; }
+  .login-grid, .form-grid, .form-grid.compact, .team-summary, .album-stats, .album-empty-row, .report-summary { grid-template-columns: 1fr; }
   .topbar, .card-head { align-items: flex-start; flex-direction: column; }
   .rule-row { grid-template-columns: 1fr; }
   .album-page { min-height: auto; padding: 16px; }
   .album-special-strip { grid-template-columns: 1fr; }
-  .sticker-premium-frame { border-radius: 24px; }
-  .sticker-premium-header { left: 18px; right: 18px; font-size: 10px; }
-  .sticker-premium-header strong { font-size: 11px; }
-  .sticker-rarity-badge { top: 44px; right: 16px; padding: 7px 10px; font-size: 10px; }
-  .sticker-shield-badge { top: 72px; right: 16px; width: 76px; height: 88px; }
-  .sticker-shield-icon { font-size: 18px; }
-  .sticker-shield-text small { font-size: 7px; }
-  .sticker-shield-text strong { font-size: 13px; }
-  .sticker-shield-text span { font-size: 7px; }
-  .sticker-side-rail { top: 64px; left: 14px; bottom: 96px; width: 58px; padding: 12px 7px 8px; border-radius: 16px; }
-  .sticker-side-title {
-  writing-mode: horizontal-tb;
-  transform: none;
-  text-transform: uppercase;
-  letter-spacing: .045em;
-  font-size: 12px;
-  line-height: 1.05;
-  font-weight: 900;
-  color: var(--green-dark);
-  text-align: center;
-  max-width: 64px;
-  white-space: normal;
+  .official-album-grid,
+  .sticker-grid { grid-template-columns: 1fr; }
+  .official-sticker { width: min(100%, 330px); }
+  .official-sticker-actions { grid-template-columns: 1fr; }
 }
-  .sticker-side-stripes { width: 24px; height: 48px; margin: 8px 0; }
-  .sticker-side-shirt-number { width: 32px; height: 32px; font-size: 16px; border-radius: 10px; }
-  .sticker-stage { inset: 40px 10px 82px 10px; border-radius: 18px; }
-  .sticker-stage-number { left: 60px; top: 18px; font-size: 170px; }
-  .sticker-stage-accent { left: 72px; top: 104px; width: 54px; height: 54px; }
-  .sticker-premium-photo { inset: 24px 16px 0 70px; }
-  .sticker-premium-placeholder { font-size: 48px; }
-  .sticker-name-banner { left: 42px; right: 22px; bottom: 58px; min-height: 46px; border-radius: 16px; font-size: 23px; padding: 8px 12px; }
-  .sticker-role-banner { left: 54px; right: 34px; bottom: 30px; min-height: 22px; font-size: 10px; }
-  .sticker-footer-brand { left: 64px; right: 42px; bottom: 10px; font-size: 8px; }
-  .sticker-special-ribbon { left: 18px; right: 18px; top: 152px; min-height: 22px; font-size: 8px; }
-}
+
 
 .daily-group-summary {
   display: grid;
@@ -1520,22 +1844,6 @@ nav {
   .daily-group-summary {
     grid-template-columns: 1fr;
   }
-}
-
-/* Ajuste de precisão visual: nenhum texto principal da figurinha fica invertido. */
-.sticker-side-title,
-.sticker-name-banner,
-.sticker-role-banner,
-.sticker-footer-brand,
-.sticker-rarity-badge {
-  text-rendering: geometricPrecision;
-}
-
-.sticker-role-banner,
-.sticker-footer-brand {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .manager-fig-help {
@@ -1678,34 +1986,6 @@ nav {
 
 .race-vendor-slot.empty {
   opacity: .7;
-}
-
-.race-vendor-photo {
-  aspect-ratio: 4 / 5;
-  border-radius: 8px;
-  overflow: hidden;
-  background: linear-gradient(180deg, #f5f5f5, #ececec);
-  display: grid;
-  place-items: center;
-}
-
-.race-vendor-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-}
-
-.race-vendor-initial {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #eef4ff;
-  color: #143f91;
-  font-size: 28px;
-  font-weight: 900;
 }
 
 .race-vendor-name {
@@ -1956,97 +2236,7 @@ nav {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* AJUSTES SOLICITADOS: FIGURINHAS + FOTO/CAMERA + ASSINATURA                  */
-/* -------------------------------------------------------------------------- */
-.sticker-premium-frame {
-  background:
-    radial-gradient(circle at top right, rgba(255,255,255,.34), transparent 22%),
-    radial-gradient(circle at 26% 16%, rgba(255,228,158,.30), transparent 24%),
-    linear-gradient(180deg, #f7f2e5, #f5efe1 46%, #f7f4eb 100%);
-}
 
-.sticker-stage {
-  background:
-    radial-gradient(circle at 74% 10%, rgba(255,255,255,.28), transparent 18%),
-    radial-gradient(circle at 20% 0%, rgba(255,255,255,.22), transparent 24%),
-    linear-gradient(180deg, #2bb3ed, #1697d8 50%, #0f87cb 100%);
-}
-
-.sticker-stage::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 26%;
-  background: linear-gradient(180deg, transparent, rgba(7,56,89,.16));
-  pointer-events: none;
-}
-
-.sticker-premium-photo {
-  inset: 28px 22px 0 102px;
-  align-items: stretch;
-}
-
-.sticker-premium.compact .sticker-premium-photo {
-  inset: 22px 14px 0 67px;
-}
-
-.sticker-photo-shell {
-  width: 100%;
-  height: 100%;
-  border-radius: 24px 24px 16px 16px;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 22%, rgba(255,255,255,.22), transparent 30%),
-    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,.55),
-    0 16px 26px rgba(7, 40, 59, .18);
-}
-
-.sticker-premium.compact .sticker-photo-shell {
-  border-radius: 18px 18px 12px 12px;
-}
-
-.sticker-premium-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
-  transform: scale(1.02);
-  filter: saturate(1.05) contrast(1.03);
-}
-
-.sticker-premium-placeholder {
-  background: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.06));
-}
-
-.sticker-name-banner {
-  left: 62px;
-  right: 34px;
-  bottom: 84px;
-}
-
-.sticker-role-banner {
-  left: 84px;
-  right: 60px;
-}
-
-.sticker-footer-brand {
-  left: 84px;
-  right: 60px;
-  color: #f9efc6;
-}
-
-.sticker-card-actions-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.sticker-card-actions-3 .full-download {
-  grid-column: 1 / -1;
-}
 
 .editor-actions {
   display: flex;
@@ -2076,32 +2266,6 @@ nav {
   padding: 18px 8px 6px;
 }
 
-@media (max-width: 760px) {
-  .sticker-premium-photo {
-    inset: 24px 16px 0 70px;
-  }
-
-  .sticker-photo-shell {
-    border-radius: 16px 16px 12px 12px;
-  }
-
-  .sticker-premium-photo img {
-    object-position: center 16%;
-  }
-
-  .sticker-card-actions-3 {
-    grid-template-columns: 1fr;
-  }
-
-  .editor-actions .btn {
-    flex-basis: 100%;
-  }
-}
-
-
-/* -------------------------------------------------------------------------- */
-/* FIGURINHAS ESTILO ÁLBUM DE FUTEBOL — PADRÃO ENVIADO PELO SAULO              */
-/* -------------------------------------------------------------------------- */
 .remember-access-wrap {
   grid-column: 1 / -1;
   display: flex !important;
@@ -2125,1299 +2289,36 @@ nav {
   accent-color: var(--green);
 }
 
-.soccer-sticker {
-  --team-main: #0b7f49;
-  --team-dark: #064b2d;
-  --team-bright: #16a461;
-  --team-alt: #0b61b5;
-}
-
-.soccer-sticker.azul {
-  --team-main: #143f91;
-  --team-dark: #09285e;
-  --team-bright: #1e73d7;
-  --team-alt: #10a65a;
-}
-
-.soccer-sticker-frame {
-  aspect-ratio: 2.62 / 3.68;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  border: 5px solid #f2d313 !important;
-  background:
-    linear-gradient(110deg, rgba(255,255,255,.86) 0 42%, transparent 42% 100%),
-    linear-gradient(140deg, var(--team-main) 0 24%, #f4d80f 24% 34%, var(--team-alt) 34% 50%, #ffffff 50% 60%, var(--team-main) 60% 100%) !important;
-  box-shadow: 0 20px 42px rgba(0,0,0,.18) !important;
-  overflow: hidden;
-}
-
-.soccer-sticker-frame::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  border-radius: 0 !important;
-  border: 2px solid rgba(255,255,255,.95) !important;
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,.18) !important;
-  z-index: 20 !important;
-  pointer-events: none !important;
-}
-
-.soccer-sticker-top {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 11.6%;
-  display: grid;
-  grid-template-columns: 14% 1fr 16%;
-  align-items: center;
-  z-index: 8;
-}
-
-.soccer-sticker-code {
-  height: 100%;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(180deg, #d6be64, #a8872b);
-  color: #111;
-  font-size: clamp(12px, 3vw, 18px);
-  font-weight: 950;
-  border-right: 2px solid rgba(0,0,0,.2);
-}
-
-.soccer-sticker-top strong {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  background: linear-gradient(180deg, #1f2430, #060b15);
-  color: #fff;
-  font-size: clamp(12px, 3vw, 19px);
-  font-weight: 950;
-  line-height: .95;
+.race-goals-panel strong {
+  color: #07170d;
+  background: linear-gradient(180deg, #fffdf3, #f5f0d9);
+  border: 4px solid rgba(0,0,0,.20);
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,.65), 0 10px 22px rgba(0,0,0,.16);
+  text-shadow: 0 1px 0 rgba(255,255,255,.65);
   letter-spacing: .02em;
-  text-transform: uppercase;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
-.soccer-sticker-flag {
-  height: 100%;
-  background: linear-gradient(180deg, #f7d91b, #f0c908);
-  display: grid;
-  place-items: center;
-  border-left: 2px solid rgba(0,0,0,.18);
-}
+.race-goals-panel.green strong { color: #093b20; }
+.race-goals-panel.blue strong { color: #08275f; }
 
-.soccer-sticker-flag i {
-  width: 64%;
-  aspect-ratio: 1;
-  display: block;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, #143f91 0 28%, transparent 29%),
-    linear-gradient(45deg, transparent 29%, #f5d514 30% 42%, transparent 43%),
-    linear-gradient(-45deg, transparent 29%, #f5d514 30% 42%, transparent 43%),
-    #07964d;
-  border: 2px solid rgba(255,255,255,.85);
-  box-shadow: 0 1px 2px rgba(0,0,0,.25);
-}
-
-.soccer-sticker-body {
-  position: absolute;
-  inset: 11.6% 0 13.5% 0;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 84% 88%, rgba(255,255,255,.92) 0 10%, transparent 10.5%),
-    linear-gradient(118deg, rgba(255,255,255,.82) 0 42%, transparent 42.2%),
-    linear-gradient(142deg, var(--team-main) 0 23%, #f5d51d 23.2% 34%, var(--team-alt) 34.2% 52%, #ffffff 52.2% 62%, var(--team-main) 62.2% 100%);
-}
-
-.soccer-sticker-side {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 19%;
-  z-index: 7;
-  display: grid;
-  grid-template-rows: 52px 1fr 34px;
+.race-vendor-slot {
   align-items: center;
   justify-items: center;
-  color: #f8e49d;
-  background: linear-gradient(180deg, rgba(8,11,23,.18), rgba(8,11,23,.26));
-  border-right: 2px solid rgba(255,255,255,.78);
+  min-height: auto;
 }
 
-.soccer-side-cup {
-  font-size: clamp(20px, 4vw, 31px);
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,.25));
+.race-vendor-slot .official-sticker--mini {
+  width: min(100%, 132px);
 }
 
-.soccer-side-number {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  color: rgba(255,255,255,.95);
-  font-size: clamp(38px, 10vw, 66px);
-  font-weight: 950;
-  line-height: 1;
-  text-shadow: 0 3px 0 rgba(0,0,0,.25);
-}
-
-.soccer-side-team {
-  display: grid;
-  place-items: center;
-  width: 82%;
-  height: 24px;
-  border-radius: 4px;
-  background: rgba(0,0,0,.65);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 950;
-}
-
-.soccer-sticker-photo {
-  position: absolute;
-  left: 18%;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 5;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.soccer-sticker-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
-  filter: saturate(1.08) contrast(1.04);
-}
-
-.soccer-sticker-photo .soccer-sticker-placeholder {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  background: rgba(255,255,255,.28);
-  font-size: 46px;
-}
-
-.soccer-sticker-art {
-  position: absolute;
-  left: 18%;
-  bottom: 0;
-  width: 34%;
-  height: 42%;
-  z-index: 6;
-  opacity: .92;
-  background:
-    linear-gradient(135deg, transparent 0 24%, rgba(255,255,255,.96) 24% 31%, transparent 31% 100%),
-    linear-gradient(45deg, transparent 0 42%, rgba(18,67,151,.75) 42% 55%, transparent 55% 100%);
-  clip-path: polygon(0 0, 100% 0, 72% 100%, 0 100%);
-  pointer-events: none;
-}
-
-.soccer-sticker-mini-badge {
-  position: absolute;
-  left: 24%;
-  bottom: 5%;
-  z-index: 8;
-  padding: 5px 7px;
-  border-radius: 999px;
-  background: rgba(232,191,64,.9);
-  color: #1c1604;
-  font-size: 10px;
-  font-weight: 950;
-  text-transform: uppercase;
-  box-shadow: 0 2px 5px rgba(0,0,0,.25);
-}
-
-.soccer-sticker-ribbon {
-  position: absolute;
-  right: 6px;
-  top: 15.5%;
-  z-index: 11;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  padding: 8px 4px;
-  border-radius: 4px;
-  background: rgba(4,10,20,.78);
-  color: #f9e5a4;
-  font-size: 10px;
-  font-weight: 950;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-
-.soccer-sticker-stats {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 5.5%;
-  height: 8.2%;
-  z-index: 9;
-  display: grid;
-  grid-template-columns: 1.25fr .9fr .9fr .9fr;
-  background: linear-gradient(180deg, rgba(8, 8, 14, .96), rgba(0,0,0,.98));
-  border-top: 2px solid rgba(255,255,255,.18);
-}
-
-.soccer-sticker-stats div {
-  min-width: 0;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  border-right: 1px solid rgba(255,255,255,.18);
-  padding: 0 3px;
-}
-
-.soccer-sticker-stats div:last-child {
-  border-right: 0;
-}
-
-.soccer-sticker-stats span {
-  color: #cfd6df;
-  font-size: clamp(6px, 1.2vw, 8px);
-  font-weight: 850;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.soccer-sticker-stats strong {
-  max-width: 100%;
-  margin-top: 2px;
-  color: #fff;
-  font-size: clamp(8px, 1.8vw, 12px);
-  font-weight: 950;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.soccer-sticker-footer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 5.5%;
-  z-index: 9;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 5px;
-  padding: 0 8px;
-  background: #08111f;
-  color: #f5d514;
-  font-size: clamp(7px, 1.5vw, 10px);
-  font-weight: 950;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-}
-
-.soccer-sticker-footer strong {
-  color: #fff;
-}
-
-.sticker-premium.compact .soccer-sticker-top strong {
-  font-size: 10px;
-  padding: 0 4px;
-}
-
-.sticker-premium.compact .soccer-sticker-code {
-  font-size: 10px;
-}
-
-.sticker-premium.compact .soccer-sticker-side {
-  grid-template-rows: 32px 1fr 22px;
-}
-
-.sticker-premium.compact .soccer-side-cup {
-  font-size: 17px;
-}
-
-.sticker-premium.compact .soccer-side-number {
-  font-size: 38px;
-}
-
-.sticker-premium.compact .soccer-side-team {
-  font-size: 7px;
-  height: 16px;
-}
-
-.sticker-premium.compact .soccer-sticker-mini-badge,
-.sticker-premium.compact .soccer-sticker-ribbon {
-  font-size: 7px;
-}
-
-.sticker-premium.compact .soccer-sticker-stats strong {
-  font-size: 7px;
-}
-
-.sticker-premium.compact .soccer-sticker-stats span {
-  font-size: 5px;
+.race-vendor-slot.empty {
+  min-height: 160px;
 }
 
 @media (max-width: 760px) {
-  .soccer-sticker-frame {
-    max-width: 340px;
-    margin: 0 auto;
-  }
-
-  .soccer-sticker-stats strong {
-    font-size: 10px;
-  }
-
-  .soccer-sticker-stats span {
-    font-size: 6px;
-  }
-
-  .remember-access-wrap {
-    font-size: 12px;
-  }
-}
-
-
-/* -------------------------------------------------------------------------- */
-/* FIGURINHA PADRÃO SAULO — PREMIUM, SEM LOGOS OFICIAIS                       */
-/* -------------------------------------------------------------------------- */
-.saulo-sticker {
-  --saulo-primary: #0b7f49;
-  --saulo-secondary: #143f91;
-  --saulo-gold: #d8a81f;
-  --saulo-navy: #061835;
-}
-
-.saulo-sticker.azul {
-  --saulo-primary: #143f91;
-  --saulo-secondary: #0b7f49;
-}
-
-.saulo-sticker-frame {
-  aspect-ratio: 4 / 5 !important;
-  border-radius: 28px !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  position: relative !important;
-  border: 8px solid rgba(255,255,255,.92) !important;
-  background:
-    radial-gradient(circle at 84% 36%, rgba(255,255,255,.88) 0 1.6%, transparent 1.9%),
-    radial-gradient(circle at 76% 42%, rgba(255,255,255,.72) 0 1.1%, transparent 1.35%),
-    linear-gradient(180deg, #061835 0%, #083162 50%, #04152d 100%) !important;
-  box-shadow:
-    0 26px 60px rgba(0,0,0,.25),
-    inset 0 0 0 3px rgba(255,255,255,.82),
-    inset 0 0 0 9px rgba(6,24,53,.92) !important;
-}
-
-.saulo-holo-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background:
-    repeating-conic-gradient(from 12deg at 50% 50%,
-      rgba(255,255,255,.35) 0 10deg,
-      rgba(84,221,255,.18) 10deg 18deg,
-      rgba(255,236,93,.22) 18deg 28deg,
-      rgba(80,255,146,.22) 28deg 38deg,
-      rgba(255,255,255,.16) 38deg 48deg),
-    linear-gradient(135deg, rgba(255,255,255,.58), rgba(255,255,255,0) 26%, rgba(255,255,255,.18) 56%, rgba(255,255,255,0));
-  mix-blend-mode: screen;
-  opacity: .48;
-  pointer-events: none;
-}
-
-.saulo-stadium-light {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background:
-    radial-gradient(circle at 83% 36%, rgba(255,255,255,.75), transparent 6%),
-    radial-gradient(circle at 89% 48%, rgba(255,255,255,.5), transparent 4%),
-    radial-gradient(ellipse at center 82%, rgba(10,74,45,.82) 0 18%, transparent 44%),
-    linear-gradient(160deg, rgba(5,55,102,.85), rgba(4,23,54,.30) 45%, rgba(0,93,50,.74)),
-    repeating-linear-gradient(95deg, transparent 0 18px, rgba(255,213,38,.22) 18px 21px, transparent 21px 42px);
-  pointer-events: none;
-}
-
-.saulo-sticker-frame::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: 18px !important;
-  z-index: 3 !important;
-  border-radius: 22px !important;
-  border: 4px solid rgba(224,178,39,.92) !important;
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,.72),
-    0 0 0 2px rgba(4,13,35,.65) !important;
-  pointer-events: none !important;
-}
-
-.saulo-sticker-frame::after {
-  content: "";
-  position: absolute;
-  inset: 22px;
-  z-index: 4;
-  border-radius: 18px;
-  background:
-    linear-gradient(145deg, transparent 0 22%, rgba(8,126,72,.75) 22.2% 30%, rgba(240,205,22,.72) 30.2% 38%, transparent 38.2%),
-    linear-gradient(35deg, transparent 0 68%, rgba(8,126,72,.70) 68.2% 76%, rgba(240,205,22,.70) 76.2% 84%, transparent 84.2%);
-  pointer-events: none;
-}
-
-.saulo-brand-badge {
-  position: absolute;
-  left: 24px;
-  top: 22px;
-  z-index: 10;
-  width: 24%;
-  height: 19%;
-  border-radius: 0 0 16px 0;
-  color: #fff;
-  background: linear-gradient(135deg, #090f32, #081c45 58%, rgba(8,28,69,.78));
-  border-right: 3px solid rgba(242,211,19,.88);
-  border-bottom: 3px solid rgba(242,211,19,.88);
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  text-align: center;
-  gap: 6px;
-  font-weight: 950;
-  text-transform: uppercase;
-  letter-spacing: -.02em;
-  font-size: clamp(8px, 1.6vw, 12px);
-  line-height: 1.06;
-}
-
-.saulo-brand-symbol {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #fff, #e7efff);
-  color: var(--saulo-primary);
-  font-size: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.22);
-}
-
-.saulo-team-badge {
-  position: absolute;
-  right: 34px;
-  top: 30px;
-  z-index: 10;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  min-width: 120px;
-  color: #fff;
-  text-align: center;
-  text-transform: uppercase;
-  text-shadow: 0 2px 2px rgba(0,0,0,.38);
-}
-
-.saulo-team-flag {
-  width: 108px;
-  height: 62px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--saulo-primary), #149b53);
-  border: 4px solid rgba(255,255,255,.90);
-  box-shadow: 0 8px 18px rgba(0,0,0,.28);
-}
-
-.saulo-team-flag i {
-  width: 58px;
-  height: 38px;
-  display: block;
-  background:
-    radial-gradient(circle at 50% 50%, #143f91 0 31%, transparent 32%),
-    linear-gradient(45deg, transparent 31%, #f5d514 32% 46%, transparent 47%),
-    linear-gradient(-45deg, transparent 31%, #f5d514 32% 46%, transparent 47%);
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
-}
-
-.saulo-team-badge strong {
-  font-size: clamp(14px, 3vw, 26px);
-  line-height: 1;
-  letter-spacing: .11em;
-}
-
-.saulo-team-badge em {
-  display: grid;
-  place-items: center;
-  width: 62px;
-  height: 70px;
-  border-radius: 18px 18px 24px 24px;
-  background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.58));
-  color: var(--saulo-primary);
-  border: 3px solid rgba(255,255,255,.95);
-  font-style: normal;
-  font-weight: 950;
-  font-size: 18px;
-  box-shadow: 0 8px 16px rgba(0,0,0,.16);
-}
-
-.saulo-left-stats {
-  position: absolute;
-  left: 24px;
-  top: 26%;
-  z-index: 12;
-  width: 25.5%;
-  display: grid;
-  gap: 9px;
-}
-
-.saulo-stat-box {
-  min-height: 74px;
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  grid-template-areas:
-    "icon label"
-    "icon value";
-  align-items: center;
-  column-gap: 10px;
-  padding: 8px 10px;
-  border-radius: 0 12px 12px 0;
-  background: linear-gradient(180deg, #081b3d, #06142e);
-  color: #fff;
-  border: 2px solid rgba(242,211,19,.86);
-  box-shadow: 0 8px 16px rgba(0,0,0,.24);
-}
-
-.saulo-stat-icon {
-  grid-area: icon;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  background: rgba(255,255,255,.10);
-  font-weight: 950;
-  font-size: 22px;
-}
-
-.saulo-stat-box small {
-  grid-area: label;
-  color: #f4d80f;
-  font-weight: 950;
-  text-transform: uppercase;
-  font-size: clamp(7px, 1.4vw, 13px);
-  line-height: 1;
-}
-
-.saulo-stat-box strong {
-  grid-area: value;
-  color: #fff;
-  font-weight: 950;
-  font-size: clamp(11px, 2.4vw, 24px);
-  line-height: 1.02;
-  white-space: nowrap;
-}
-
-.saulo-photo-area {
-  position: absolute;
-  inset: 10% 9% 12% 17%;
-  z-index: 6;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 12px;
-}
-
-.saulo-photo-area img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
-  filter: saturate(1.08) contrast(1.04);
-}
-
-.saulo-sticker-placeholder {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  font-size: 56px;
-  color: #fff;
-  background:
-    radial-gradient(circle at 50% 30%, rgba(255,255,255,.32), transparent 24%),
-    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.02));
-}
-
-.saulo-confetti {
-  position: absolute;
-  z-index: 13;
-  width: 10px;
-  height: 34px;
-  background: #f4d80f;
-  opacity: .72;
-  transform: rotate(28deg);
-  border-radius: 3px;
-  pointer-events: none;
-}
-
-.saulo-confetti.c1 { right: 18%; top: 38%; }
-.saulo-confetti.c2 { right: 11%; top: 56%; transform: rotate(-18deg); background: #fff; opacity: .55; }
-.saulo-confetti.c3 { right: 22%; top: 21%; transform: rotate(55deg); background: #0b7f49; opacity: .80; }
-
-.saulo-name-plate {
-  position: absolute;
-  left: 40px;
-  right: 40px;
-  bottom: 32px;
-  z-index: 20;
-  height: 104px;
-  display: grid;
-  grid-template-columns: 92px 1fr 76px;
-  align-items: center;
-  gap: 14px;
-  padding: 11px 15px 20px;
-  border-radius: 0 0 18px 18px;
-  color: #fff;
-  background:
-    linear-gradient(180deg, rgba(9,31,72,.97), rgba(4,17,42,.98));
-  border: 3px solid rgba(224,178,39,.92);
-  box-shadow: 0 -8px 24px rgba(0,0,0,.22);
-}
-
-.saulo-name-plate strong {
-  min-width: 0;
-  text-align: center;
-  font-size: clamp(19px, 4.9vw, 48px);
-  line-height: .95;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  font-weight: 950;
-  text-shadow: 0 4px 3px rgba(0,0,0,.28);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.saulo-ball-badge,
-.saulo-cup-badge {
-  display: grid;
-  place-items: center;
-  width: 76px;
-  height: 76px;
-  border-radius: 20px;
-  border: 3px solid rgba(224,178,39,.9);
-  background: linear-gradient(180deg, #112f6c, #071835);
-  color: #fff;
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,.18);
-  font-size: 34px;
-}
-
-.saulo-cup-badge {
-  background: linear-gradient(180deg, #f4d80f, #b98211);
-  font-size: 42px;
-}
-
-.saulo-position-bar {
-  position: absolute;
-  left: 132px;
-  right: 132px;
-  bottom: 23px;
-  z-index: 21;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  background: rgba(4, 18, 41, .78);
-  font-weight: 950;
-  font-size: clamp(11px, 2.1vw, 20px);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-
-.saulo-card-number {
-  position: absolute;
-  left: 44px;
-  top: 20px;
-  z-index: 16;
-  display: none;
-}
-
-.saulo-sticker.rarity-gold .saulo-sticker-frame,
-.saulo-sticker.rarity-legendary .saulo-sticker-frame {
-  border-color: #fff6cf !important;
-}
-
-.saulo-sticker.rarity-gold .saulo-holo-layer,
-.saulo-sticker.rarity-legendary .saulo-holo-layer {
-  opacity: .62;
-}
-
-.sticker-premium.compact .saulo-sticker-frame {
-  border-radius: 18px !important;
-  border-width: 5px !important;
-}
-
-.sticker-premium.compact .saulo-sticker-frame::before {
-  inset: 10px !important;
-  border-width: 2px !important;
-  border-radius: 14px !important;
-}
-
-.sticker-premium.compact .saulo-sticker-frame::after {
-  inset: 12px;
-  border-radius: 12px;
-}
-
-.sticker-premium.compact .saulo-brand-badge {
-  left: 13px;
-  top: 12px;
-  width: 25%;
-  height: 18%;
-  font-size: 6px;
-  border-radius: 0 0 9px 0;
-  gap: 3px;
-}
-
-.sticker-premium.compact .saulo-brand-symbol {
-  width: 22px;
-  height: 22px;
-  font-size: 12px;
-}
-
-.sticker-premium.compact .saulo-team-badge {
-  right: 18px;
-  top: 15px;
-  min-width: 68px;
-  gap: 3px;
-}
-
-.sticker-premium.compact .saulo-team-flag {
-  width: 62px;
-  height: 36px;
-  border-radius: 8px;
-  border-width: 2px;
-}
-
-.sticker-premium.compact .saulo-team-flag i {
-  width: 34px;
-  height: 22px;
-}
-
-.sticker-premium.compact .saulo-team-badge strong {
-  font-size: 8px;
-}
-
-.sticker-premium.compact .saulo-team-badge em {
-  width: 34px;
-  height: 38px;
-  border-radius: 9px 9px 13px 13px;
-  font-size: 10px;
-  border-width: 2px;
-}
-
-.sticker-premium.compact .saulo-left-stats {
-  left: 13px;
-  top: 27%;
-  width: 27%;
-  gap: 5px;
-}
-
-.sticker-premium.compact .saulo-stat-box {
-  min-height: 41px;
-  grid-template-columns: 24px 1fr;
-  column-gap: 5px;
-  padding: 4px 5px;
-  border-radius: 0 8px 8px 0;
-  border-width: 1px;
-}
-
-.sticker-premium.compact .saulo-stat-icon {
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  border-radius: 6px;
-}
-
-.sticker-premium.compact .saulo-stat-box small {
-  font-size: 5px;
-}
-
-.sticker-premium.compact .saulo-stat-box strong {
-  font-size: 8px;
-}
-
-.sticker-premium.compact .saulo-photo-area {
-  inset: 10% 8% 12% 17%;
-  border-radius: 8px;
-}
-
-.sticker-premium.compact .saulo-name-plate {
-  left: 20px;
-  right: 20px;
-  bottom: 16px;
-  height: 58px;
-  grid-template-columns: 42px 1fr 36px;
-  gap: 6px;
-  padding: 6px 7px 11px;
-  border-width: 2px;
-  border-radius: 0 0 11px 11px;
-}
-
-.sticker-premium.compact .saulo-name-plate strong {
-  font-size: 16px;
-  letter-spacing: .03em;
-}
-
-.sticker-premium.compact .saulo-ball-badge,
-.sticker-premium.compact .saulo-cup-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border-width: 2px;
-  font-size: 17px;
-}
-
-.sticker-premium.compact .saulo-cup-badge {
-  font-size: 20px;
-}
-
-.sticker-premium.compact .saulo-position-bar {
-  left: 62px;
-  right: 62px;
-  bottom: 12px;
-  height: 15px;
-  font-size: 7px;
-  letter-spacing: .08em;
-}
-
-@media (max-width: 760px) {
-  .saulo-sticker-frame {
-    max-width: 360px;
-    margin: 0 auto;
-    border-radius: 22px !important;
-  }
-
-  .saulo-brand-badge {
-    left: 18px;
-    top: 18px;
-    width: 26%;
-    height: 17%;
-    font-size: 7px;
-  }
-
-  .saulo-brand-symbol {
-    width: 28px;
-    height: 28px;
-    font-size: 15px;
-  }
-
-  .saulo-team-badge {
-    right: 24px;
-    top: 22px;
-    min-width: 88px;
-  }
-
-  .saulo-team-flag {
-    width: 78px;
-    height: 46px;
-  }
-
-  .saulo-team-flag i {
-    width: 42px;
-    height: 27px;
-  }
-
-  .saulo-team-badge strong {
-    font-size: 11px;
-  }
-
-  .saulo-team-badge em {
-    width: 42px;
-    height: 48px;
-    font-size: 12px;
-  }
-
-  .saulo-left-stats {
-    left: 18px;
-    top: 27%;
-    width: 28%;
-    gap: 6px;
-  }
-
-  .saulo-stat-box {
-    min-height: 49px;
-    grid-template-columns: 27px 1fr;
-    column-gap: 6px;
-    padding: 5px 6px;
-  }
-
-  .saulo-stat-icon {
-    width: 24px;
-    height: 24px;
-    font-size: 14px;
-  }
-
-  .saulo-stat-box small {
-    font-size: 6px;
-  }
-
-  .saulo-stat-box strong {
-    font-size: 10px;
-  }
-
-  .saulo-name-plate {
-    left: 24px;
-    right: 24px;
-    bottom: 20px;
-    height: 70px;
-    grid-template-columns: 48px 1fr 42px;
-    gap: 8px;
-    padding: 7px 9px 14px;
-  }
-
-  .saulo-name-plate strong {
-    font-size: 19px;
-  }
-
-  .saulo-ball-badge,
-  .saulo-cup-badge {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    font-size: 20px;
-  }
-
-  .saulo-cup-badge {
-    font-size: 24px;
-  }
-
-  .saulo-position-bar {
-    left: 72px;
-    right: 72px;
-    bottom: 15px;
-    height: 18px;
-    font-size: 8px;
-  }
-}
-
-
-/* -------------------------------------------------------------------------- */
-/* ENTREGA FINAL — FIGURINHA PREMIUM SAULO + ROSTER DINÂMICO + CÂMERA          */
-/* -------------------------------------------------------------------------- */
-.race-roster-grid.dynamic {
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
-}
-
-.race-team-count {
-  margin-top: 10px;
-  text-align: center;
-  color: rgba(16,32,24,.70);
-  background: rgba(255,255,255,.70);
-  border: 1px dashed rgba(0,0,0,.14);
-  border-radius: 10px;
-  padding: 8px 10px;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.saulo-sticker {
-  --saulo-primary: #0b7f49;
-  --saulo-secondary: #143f91;
-  --saulo-gold: #d8a81f;
-  --saulo-navy: #061835;
-}
-
-.saulo-sticker.azul {
-  --saulo-primary: #143f91;
-  --saulo-secondary: #0b7f49;
-}
-
-.saulo-sticker-frame {
-  aspect-ratio: 4 / 5 !important;
-  border-radius: 30px !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  position: relative !important;
-  border: 9px solid rgba(255,255,255,.96) !important;
-  background:
-    radial-gradient(circle at 83% 38%, rgba(255,255,255,.90) 0 1.5%, transparent 1.9%),
-    radial-gradient(circle at 88% 48%, rgba(255,255,255,.55) 0 1.2%, transparent 1.5%),
-    linear-gradient(180deg, #07132e 0%, #082b5e 46%, #042918 100%) !important;
-  box-shadow:
-    0 30px 70px rgba(0,0,0,.25),
-    inset 0 0 0 3px rgba(255,255,255,.88),
-    inset 0 0 0 10px rgba(6,24,53,.88) !important;
-}
-
-.saulo-holo-layer {
-  opacity: .58 !important;
-  background:
-    repeating-conic-gradient(from 10deg at 50% 50%,
-      rgba(255,255,255,.55) 0 8deg,
-      rgba(72,230,255,.18) 8deg 15deg,
-      rgba(255,225,54,.24) 15deg 24deg,
-      rgba(98,255,164,.22) 24deg 33deg,
-      rgba(255,255,255,.14) 33deg 43deg),
-    linear-gradient(130deg, rgba(255,255,255,.60), rgba(255,255,255,0) 24%, rgba(255,255,255,.22) 62%, rgba(255,255,255,0));
-}
-
-.saulo-stadium-light {
-  background:
-    radial-gradient(circle at 84% 38%, rgba(255,255,255,.78), transparent 6%),
-    radial-gradient(circle at 89% 48%, rgba(255,255,255,.52), transparent 4%),
-    radial-gradient(ellipse at center 84%, rgba(8,74,43,.90) 0 16%, transparent 44%),
-    linear-gradient(160deg, rgba(6,56,102,.86), rgba(4,21,54,.26) 43%, rgba(0,99,54,.78)),
-    repeating-linear-gradient(95deg, transparent 0 18px, rgba(255,213,38,.24) 18px 21px, transparent 21px 42px) !important;
-}
-
-.saulo-sticker-frame::before {
-  inset: 18px !important;
-  border-radius: 23px !important;
-  border: 4px solid rgba(225,181,44,.96) !important;
-}
-
-.saulo-sticker-frame::after {
-  inset: 22px !important;
-  border-radius: 18px !important;
-  background:
-    linear-gradient(145deg, transparent 0 20%, rgba(8,126,72,.76) 20.2% 29%, rgba(240,205,22,.78) 29.2% 37%, transparent 37.2%),
-    linear-gradient(35deg, transparent 0 68%, rgba(8,126,72,.70) 68.2% 76%, rgba(240,205,22,.74) 76.2% 84%, transparent 84.2%) !important;
-}
-
-.saulo-brand-badge {
-  left: 24px !important;
-  top: 22px !important;
-  width: 26% !important;
-  height: 19% !important;
-  border-radius: 0 0 17px 0 !important;
-  background: linear-gradient(135deg, #070d2a, #092452 62%, rgba(8,28,69,.82)) !important;
-}
-
-.saulo-brand-symbol {
-  background: linear-gradient(180deg, #fffbe6, #e5f0ff) !important;
-  color: var(--saulo-primary) !important;
-}
-
-.saulo-team-badge {
-  right: 34px !important;
-  top: 30px !important;
-  min-width: 132px !important;
-}
-
-.saulo-team-flag {
-  width: 116px !important;
-  height: 66px !important;
-  border-radius: 14px !important;
-  background:
-    linear-gradient(135deg, var(--saulo-primary), #0fb862 54%, #f2d31b 54% 63%, var(--saulo-secondary) 63%) !important;
-  border: 4px solid rgba(255,255,255,.92) !important;
-}
-
-.saulo-team-flag i {
-  width: 54px !important;
-  height: 34px !important;
-  border-radius: 999px !important;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.03)),
-    var(--saulo-secondary) !important;
-  position: relative;
-}
-
-.saulo-team-flag i::after {
-  content: "T1";
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 950;
-  letter-spacing: .06em;
-}
-
-.saulo-team-badge strong {
-  font-size: clamp(14px, 3vw, 25px) !important;
-  letter-spacing: .08em !important;
-}
-
-.saulo-team-badge em {
-  display: none !important;
-}
-
-.saulo-left-stats {
-  left: 25px !important;
-  top: 25.5% !important;
-  width: 27% !important;
-  gap: 10px !important;
-}
-
-.saulo-stat-box {
-  min-height: 74px !important;
-  grid-template-columns: 44px 1fr !important;
-  padding: 8px 10px !important;
-  border-radius: 0 13px 13px 0 !important;
-  background: linear-gradient(180deg, #071a3d, #06142e) !important;
-  border: 2px solid rgba(242,211,19,.88) !important;
-}
-
-.saulo-stat-box small {
-  color: #f4d80f !important;
-  font-size: clamp(7px, 1.4vw, 13px) !important;
-  letter-spacing: .02em !important;
-}
-
-.saulo-stat-box strong {
-  color: #fff !important;
-  font-size: clamp(11px, 2.4vw, 23px) !important;
-}
-
-.saulo-photo-area {
-  inset: 8% 7% 14% 18% !important;
-  z-index: 6 !important;
-  border-radius: 14px !important;
-  align-items: flex-end !important;
-  background:
-    radial-gradient(circle at 58% 38%, rgba(255,255,255,.14), transparent 28%),
-    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)) !important;
-}
-
-.saulo-photo-area img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  object-position: center 17% !important;
-  filter: saturate(1.08) contrast(1.05) !important;
-}
-
-.saulo-name-plate {
-  left: 40px !important;
-  right: 40px !important;
-  bottom: 34px !important;
-  height: 106px !important;
-  grid-template-columns: 88px 1fr 72px !important;
-  border-radius: 0 0 19px 19px !important;
-  background: linear-gradient(180deg, rgba(11,31,70,.98), rgba(3,15,38,.99)) !important;
-  border: 3px solid rgba(224,178,39,.96) !important;
-}
-
-.saulo-name-plate strong {
-  font-size: clamp(19px, 4.8vw, 46px) !important;
-  letter-spacing: .045em !important;
-}
-
-.saulo-ball-badge,
-.saulo-cup-badge {
-  width: 74px !important;
-  height: 74px !important;
-  border-radius: 20px !important;
-}
-
-.saulo-position-bar {
-  left: 132px !important;
-  right: 132px !important;
-  bottom: 24px !important;
-  height: 28px !important;
-  background: rgba(4, 18, 41, .86) !important;
-}
-
-.timeline-row.preview {
-  border-style: dashed;
-  opacity: .92;
-}
-
-@media (max-width: 760px) {
-  .race-roster-grid.dynamic {
-    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
-  }
-
-  .saulo-sticker-frame {
-    max-width: 365px !important;
-  }
-
-  .saulo-brand-badge {
-    width: 27% !important;
-    height: 18% !important;
-    font-size: 7px !important;
-  }
-
-  .saulo-team-badge {
-    right: 22px !important;
-    top: 21px !important;
-    min-width: 88px !important;
-  }
-
-  .saulo-team-flag {
-    width: 80px !important;
-    height: 46px !important;
-  }
-
-  .saulo-team-flag i {
-    width: 38px !important;
-    height: 24px !important;
-  }
-
-  .saulo-team-flag i::after {
-    font-size: 10px;
-  }
-
-  .saulo-left-stats {
-    left: 18px !important;
-    width: 29% !important;
-    gap: 6px !important;
-  }
-
-  .saulo-stat-box {
-    min-height: 50px !important;
-    grid-template-columns: 27px 1fr !important;
-    padding: 5px 6px !important;
-  }
-
-  .saulo-stat-icon {
-    width: 24px !important;
-    height: 24px !important;
-    font-size: 14px !important;
-  }
-
-  .saulo-stat-box small {
-    font-size: 6px !important;
-  }
-
-  .saulo-stat-box strong {
-    font-size: 10px !important;
-  }
-
-  .saulo-photo-area {
-    inset: 9% 7% 14% 19% !important;
-  }
-
-  .saulo-name-plate {
-    left: 24px !important;
-    right: 24px !important;
-    bottom: 21px !important;
-    height: 72px !important;
-    grid-template-columns: 48px 1fr 42px !important;
-    padding: 7px 9px 14px !important;
-  }
-
-  .saulo-name-plate strong {
-    font-size: 19px !important;
-  }
-
-  .saulo-ball-badge,
-  .saulo-cup-badge {
-    width: 42px !important;
-    height: 42px !important;
-  }
-
-  .saulo-position-bar {
-    left: 72px !important;
-    right: 72px !important;
-    bottom: 16px !important;
-    height: 18px !important;
-    font-size: 8px !important;
-  }
+  .editor-actions .btn { flex-basis: 100%; }
+  .race-board-grid { padding: 10px; gap: 10px; }
+  .race-board-bottom { padding: 0 10px 10px; gap: 10px; }
+  .race-goals-panel strong { font-size: 56px; }
+  .race-roster-grid.dynamic-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

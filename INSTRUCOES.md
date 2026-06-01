@@ -113,14 +113,3 @@ Depois de subir no GitHub Pages, faça um hard refresh no navegador do celular:
 - ou limpe cache do site
 
 Isso evita abrir uma versão antiga do `index.html`, `app.js` ou `config.js`.
-
-
-## Correções desta entrega
-
-- O cadastro de novo vendedor agora entra dinamicamente na competição, no time, no placar e no ranking.
-- O resumo diário dos times não usa mais nomes fixos; ele puxa todos os vendedores ativos de cada equipe.
-- O botão `Bater foto` usa captura nativa do celular com câmera frontal quando o navegador permite.
-- O upload de imagem agora é direto para o Cloudinary, usando `cloudName` e `uploadPreset`.
-- Se o Cloudinary recusar o upload, o sistema mostra o erro real retornado pela plataforma.
-- A figurinha foi ajustada para o padrão premium enviado como referência, sem logotipos oficiais.
-- O bônus da dezena aparece como prévia e só soma +3 gols quando aplicado/fechado pelo gerente.

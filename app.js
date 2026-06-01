@@ -1,4 +1,4 @@
-const CONFIG = window.APP_CONFIG || {};
+﻿const CONFIG = window.APP_CONFIG || {};
 const campaign = CONFIG.campaign || {};
 const TEAMS = campaign.teams || {};
 const TRIAL_DAYS = Number(CONFIG.trialDays || 3);
@@ -70,7 +70,7 @@ function isoToday() {
 }
 
 function teamName(teamId) {
-  return TEAMS?.[teamId]?.name || (teamId === "azul" ? "Time Azul" : "Time Verde");
+  return TEAMS?.[teamId]?.name || (teamId === "azul" ? "França" : "Brasil");
 }
 
 function teamAccent(teamId) {
@@ -418,7 +418,10 @@ function vendorsArray({ activeOnly = false, albumOnly = false } = {}) {
 }
 
 function salesArray() {
-  return Object.values(state.data.sales || {});
+  return Object.entries(state.data.sales || {}).map(([id, sale]) => ({
+    ...sale,
+    id: sale?.id || id
+  }));
 }
 
 function roundsArray() {
@@ -516,31 +519,15 @@ function recomputeRoundForDate(date) {
     if (date) delete state.data.rounds[date];
     return null;
   }
-
-  const previous = state.data.rounds?.[date] || {};
-  const round = {
-    ...buildAutomaticRound(date),
-    status: previous.status || "aberto",
-    finalizedAt: previous.finalizedAt || "",
-    finalizedBy: previous.finalizedBy || ""
-  };
-
+  const round = buildAutomaticRound(date);
   state.data.rounds[date] = round;
   return round;
 }
 
-function isEndDateOfDezena(date) {
-  const dezena = getDezena(date);
-  const [, end] = dateRangeForDezena(dezena);
-  return String(date) === String(end);
-}
-
-function buildAutomaticBonus(dezena, options = {}) {
+function buildAutomaticBonus(dezena) {
   const [start, end] = dateRangeForDezena(dezena);
   const totals = getTeamTotalsForRange(start, end);
   const winnerTeam = winnerFromTotals(totals);
-  const previous = state.data.bonuses?.[`dezena_${dezena}`] || {};
-  const applied = options.apply === true || previous.status === "aplicado";
   return {
     id: `dezena_${dezena}`,
     dezena: Number(dezena),
@@ -548,54 +535,43 @@ function buildAutomaticBonus(dezena, options = {}) {
     endDate: end,
     teamTotals: totals,
     winnerTeam,
-    goalsAwarded: applied && winnerTeam ? 3 : 0,
-    previewGoals: winnerTeam ? 3 : 0,
-    status: applied ? "aplicado" : "previa",
+    goalsAwarded: winnerTeam ? 3 : 0,
     source: "automatico",
-    ruleUsed: applied
-      ? "Bônus aplicado: maior faturamento acumulado da dezena."
-      : "Prévia automática: maior faturamento acumulado da dezena.",
-    closedBy: applied ? "gerente" : "sistema",
+    ruleUsed: "Automático: maior faturamento acumulado da dezena.",
+    closedBy: "sistema",
     closedAt: new Date().toISOString()
   };
 }
 
-function recomputeBonusForDezena(dezena, options = {}) {
+function recomputeBonusForDezena(dezena) {
   if (!dezena || !hasSalesForDezena(dezena)) {
     if (dezena) delete state.data.bonuses[`dezena_${dezena}`];
     return null;
   }
-  const bonus = buildAutomaticBonus(dezena, options);
+  const bonus = buildAutomaticBonus(dezena);
   state.data.bonuses[`dezena_${dezena}`] = bonus;
   return bonus;
 }
 
-function recomputeAutomaticsForDate(date, options = {}) {
+function recomputeAutomaticsForDate(date) {
   const round = recomputeRoundForDate(date);
-  const applyBonus = options.applyBonus === true;
-  const bonus = recomputeBonusForDezena(getDezena(date), { apply: applyBonus });
+  const bonus = recomputeBonusForDezena(getDezena(date));
   return { round, bonus };
 }
 
-function recomputeAllAutomatics(options = {}) {
-  const previousBonuses = { ...(state.data.bonuses || {}) };
+function recomputeAllAutomatics() {
   state.data.rounds = {};
   state.data.bonuses = {};
   const dates = [...new Set(salesArray().map((sale) => sale.date).filter(Boolean))].sort();
   dates.forEach((date) => recomputeRoundForDate(date));
-  [1, 2, 3].forEach((dezena) => {
-    const id = `dezena_${dezena}`;
-    recomputeBonusForDezena(dezena, {
-      apply: options.applyBonuses === true || previousBonuses[id]?.status === "aplicado"
-    });
-  });
+  [1, 2, 3].forEach((dezena) => recomputeBonusForDezena(dezena));
 }
 
 function calculateScore() {
   const score = { verde: { goals: 0, sales: 0, wins: 0 }, azul: { goals: 0, sales: 0, wins: 0 } };
   salesArray().forEach((sale) => {
     const vendor = getVendor(sale.vendorId);
-    if (!vendor || !score[vendor.team]) return;
+    if (!vendor) return;
     score[vendor.team].sales += Number(sale.amount || 0);
   });
   roundsArray().forEach((round) => {
@@ -605,16 +581,16 @@ function calculateScore() {
     }
   });
   bonusesArray().forEach((bonus) => {
-    if (bonus.winnerTeam && score[bonus.winnerTeam] && bonus.status === "aplicado") {
+    if (bonus.winnerTeam && score[bonus.winnerTeam]) {
       score[bonus.winnerTeam].goals += Number(bonus.goalsAwarded || 0);
     }
   });
   return score;
 }
 
-function calculateSellerRanking() {
+function calculateSellerRanking({ activeOnly = false } = {}) {
   const totals = {};
-  vendorsArray({ activeOnly: false }).forEach((vendor) => {
+  vendorsArray({ activeOnly }).forEach((vendor) => {
     totals[vendor.id] = { ...vendor, total: 0, salesCount: 0 };
   });
   salesArray().forEach((sale) => {
@@ -622,7 +598,11 @@ function calculateSellerRanking() {
     totals[sale.vendorId].total += Number(sale.amount || 0);
     totals[sale.vendorId].salesCount += 1;
   });
-  return Object.values(totals).sort((a, b) => b.total - a.total);
+  return Object.values(totals).sort((a, b) =>
+    (b.total - a.total) ||
+    (Number(a.albumOrder || 99) - Number(b.albumOrder || 99)) ||
+    String(a.name).localeCompare(String(b.name))
+  );
 }
 
 function getLeaderTeam() {
@@ -635,7 +615,7 @@ function getLeaderTeam() {
 function getCollectionSummary() {
   const vendors = vendorsArray({ albumOnly: true });
   const withPhotos = vendors.filter((vendor) => !!vendor.imageUrl).length;
-  const ranking = calculateSellerRanking();
+  const ranking = calculateSellerRanking({ activeOnly: true });
   return {
     total: vendors.length,
     withPhotos,
@@ -677,88 +657,119 @@ function teamSelectOptions(current) {
   return Object.values(TEAMS).map((team) => `<option value="${team.id}" ${team.id === current ? "selected" : ""}>${team.name}</option>`).join("");
 }
 
-function buildStickerCard(vendor, index, options = {}) {
-  const rarity = RARITIES[vendor.rarity] || RARITIES.classic;
-  const team = vendor.team === "azul" ? "azul" : "verde";
-  const teamLabel = teamName(team);
-  const stickerNumber = getStickerNumber(index);
-  const compact = !!options.compact;
-  const showManagerActions = !!options.showManagerActions && session.role === "manager";
-  const photo = vendor.imageUrl
-    ? `<img src="${escapeHtml(vendor.imageUrl)}" alt="${escapeHtml(vendor.name)}" />`
-    : `<div class="saulo-sticker-placeholder">📸</div>`;
 
-  const fullName = String(vendor.name || "Vendedor").trim().toUpperCase();
-  const displayName = String(vendor.name || "Vendedor").trim();
-  const position = String(vendor.position || vendor.role || vendor.title || "Vendedor").trim();
-  const height = String(vendor.height || "1,70m").trim();
-  const weight = String(vendor.weight || "70kg").trim();
-  const birthDate = String(vendor.birthDate || vendor.nascimento || "").trim();
-  const age = String(vendor.age || "").trim();
-  const birthValue = birthDate || (age ? `${age} anos` : "A definir");
-  const editionText = `${teamLabel} • ${rarity.shortLabel || rarity.label}`;
+function getStickerIndex(vendor) {
+  const vendorId = String(vendor?.id || "");
+  const albumVendors = vendorsArray({ albumOnly: true });
+  let index = albumVendors.findIndex((item) => String(item.id) === vendorId);
+  if (index < 0) {
+    index = vendorsArray({ activeOnly: false }).findIndex((item) => String(item.id) === vendorId);
+  }
+  return Math.max(0, index);
+}
+
+function getStickerMeta(vendor) {
+  const team = vendor?.team === "azul" ? "azul" : "verde";
+  const rarity = RARITIES[vendor?.rarity] || RARITIES.classic;
+  const teamLabel = teamName(team);
+  const stickerNumber = getStickerNumber(getStickerIndex(vendor));
+  const birthDate = String(vendor?.birthDate || vendor?.nascimento || "").trim();
+  const age = String(vendor?.age || "").trim();
+  const birthLabel = birthDate && birthDate !== "A definir" ? "NASC." : "IDADE";
+  const birthValue = birthDate && birthDate !== "A definir" ? birthDate : (age || "18");
+
+  return {
+    team,
+    teamLabel,
+    teamCode: team === "azul" ? "FR" : "BR",
+    rarity,
+    stickerNumber,
+    displayName: String(vendor?.shortName || vendor?.name || "Vendedor").trim(),
+    fullName: String(vendor?.name || "Vendedor").trim(),
+    position: String(vendor?.position || vendor?.role || "Vendedor").trim(),
+    height: String(vendor?.height || "1,70m").trim(),
+    weight: String(vendor?.weight || "70kg").trim(),
+    birthLabel,
+    birthValue
+  };
+}
+
+function renderSticker(vendor, mode = "full") {
+  const normalizedMode = ["full", "mini", "export"].includes(mode) ? mode : "full";
+  const meta = getStickerMeta(vendor);
+  const initials = meta.displayName.slice(0, 2).toUpperCase() || "CV";
+  const photo = vendor?.imageUrl
+    ? `<img src="${escapeHtml(vendor.imageUrl)}" crossorigin="anonymous" loading="eager" referrerpolicy="no-referrer" alt="${escapeHtml(meta.fullName)}" />`
+    : `<div class="official-sticker-placeholder">${escapeHtml(initials)}</div>`;
 
   return `
-    <article class="sticker-premium saulo-sticker ${team} rarity-${rarity.key} ${compact ? "compact" : ""}" data-sticker-vendor="${escapeHtml(vendor.id)}">
-      <div class="sticker-premium-frame saulo-sticker-frame">
-        <div class="saulo-holo-layer"></div>
-        <div class="saulo-stadium-light"></div>
+    <article class="official-sticker official-sticker--${normalizedMode} official-sticker--${meta.team} rarity-${meta.rarity.key}" data-sticker-vendor="${escapeHtml(vendor?.id || "")}" data-sticker-mode="${normalizedMode}">
+      <div class="official-sticker-frame">
+        <div class="official-sticker-stadium"></div>
+        <div class="official-sticker-brush official-sticker-brush-a"></div>
+        <div class="official-sticker-brush official-sticker-brush-b"></div>
+        <div class="official-sticker-lights"></div>
+        <div class="official-sticker-confetti"></div>
+        <div class="official-sticker-lines"></div>
 
-        <div class="saulo-brand-badge">
-          <span class="saulo-brand-symbol">🏆</span>
-          <span>Copa das<br>Vendas 2026</span>
+        <div class="official-sticker-badge">
+          <div class="official-sticker-tournament-mark" aria-hidden="true">
+            <span class="tournament-cup"></span>
+            <span class="tournament-base"></span>
+          </div>
+          <span>COPA DAS</span>
+          <strong>VENDAS</strong>
+          <small>2026</small>
         </div>
 
-        <div class="saulo-team-badge">
-          <div class="saulo-team-flag"><i></i></div>
-          <strong>${escapeHtml(teamLabel)}</strong>
-          <em>${team === "verde" ? "SV" : "SA"}</em>
+        <div class="official-sticker-team-card" aria-label="${escapeHtml(meta.teamLabel)}">
+          <div class="official-sticker-team-mark official-sticker-team-mark--${meta.team}" aria-hidden="true">
+            <span class="team-mark-shield"><i></i><b></b></span>
+            <em>${escapeHtml(meta.teamCode)}</em>
+          </div>
+          <small>EQUIPE</small>
+          <strong>${escapeHtml(meta.teamLabel.toUpperCase())}</strong>
+          <span>#${meta.stickerNumber}</span>
         </div>
 
-        <div class="saulo-left-stats">
-          <div class="saulo-stat-box">
-            <span class="saulo-stat-icon">▦</span>
-            <small>Nascimento</small>
-            <strong>${escapeHtml(birthValue)}</strong>
-          </div>
-          <div class="saulo-stat-box">
-            <span class="saulo-stat-icon">↕</span>
-            <small>Altura</small>
-            <strong>${escapeHtml(height)}</strong>
-          </div>
-          <div class="saulo-stat-box">
-            <span class="saulo-stat-icon">◉</span>
-            <small>Peso</small>
-            <strong>${escapeHtml(weight)}</strong>
-          </div>
+        <div class="official-sticker-stats">
+          <div><i>N</i><span><small>${escapeHtml(meta.birthLabel)}</small><strong>${escapeHtml(meta.birthValue)}</strong></span></div>
+          <div><i>A</i><span><small>ALTURA</small><strong>${escapeHtml(meta.height)}</strong></span></div>
+          <div><i>P</i><span><small>PESO</small><strong>${escapeHtml(meta.weight)}</strong></span></div>
         </div>
 
-        <div class="saulo-photo-area">
+        <div class="official-sticker-photo">
           ${photo}
         </div>
 
-        <div class="saulo-confetti c1"></div>
-        <div class="saulo-confetti c2"></div>
-        <div class="saulo-confetti c3"></div>
+        <div class="official-sticker-footer-medal">CV</div>
+        <div class="official-sticker-footer-cup">26</div>
 
-        <div class="saulo-name-plate">
-          <span class="saulo-ball-badge">⚽</span>
-          <strong>${escapeHtml(fullName)}</strong>
-          <span class="saulo-cup-badge">🏆</span>
+        <div class="official-sticker-footer">
+          <strong>${escapeHtml(meta.displayName.toUpperCase())}</strong>
+          <span>${escapeHtml(meta.position.toUpperCase())}</span>
+          <small>#${meta.stickerNumber} - ${escapeHtml(meta.teamLabel.toUpperCase())}</small>
         </div>
-
-        <div class="saulo-position-bar">${escapeHtml(position.toUpperCase())}</div>
-        <div class="saulo-card-number">#${stickerNumber} • ${escapeHtml(editionText)}</div>
       </div>
+    </article>
+  `;
+}
 
-      <div class="sticker-caption-block">
-        <div class="sticker-caption-top">
-          <span class="sticker-caption-chip ${rarity.key}">${escapeHtml(rarity.label)}</span>
-          <span class="sticker-caption-number">#${stickerNumber}</span>
+function buildStickerCard(vendor, _index, options = {}) {
+  const meta = getStickerMeta(vendor);
+  const showManagerActions = !!options.showManagerActions && session.role === "manager";
+
+  return `
+    <article class="official-sticker-shell" data-sticker-card="${escapeHtml(vendor.id)}">
+      ${renderSticker(vendor, "full")}
+      <div class="official-sticker-caption">
+        <div class="official-sticker-caption-top">
+          <span class="official-sticker-caption-chip ${meta.rarity.key}">${escapeHtml(meta.rarity.label)}</span>
+          <span class="official-sticker-caption-number">#${meta.stickerNumber}</span>
         </div>
-        <p class="sticker-caption-note">${escapeHtml(displayName)} • ${escapeHtml(position)} • ${escapeHtml(teamLabel)} • ${escapeHtml(height)} • ${escapeHtml(weight)} • Nasc.: ${escapeHtml(birthValue)}</p>
+        <p>${escapeHtml(meta.fullName)} - ${escapeHtml(meta.position)} - ${escapeHtml(meta.teamLabel)} - ${escapeHtml(meta.height)} - ${escapeHtml(meta.weight)} - ${escapeHtml(meta.birthLabel)}: ${escapeHtml(meta.birthValue)}</p>
         ${showManagerActions ? `
-          <div class="sticker-card-actions sticker-card-actions-3">
+          <div class="official-sticker-actions">
             <button class="btn btn-light" data-upload="${escapeHtml(vendor.id)}">Enviar foto</button>
             <button class="btn btn-primary" data-camera="${escapeHtml(vendor.id)}">Bater foto</button>
             <button class="btn btn-outline" data-clear-photo="${escapeHtml(vendor.id)}">Limpar foto</button>
@@ -772,72 +783,37 @@ function buildStickerCard(vendor, index, options = {}) {
 
 function buildAlbumSpread() {
   const vendors = vendorsArray({ albumOnly: true });
-  const greens = vendors.filter((vendor) => vendor.team === "verde");
-  const blues = vendors.filter((vendor) => vendor.team === "azul");
   const summary = getCollectionSummary();
   const leaderText = summary.leaderTeam ? teamName(summary.leaderTeam) : "Empate no momento";
   const topSeller = summary.topSeller;
-
-  const greenCards = greens.map((vendor, idx) => buildStickerCard(vendor, vendors.findIndex((v) => v.id === vendor.id), { compact: true })).join("");
-  const blueCards = blues.map((vendor, idx) => buildStickerCard(vendor, vendors.findIndex((v) => v.id === vendor.id), { compact: true })).join("");
+  const albumCards = vendors.map((vendor) => `
+    <div class="official-album-slot">
+      ${renderSticker(vendor, "full")}
+    </div>
+  `).join("");
 
   return `
-    <div class="album-spread-book">
-      <section class="album-page page-left">
+    <div class="album-spread-book official-album-book">
+      <section class="album-page official-album-page">
         <div class="album-page-top">
-          <div class="album-logo-badge">🏆</div>
+          <div class="album-logo-badge">CV</div>
           <div>
-            <p class="album-mini-label">Álbum da</p>
+            <p class="album-mini-label">Album oficial</p>
             <h3>Copa das Vendas</h3>
-            <p class="album-description">Coleção da campanha. O gerente controla fotos, títulos, raridades, ordem e destaques publicados.</p>
+            <p class="album-description">Colecao completa da campanha interna com os 5 vendedores ativos.</p>
           </div>
         </div>
-
-        <div class="album-team-title verde">Time Verde</div>
-        <div class="album-card-row">${greenCards || "<p class='muted'>Nenhuma figurinha verde publicada.</p>"}</div>
-
-        <div class="album-reserve-title">Reservas</div>
-        <div class="album-empty-row">
-          ${buildEmptyAlbumSlot(5, "verde")}
-          ${buildEmptyAlbumSlot(6, "verde")}
-          ${buildEmptyAlbumSlot(7, "verde")}
-        </div>
-
+        <div class="official-album-grid">${albumCards || "<p class='muted'>Nenhuma figurinha publicada.</p>"}</div>
         <div class="album-special-strip green">
           <div class="album-special-copy">
-            <span>Especial Artilheiro</span>
+            <span>Artilheiro da campanha</span>
             <strong>${escapeHtml(topSeller?.shortName || topSeller?.name || "A definir")}</strong>
-            <small>Vendedor com maior venda acumulada no mês.</small>
+            <small>Maior faturamento individual acumulado.</small>
           </div>
-          <div class="album-special-icon">⚽</div>
-          <div class="album-special-slot">01</div>
+          <div class="album-special-icon">#1</div>
+          <div class="album-special-slot">${vendors.length}</div>
         </div>
-      </section>
-
-      <section class="album-page page-right">
-        <div class="album-page-header-inline">
-          <span>Fase de grupos</span>
-          <strong>Time Azul</strong>
-        </div>
-
-        <div class="album-card-row">${blueCards || "<p class='muted'>Nenhuma figurinha azul publicada.</p>"}</div>
-
-        <div class="album-reserve-title">Reservas</div>
-        <div class="album-empty-row">
-          ${buildEmptyAlbumSlot(5, "azul")}
-          ${buildEmptyAlbumSlot(6, "azul")}
-          ${buildEmptyAlbumSlot(7, "azul")}
-        </div>
-
-        <div class="album-special-strip blue">
-          <div class="album-special-copy">
-            <span>Especial Campeão</span>
-            <strong>${escapeHtml(leaderText)}</strong>
-            <small>Equipe com melhor desempenho no placar geral.</small>
-          </div>
-          <div class="album-special-icon">🏆</div>
-          <div class="album-special-slot">01</div>
-        </div>
+        <div class="album-foot-note">Lider atual: ${escapeHtml(leaderText)}. Todas as paginas usam o mesmo componente oficial de figurinha.</div>
       </section>
     </div>
   `;
@@ -898,33 +874,33 @@ function buildBoardVendorSlot(vendor, slotNumber) {
   if (!vendor) {
     return `
       <div class="race-vendor-slot empty">
-        <div class="race-vendor-photo empty"></div>
         <div class="race-vendor-name">A definir</div>
       </div>
     `;
   }
 
-  const photo = vendor.imageUrl
-    ? `<img src="${escapeHtml(vendor.imageUrl)}" alt="${escapeHtml(vendor.name)}" />`
-    : `<div class="race-vendor-initial">${escapeHtml((vendor.shortName || vendor.name || '?').slice(0, 1).toUpperCase())}</div>`;
-
   return `
     <div class="race-vendor-slot ${escapeHtml(vendor.team)}">
-      <div class="race-vendor-photo">${photo}</div>
-      <div class="race-vendor-name">${escapeHtml(vendor.shortName || vendor.name)}</div>
+      ${renderSticker(vendor, "mini")}
     </div>
   `;
 }
 
 function buildBoardRoster(teamId) {
   const vendors = vendorsArray({ activeOnly: true }).filter((vendor) => vendor.team === teamId);
-  const visibleVendors = vendors.length ? vendors : [null];
+
+  if (!vendors.length) {
+    return `
+      <div class="race-roster-grid">
+        ${buildBoardVendorSlot(null, 1)}
+      </div>
+    `;
+  }
 
   return `
-    <div class="race-roster-grid dynamic">
-      ${visibleVendors.map((vendor, index) => buildBoardVendorSlot(vendor, index + 1)).join('')}
+    <div class="race-roster-grid dynamic-roster count-${vendors.length}">
+      ${vendors.map((vendor, index) => buildBoardVendorSlot(vendor, index + 1)).join("")}
     </div>
-    <div class="race-team-count">${vendors.length} vendedor(es) ativo(s) na ${escapeHtml(teamName(teamId))}</div>
   `;
 }
 
@@ -968,7 +944,7 @@ function buildBoardDezena(dezena) {
 
 function renderDashboard() {
   const score = calculateScore();
-  const ranking = calculateSellerRanking();
+  const ranking = calculateSellerRanking({ activeOnly: true });
   const leader = getLeaderTeam();
   const today = isoToday();
 
@@ -987,7 +963,7 @@ function renderDashboard() {
   if ($('boardDezena3')) $('boardDezena3').innerHTML = buildBoardDezena(3);
 
   if ($('boardTopRanking')) {
-    $('boardTopRanking').innerHTML = ranking.slice(0, 4).map((row, idx) => `
+    $('boardTopRanking').innerHTML = ranking.map((row, idx) => `
       <div class="race-ranking-row place-${idx + 1}">
         <span class="race-ranking-medal">${idx + 1}º</span>
         <strong>${escapeHtml(row.name)}</strong>
@@ -1023,14 +999,14 @@ function renderSellerPanel() {
     $("sellerPersonalPanel").innerHTML = `<p class="muted">Selecione um vendedor no login.</p>`;
     return;
   }
-  const ranking = calculateSellerRanking();
+  const ranking = calculateSellerRanking({ activeOnly: true });
   const position = ranking.findIndex((item) => item.id === vendor.id) + 1;
   const personalSales = salesArray().filter((sale) => sale.vendorId === vendor.id).sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const total = personalSales.reduce((sum, sale) => sum + Number(sale.amount || 0), 0);
 
   $("sellerPersonalPanel").innerHTML = `
     <div class="seller-hero ${vendor.team}">
-      ${buildStickerCard(vendor, Math.max(0, vendorsArray({ albumOnly: true }).findIndex((v) => v.id === vendor.id)), { compact: true })}
+      ${renderSticker(vendor, "full")}
       <div>
         <span>${escapeHtml(teamName(vendor.team))}</span>
         <h3>${escapeHtml(vendor.name)}</h3>
@@ -1052,13 +1028,6 @@ function renderSellerPanel() {
   `;
 }
 
-function getTeamVendorNames(teamId) {
-  const names = vendorsArray({ activeOnly: true })
-    .filter((vendor) => vendor.team === teamId)
-    .map((vendor) => vendor.shortName || vendor.name);
-  return names.length ? names.map(escapeHtml).join(" + ") : "Sem vendedores ativos";
-}
-
 function renderDailySales() {
   const date = $("saleDate")?.value || isoToday();
   if ($("dailyTitle")) $("dailyTitle").textContent = date.split("-").reverse().join("/");
@@ -1077,14 +1046,14 @@ function renderDailySales() {
     </div>
     <div class="daily-group-summary">
       <div class="daily-group-card verde ${winnerTeam === "verde" ? "winner" : ""}">
-        <span>${escapeHtml(teamName("verde"))}</span>
+        <span>${escapeHtml(teamName('verde'))}</span>
         <strong>${brl(totals.verde || 0)}</strong>
-        <small>${getTeamVendorNames("verde")}</small>
+        <small>${escapeHtml(vendorsArray({ activeOnly: true }).filter((vendor) => vendor.team === 'verde').map((vendor) => vendor.shortName || vendor.name).join(' + ') || 'Sem vendedores')}</small>
       </div>
       <div class="daily-group-card azul ${winnerTeam === "azul" ? "winner" : ""}">
-        <span>${escapeHtml(teamName("azul"))}</span>
+        <span>${escapeHtml(teamName('azul'))}</span>
         <strong>${brl(totals.azul || 0)}</strong>
-        <small>${getTeamVendorNames("azul")}</small>
+        <small>${escapeHtml(vendorsArray({ activeOnly: true }).filter((vendor) => vendor.team === 'azul').map((vendor) => vendor.shortName || vendor.name).join(' + ') || 'Sem vendedores')}</small>
       </div>
       <div class="daily-result-card">
         <span>Resultado do dia</span>
@@ -1094,15 +1063,35 @@ function renderDailySales() {
     </div>
   `;
 
+  const daySales = salesArray()
+    .filter((sale) => sale.date === date)
+    .sort((a, b) => String(a.createdAt || a.updatedAt || a.id).localeCompare(String(b.createdAt || b.updatedAt || b.id)));
+
   const rows = vendorsArray({ activeOnly: true }).map((vendor) => {
-    const sale = salesArray().find((item) => item.date === date && item.vendorId === vendor.id);
+    const vendorSales = daySales.filter((item) => item.vendorId === vendor.id);
+    const total = vendorSales.reduce((sum, sale) => sum + Number(sale.amount || 0), 0);
     return `
-      <div class="sale-row">
+      <div class="sale-row daily-vendor-row">
         <div>
           <strong>${escapeHtml(vendor.name)}</strong>
-          <small>${escapeHtml(teamName(vendor.team))}</small>
+          <small>${escapeHtml(teamName(vendor.team))} - ${vendorSales.length} lançamento(s)</small>
         </div>
-        <b>${brl(sale?.amount || 0)}</b>
+        <b>${brl(total)}</b>
+      </div>
+    `;
+  }).join("");
+
+  const entries = daySales.map((sale) => {
+    const vendor = getVendor(sale.vendorId);
+    const createdAt = sale.createdAt || sale.updatedAt || "";
+    const timeText = createdAt ? new Date(createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "horário não informado";
+    return `
+      <div class="sale-row daily-entry-row">
+        <div>
+          <strong>${escapeHtml(vendor?.name || "Vendedor removido")} - ${brl(sale.amount)}</strong>
+          <small>${escapeHtml(timeText)} - ${escapeHtml(sale.note || "Sem observação")}</small>
+        </div>
+        ${session.role === "manager" ? `<button class="btn btn-danger" type="button" data-delete-sale="${escapeHtml(sale.id)}">Excluir</button>` : ""}
       </div>
     `;
   }).join("");
@@ -1110,9 +1099,14 @@ function renderDailySales() {
   if ($("dailySalesList")) {
     $("dailySalesList").innerHTML = `
       ${groupSummary}
-      <div class="daily-individual-title">Vendas individuais do dia</div>
+      <div class="daily-individual-title">Total do dia por vendedor</div>
       ${rows}
+      <div class="daily-individual-title">Lançamentos do dia</div>
+      ${entries || `<p class="muted">Nenhuma venda lançada nesta data.</p>`}
     `;
+    document.querySelectorAll("[data-delete-sale]").forEach((button) => {
+      button.addEventListener("click", () => deleteSale(button.dataset.deleteSale));
+    });
   }
 }
 
@@ -1124,15 +1118,12 @@ function renderRounds() {
     </div>
   `).join("");
 
-  const bonusRows = bonusesArray().sort((a, b) => Number(b.dezena) - Number(a.dezena)).map((bonus) => {
-    const applied = bonus.status === "aplicado";
-    return `
-      <div class="timeline-row bonus ${applied ? "closed" : "preview"}">
-        <strong>${applied ? "Bônus aplicado" : "Prévia do bônus"} ${bonus.dezena}ª dezena — ${bonus.winnerTeam ? teamName(bonus.winnerTeam) : "Sem vencedor"}</strong>
-        <span>${bonus.startDate} a ${bonus.endDate} • ${applied ? `+${bonus.goalsAwarded || 0} gol(s) no placar` : `prévia de +${bonus.previewGoals || 0} gol(s)`} • ${escapeHtml(bonus.ruleUsed || "")}</span>
-      </div>
-    `;
-  }).join("");
+  const bonusRows = bonusesArray().sort((a, b) => Number(b.dezena) - Number(a.dezena)).map((bonus) => `
+    <div class="timeline-row bonus">
+      <strong>Bônus automático ${bonus.dezena}ª dezena — ${bonus.winnerTeam ? teamName(bonus.winnerTeam) : "Sem vencedor"}</strong>
+      <span>${bonus.startDate} a ${bonus.endDate} • +${bonus.goalsAwarded || 0} gol(s) • ${escapeHtml(bonus.ruleUsed || "")}</span>
+    </div>
+  `).join("");
 
   $("roundHistory").innerHTML = bonusRows + roundRows || `<p class="muted">Nenhuma rodada calculada ainda. Ao salvar vendas, o sistema atualiza automaticamente.</p>`;
 }
@@ -1141,7 +1132,7 @@ function renderVendorAdmin() {
   const html = vendorsArray({ activeOnly: false }).map((vendor, index) => `
     <article class="vendor-editor" data-vendor-form="${escapeHtml(vendor.id)}">
       <div class="vendor-editor-preview">
-        ${buildStickerCard(vendor, index, { compact: true })}
+        ${renderSticker(vendor, "mini")}
       </div>
 
       <div class="vendor-editor-form">
@@ -1241,11 +1232,11 @@ function renderVendorAdmin() {
   });
 
   document.querySelectorAll("[data-save-vendor]").forEach((button) => {
-    button.addEventListener("click", () => saveVendorFromForm(button.dataset.saveVendor));
+    button.addEventListener("click", async () => { await saveVendorFromForm(button.dataset.saveVendor); });
   });
 
   document.querySelectorAll("[data-delete-vendor]").forEach((button) => {
-    button.addEventListener("click", () => deleteVendor(button.dataset.deleteVendor));
+    button.addEventListener("click", async () => { await deleteVendor(button.dataset.deleteVendor); });
   });
 
   document.querySelectorAll("[data-reset-vendor]").forEach((button) => {
@@ -1260,7 +1251,8 @@ function renderVendorAdmin() {
   bindPhotoButtons();
 }
 
-function saveVendorFromForm(vendorId) {
+
+async function saveVendorFromForm(vendorId) {
   if (!ensureCanSave("salvar vendedor")) return;
   const form = document.querySelector(`[data-vendor-form="${CSS.escape(vendorId)}"]`);
   if (!form) return;
@@ -1290,11 +1282,12 @@ function saveVendorFromForm(vendorId) {
     active: get("active") === "true"
   });
 
-  persist();
+  await persist();
   toast("Vendedor e figurinha atualizados.");
 }
 
-function addVendor() {
+
+async function addVendor() {
   if (!ensureCanSave("adicionar vendedor")) return;
   const id = safeId();
   state.data.vendors[id] = {
@@ -1318,17 +1311,18 @@ function addVendor() {
     active: true,
     imageUrl: ""
   };
-  persist();
+  await persist();
   toast("Vendedor criado. Edite os dados no painel.");
 }
 
-function deleteVendor(vendorId) {
+
+async function deleteVendor(vendorId) {
   if (!ensureCanSave("excluir vendedor")) return;
   const vendor = getVendor(vendorId);
   if (!vendor) return;
   if (!confirm(`Excluir ${vendor.name}? As vendas antigas continuam salvas, mas não aparecerão no ranking se o vendedor for removido.`)) return;
   delete state.data.vendors[vendorId];
-  persist();
+  await persist();
   toast("Vendedor excluído.");
 }
 
@@ -1349,9 +1343,8 @@ function bindPhotoButtons() {
   });
   document.querySelectorAll("[data-download-sticker]").forEach((button) => {
     button.addEventListener("click", async () => {
-      const card = button.closest(".sticker-premium")?.querySelector(".sticker-premium-frame");
       const vendor = getVendor(button.dataset.downloadSticker);
-      await downloadElementAsImage(card, `figurinha-${vendor?.shortName || vendor?.name || "vendedor"}.png`, 3);
+      await downloadStickerPng(vendor);
     });
   });
 }
@@ -1387,7 +1380,7 @@ function renderRules() {
     ["Campanha", state.data.settings?.name || campaign.name],
     ["Loja", state.data.settings?.store || campaign.store],
     ["Período", `${state.data.settings?.startDate || campaign.startDate} a ${state.data.settings?.endDate || campaign.endDate}`],
-    ["Formato", "Disputa por duplas / times internos: Time Verde x Time Azul."],
+    ["Formato", `Disputa por duplas / seleções internas: ${teamName("verde")} x ${teamName("azul")}.`],
     ["Controle", "Somente o gerente cadastra, edita figurinhas, envia fotos e lança vendas. Rodadas, gols e bônus são calculados automaticamente pelo sistema."],
     ["Acesso vendedor", "Vendedor apenas acompanha placar, ranking, vendas, álbum e figurinhas. Não altera dados."],
     ["Produtos", state.data.settings?.productsRule || "Todos os produtos da loja contam."],
@@ -1412,7 +1405,7 @@ function renderRules() {
 
 function renderReportSummary() {
   const score = calculateScore();
-  const ranking = calculateSellerRanking();
+  const ranking = calculateSellerRanking({ activeOnly: true });
   const leader = getLeaderTeam();
   $("reportSummary").innerHTML = `
     <div class="summary-card">
@@ -1456,15 +1449,15 @@ async function saveSale(event) {
   const amount = Number($("saleAmount").value || 0);
   if (!date || !vendorId || amount <= 0) return toast("Informe data, vendedor e valor válido.");
 
-  const id = `${date}_${vendorId}`;
+  const id = `sale_${Date.now()}_${safeId()}`;
   state.data.sales[id] = {
     id,
     date,
     vendorId,
     amount,
     note: $("saleNote").value || "",
+    createdAt: new Date().toISOString(),
     createdBy: "gerente",
-    updatedAt: new Date().toISOString()
   };
 
   recomputeAutomaticsForDate(date);
@@ -1475,19 +1468,31 @@ async function saveSale(event) {
   const round = state.data.rounds[date];
   const bonus = state.data.bonuses[`dezena_${getDezena(date)}`];
   const roundText = round?.winnerTeam
-    ? `${teamName(round.winnerTeam)} está vencendo o dia e receberá ${round.goalsAwarded} gol(s) ao finalizar.`
+    ? `${teamName(round.winnerTeam)} recebeu ${round.goalsAwarded} gol(s) da rodada.`
     : "Rodada empatada no momento.";
   const bonusText = bonus?.winnerTeam
-    ? `Prévia do bônus da ${getDezena(date)}ª dezena: ${teamName(bonus.winnerTeam)} lidera.`
+    ? `Bônus da ${getDezena(date)}ª dezena recalculado para ${teamName(bonus.winnerTeam)}.`
     : `Bônus da ${getDezena(date)}ª dezena sem vencedor no momento.`;
   toast(`Venda salva. ${roundText} ${bonusText}`);
+}
+
+async function deleteSale(saleId) {
+  if (!ensureCanSave("excluir venda")) return;
+  const sale = state.data.sales?.[saleId];
+  if (!sale) return toast("Venda não encontrada.");
+  const vendor = getVendor(sale.vendorId);
+  if (!confirm(`Excluir o lançamento de ${vendor?.name || "vendedor"} no valor de ${brl(sale.amount)}?`)) return;
+
+  delete state.data.sales[saleId];
+  recomputeAutomaticsForDate(sale.date);
+  await persist();
+  toast("Venda excluída e placar recalculado.");
 }
 
 async function closeRound(date) {
   if (!ensureCanSave("finalizar dia")) return;
   if (!date) return toast("Escolha uma data para finalizar.");
-  const shouldApplyBonus = isEndDateOfDezena(date);
-  const { round, bonus } = recomputeAutomaticsForDate(date, { applyBonus: shouldApplyBonus });
+  const { round, bonus } = recomputeAutomaticsForDate(date);
   if (!round) return toast("Nenhuma venda encontrada para essa data.");
   state.data.rounds[date] = {
     ...round,
@@ -1500,50 +1505,27 @@ async function closeRound(date) {
     ? `${teamName(round.winnerTeam)} venceu o dia e recebeu ${round.goalsAwarded} gol(s).`
     : "Dia finalizado empatado. Nenhum gol aplicado.";
   const bonusText = bonus?.winnerTeam
-    ? (bonus.status === "aplicado"
-      ? ` Bônus da ${round.dezena}ª dezena aplicado para ${teamName(bonus.winnerTeam)}.`
-      : ` Prévia da ${round.dezena}ª dezena: ${teamName(bonus.winnerTeam)} lidera o bônus.`)
+    ? ` Bônus da ${round.dezena}ª dezena atualizado para ${teamName(bonus.winnerTeam)}.`
     : ` Bônus da ${round.dezena}ª dezena sem vencedor no momento.`;
   toast(`Dia ${date.split("-").reverse().join("/")} finalizado. ${roundText}${bonusText}`);
 }
 
 async function applyBonus() {
-  if (!ensureCanSave("aplicar bônus automático")) return;
+  if (!ensureCanSave("recalcular bônus automático")) return;
   const dezena = Number($("bonusDezena").value || 1);
-  const bonus = recomputeBonusForDezena(dezena, { apply: true });
+  const bonus = recomputeBonusForDezena(dezena);
   await persist();
   if (!bonus) return toast(`Nenhuma venda encontrada na ${dezena}ª dezena.`);
-  toast(bonus.winnerTeam ? `Bônus aplicado: ${teamName(bonus.winnerTeam)} recebeu +3 gols.` : "Bônus recalculado sem vencedor.");
+  toast(bonus.winnerTeam ? `Bônus automático: ${teamName(bonus.winnerTeam)} recebeu +3 gols.` : "Bônus automático recalculado sem vencedor.");
 }
 
 async function recalculateAllAutomatics() {
   if (!ensureCanSave("recalcular placar automático")) return;
   recomputeAllAutomatics();
   await persist();
-  toast("Placar, rodadas e prévias de bônus recalculados automaticamente.");
+  toast("Placar, rodadas e bônus recalculados automaticamente.");
 }
 
-function choosePhotoFile(mode = "upload") {
-  return new Promise((resolve) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    if (mode === "camera") {
-      input.setAttribute("capture", "user");
-      input.capture = "user";
-    }
-    input.style.position = "fixed";
-    input.style.left = "-9999px";
-    input.style.opacity = "0";
-    document.body.appendChild(input);
-    input.addEventListener("change", () => {
-      const file = input.files?.[0] || null;
-      input.remove();
-      resolve(file);
-    }, { once: true });
-    input.click();
-  });
-}
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -1554,57 +1536,65 @@ function readFileAsDataUrl(file) {
   });
 }
 
-async function uploadImageToCloudinary(file) {
-  const cloudName = CONFIG.cloudinary?.cloudName?.trim();
-  const uploadPreset = CONFIG.cloudinary?.uploadPreset?.trim();
-  if (!cloudName || !uploadPreset) throw new Error("Cloudinary não configurado no config.js.");
-
-  const form = new FormData();
-  form.append("file", file);
-  form.append("upload_preset", uploadPreset);
-
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/image/upload`, {
-    method: "POST",
-    body: form
+function pickImageFile(mode = "upload") {
+  return new Promise((resolve) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    if (mode === "camera") input.setAttribute("capture", "user");
+    input.onchange = () => resolve(input.files?.[0] || null);
+    input.click();
   });
+}
 
-  const text = await response.text();
-  let data = {};
-  try { data = JSON.parse(text); } catch (err) { data = { error: { message: text } }; }
+async function uploadFileToCloudinary(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", CONFIG.cloudinary.uploadPreset);
+  formData.append("folder", "tenis-one-copa-vendas");
 
-  if (!response.ok || !data.secure_url) {
-    const msg = data?.error?.message || `Erro HTTP ${response.status}`;
-    throw new Error(msg);
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.cloudinary.cloudName}/image/upload`, {
+    method: "POST",
+    body: formData
+  });
+  const json = await response.json();
+  if (!response.ok || json.error) {
+    throw new Error(json?.error?.message || `HTTP ${response.status}`);
   }
-
-  return data.secure_url;
+  return json.secure_url;
 }
 
 async function uploadPhoto(vendorId, mode = "upload") {
   if (!ensureCanSave(mode === "camera" ? "bater foto" : "enviar foto")) return;
-  const vendor = state.data.vendors[vendorId];
-  if (!vendor) return toast("Vendedor não encontrado.");
-
-  const file = await choosePhotoFile(mode);
+  const file = await pickImageFile(mode);
   if (!file) return;
 
-  const cloudinaryReady = isConfigured(CONFIG.cloudinary, ["cloudName", "uploadPreset"]);
   try {
-    if (cloudinaryReady) {
-      toast(mode === "camera" ? "Enviando foto da câmera..." : "Enviando foto...");
-      vendor.imageUrl = await uploadImageToCloudinary(file);
-      await persist();
-      toast(mode === "camera" ? "Foto capturada e enviada ao Cloudinary." : "Foto enviada ao Cloudinary.");
-      return;
-    }
+    const cloudinaryReady = isConfigured(CONFIG.cloudinary, ["cloudName", "uploadPreset"]);
+    const imageUrl = cloudinaryReady
+      ? await uploadFileToCloudinary(file)
+      : await readFileAsDataUrl(file);
 
-    vendor.imageUrl = await readFileAsDataUrl(file);
+    state.data.vendors[vendorId].imageUrl = imageUrl;
     await persist();
-    toast("Foto salva localmente. Para produção, configure Cloudinary.");
+    toast(mode === "camera" ? "Foto capturada e salva." : "Foto enviada e salva.");
   } catch (err) {
-    console.error("Cloudinary upload error:", err);
-    toast(`Erro no Cloudinary: ${err.message || "verifique cloudName e uploadPreset unsigned."}`);
+    console.error(err);
+    toast(`Falha ao enviar foto: ${err?.message || 'verifique Cloudinary/preset.'}`);
   }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const existing = Array.from(document.scripts).find((script) => script.src === src);
+    if (existing) return resolve();
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
 }
 
 async function loadPhotoWidget() {
@@ -1627,18 +1617,55 @@ async function loadHtml2Canvas() {
   }
 }
 
+function waitForImages(root) {
+  const images = Array.from(root.querySelectorAll("img"));
+  return Promise.all(images.map((img) => {
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise((resolve) => {
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+  }));
+}
+
 async function elementToCanvas(element, scale = 2) {
   const ready = await loadHtml2Canvas();
   if (!ready || !element) return null;
-  return window.html2canvas(element, {
-    backgroundColor: null,
-    scale,
-    useCORS: true,
-    allowTaint: true,
-    logging: false,
-    windowWidth: Math.max(document.documentElement.clientWidth, element.scrollWidth),
-    windowHeight: Math.max(document.documentElement.clientHeight, element.scrollHeight)
-  });
+  const host = document.createElement("div");
+  host.className = "canvas-export-host";
+  const clone = element.cloneNode(true);
+  clone.classList?.add("canvas-export-node");
+  clone.querySelectorAll("[loading='lazy']").forEach((node) => node.setAttribute("loading", "eager"));
+  host.appendChild(clone);
+  document.body.appendChild(host);
+
+  try {
+    await waitForImages(clone);
+    return await window.html2canvas(clone, {
+      backgroundColor: null,
+      scale,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      imageTimeout: 15000,
+      windowWidth: Math.max(document.documentElement.clientWidth, clone.scrollWidth, element.scrollWidth),
+      windowHeight: Math.max(document.documentElement.clientHeight, clone.scrollHeight, element.scrollHeight)
+    });
+  } catch (err) {
+    console.warn("Falha ao gerar canvas", err);
+    return null;
+  } finally {
+    host.remove();
+  }
+}
+
+function filenameSafe(value) {
+  return String(value || "vendedor")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase() || "vendedor";
 }
 
 async function downloadElementAsImage(element, filename, scale = 2) {
@@ -1648,6 +1675,17 @@ async function downloadElementAsImage(element, filename, scale = 2) {
   link.href = canvas.toDataURL("image/png");
   link.download = filename;
   link.click();
+}
+
+async function downloadStickerPng(vendor) {
+  if (!vendor) return toast("Vendedor não encontrado.");
+  const host = document.createElement("div");
+  host.className = "sticker-export-source";
+  host.innerHTML = renderSticker(vendor, "export");
+  document.body.appendChild(host);
+  const sticker = host.querySelector(".official-sticker");
+  await downloadElementAsImage(sticker, `figurinha-${filenameSafe(vendor.shortName || vendor.name)}.png`, 2);
+  host.remove();
 }
 
 async function exportAlbumPDF() {
@@ -1675,7 +1713,7 @@ async function exportAlbumPDF() {
     place(spread);
   }
 
-  const frames = Array.from(document.querySelectorAll("#stickerGrid .sticker-premium-frame"));
+  const frames = Array.from(document.querySelectorAll("#stickerGrid .official-sticker"));
   for (let i = 0; i < frames.length; i += 2) {
     pdf.addPage("a4", "portrait");
     const pageW = pdf.internal.pageSize.getWidth();
@@ -1736,15 +1774,15 @@ async function exportReportPDF() {
   }
 
   const score = calculateScore();
-  const ranking = calculateSellerRanking();
+  const ranking = calculateSellerRanking({ activeOnly: true });
   const summary = getCollectionSummary();
 
   header("Relatório da Gincana");
   line("Campanha", state.data.settings?.name);
   line("Loja", state.data.settings?.store);
   line("Período", `${state.data.settings?.startDate} a ${state.data.settings?.endDate}`);
-  line("Time Verde", `${score.verde.goals} gols — ${brl(score.verde.sales)} em vendas`);
-  line("Time Azul", `${score.azul.goals} gols — ${brl(score.azul.sales)} em vendas`);
+  line(teamName("verde"), `${score.verde.goals} gols — ${brl(score.verde.sales)} em vendas`);
+  line(teamName("azul"), `${score.azul.goals} gols — ${brl(score.azul.sales)} em vendas`);
   line("Líder", summary.leaderTeam ? teamName(summary.leaderTeam) : "Empate");
   line("Artilheiro", ranking[0] ? `${ranking[0].name} — ${brl(ranking[0].total)}` : "A definir");
   line("Figurinhas", `${summary.withPhotos}/${summary.total} com foto`);
@@ -1860,7 +1898,7 @@ function bindEvents() {
   $("closeRoundBtn").addEventListener("click", () => closeRound($("roundDate").value));
   $("applyBonusBtn").addEventListener("click", applyBonus);
   $("recalculateAllBtn")?.addEventListener("click", recalculateAllAutomatics);
-  $("addVendorBtn").addEventListener("click", addVendor);
+  $("addVendorBtn").addEventListener("click", async () => { await addVendor(); });
   $("seedBtn")?.addEventListener("click", async () => {
     if (!ensureCanSave("recriar dados")) return;
     if (!confirm("Restaurar os dados iniciais da campanha? Isso substitui os dados atuais.")) return;
@@ -1874,7 +1912,7 @@ function bindEvents() {
   $("downloadStickerPackBtn").addEventListener("click", exportAlbumPDF);
   $("downloadStickerPackBtn2").addEventListener("click", exportAlbumPDF);
   $("downloadAlbumPngBtn").addEventListener("click", async () => {
-    await downloadElementAsImage(document.querySelector(".album-spread-book"), "album-copa-das-vendas.png", 2.8);
+    await downloadElementAsImage(document.querySelector(".album-spread-book"), "album-copa-das-vendas.png", 2);
   });
   $("exportJsonBtn").addEventListener("click", exportJSON);
 }
@@ -1887,3 +1925,4 @@ window.addEventListener("DOMContentLoaded", async () => {
   updateTrialUI();
   render();
 });
+

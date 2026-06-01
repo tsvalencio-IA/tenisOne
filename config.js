@@ -63,8 +63,8 @@ window.APP_CONFIG = {
       topSeller: "R$ 100,00 via PIX para o artilheiro individual."
     },
     teams: {
-      verde: { id: "verde", name: "Seleção Verde", color: "#0b7f49" },
-      azul: { id: "azul", name: "Seleção Azul", color: "#143f91" }
+      verde: { id: "verde", name: "Brasil", color: "#0b7f49" },
+      azul: { id: "azul", name: "França", color: "#143f91" }
     },
     vendors: [
       {
@@ -99,7 +99,7 @@ window.APP_CONFIG = {
         age: "22",
         rarity: "gold",
         title: "Camisa 10",
-        subtitle: "Força da Seleção Verde",
+        subtitle: "Força do Brasil",
         albumOrder: 2,
         specialType: "normal",
         showInAlbum: true,
