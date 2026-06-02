@@ -254,6 +254,17 @@ nav {
 
 .side-footer {
   margin-top: auto;
+  display: grid;
+  gap: 10px;
+}
+
+.sidebar-powered {
+  text-align: center;
+  color: rgba(255,255,255,.7);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: .03em;
 }
 
 .content {
@@ -2322,3 +2333,161 @@ nav {
   .race-goals-panel strong { font-size: 56px; }
   .race-roster-grid.dynamic-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* CORREÇÃO SOMENTE DO PLACAR: FIGURINHAS DOS TIMES                            */
+/* Mantém o componente oficial das figurinhas igual ao álbum, apenas ajustando */
+/* escala e leitura dentro do quadro amarelo do placar.                         */
+/* -------------------------------------------------------------------------- */
+.race-team-panel .race-team-roster {
+  padding: 10px;
+}
+
+.race-team-panel .race-roster-grid.dynamic-roster {
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 10px;
+  align-items: start;
+  justify-items: center;
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot {
+  width: 100%;
+  min-width: 0;
+  min-height: auto;
+  padding: 6px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.78);
+  border-radius: 12px;
+  overflow: visible;
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker {
+  width: min(100%, 132px);
+  max-width: 132px;
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-frame {
+  box-shadow: 0 8px 16px rgba(0,0,0,.18), inset 0 0 0 .35cqw rgba(255,255,255,.46);
+}
+
+/* No placar o cartão é menor, então o texto precisa reduzir de verdade. */
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-footer {
+  left: 17%;
+  right: 5.2%;
+  bottom: 3.6%;
+  gap: .35cqw;
+  padding: 1.6cqw 8.6cqw 1.35cqw 8.6cqw;
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-footer strong {
+  font-size: clamp(7px, 4.9cqw, 14px);
+  line-height: .9;
+  letter-spacing: -.02em;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-footer span {
+  font-size: clamp(4px, 1.9cqw, 7px);
+  line-height: 1;
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-footer small {
+  font-size: clamp(3.5px, 1.55cqw, 6px);
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-stats {
+  width: 33%;
+  gap: .8cqw;
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-stats div {
+  min-height: 9.8cqw;
+  padding: .75cqw .9cqw .75cqw .75cqw;
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-stats small {
+  font-size: clamp(3.2px, 1.5cqw, 6px);
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-stats strong {
+  font-size: clamp(4.6px, 2.25cqw, 9px);
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-badge span,
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-badge small,
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-team-card small,
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-team-card span {
+  font-size: clamp(3px, 1.45cqw, 6px);
+}
+
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-badge strong,
+.race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker-team-card strong {
+  font-size: clamp(4.2px, 2.1cqw, 8px);
+}
+
+/* Em celular, uma figurinha por linha dentro de cada seleção para não amassar. */
+@media (max-width: 760px) {
+  .race-team-panel .race-roster-grid.dynamic-roster {
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  }
+
+  .race-team-panel .race-vendor-slot.dashboard-sticker-slot .official-sticker {
+    width: min(100%, 150px);
+    max-width: 150px;
+  }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* AJUSTE PONTUAL: LOGO CV DA FIGURINHA SEM DESFOQUE                           */
+/* -------------------------------------------------------------------------- */
+.official-sticker-footer-medal {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: visible;
+  transform: translateZ(0);
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+.official-cv-logo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+}
+
+.cv-logo-ring {
+  fill: #061431;
+  stroke: var(--foil-a);
+  stroke-width: 7;
+}
+
+.cv-logo-shine {
+  fill: none;
+  stroke: rgba(255,255,255,.55);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.cv-logo-text {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: -5px;
+  fill: #ffffff;
+  stroke: rgba(0,0,0,.18);
+  stroke-width: .8px;
+  paint-order: stroke fill;
+}
+
+.official-sticker--mini .official-cv-logo {
+  transform: scale(1.08);
+  transform-origin: center;
+}
+

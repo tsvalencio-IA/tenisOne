@@ -39,15 +39,15 @@ window.APP_CONFIG = {
     managerEmail: "saulo@t1.com",
 
     sellers: [
-      { vendorId: "isack", email: "isack@t1.com" },
-      { vendorId: "viviane", email: "viviane@t1.com" },
-      { vendorId: "matheus", email: "matheus@t1.com" },
-      { vendorId: "brian", email: "brian@t1.com" },
+      { vendorId: "isack", email: "isack@tenisone.com.br" },
+      { vendorId: "viviane", email: "viviane@tenisone.com.br" },
+      { vendorId: "matheus", email: "matheus@tenisone.com.br" },
+      { vendorId: "brian", email: "brian@tenisone.com.br" },
 
       // 5º vendedor:
       // Troque o nome, email e time do vendedor "vendedor5" no bloco
       // campaign.vendors logo abaixo quando o Saulo confirmar os dados.
-      { vendorId: "vendedor5", email: "isabela@t1.com" }
+      { vendorId: "vendedor5", email: "vendedor5@tenisone.com.br" }
     ]
   },
 
@@ -145,9 +145,9 @@ window.APP_CONFIG = {
       },
       {
         id: "vendedor5",
-        name: "Isabela",
-        shortName: "Isabela",
-        team: "azul",
+        name: "Vendedor 5",
+        shortName: "Vend. 5",
+        team: "verde",
         shirtNumber: 5,
         position: "Reforço",
         height: "1,70m",

@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Copa de Vendas — Corrida das Dezenas</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0b7f49" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Copa Vendas" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <script src="config.js" defer></script>
@@ -94,6 +101,7 @@
       <div class="side-footer">
         <div id="trialStatus" class="trial-status hidden"></div>
         <button id="logoutBtn" class="btn btn-outline wide">Sair</button>
+        <div class="sidebar-powered">Powered by thIAguinho Soluções Digitais</div>
       </div>
     </aside>
 
@@ -298,7 +306,7 @@
                   <option value="3">3ª dezena — dias 21 a 30</option>
                 </select>
               </label>
-              <button id="applyBonusBtn" class="btn btn-light">Recalcular bônus automático</button>
+              <button id="applyBonusBtn" class="btn btn-light">Aplicar bônus da dezena (+3)</button>
               <button id="recalculateAllBtn" class="btn btn-blue full-span">Recalcular placar completo</button>
             </div>
           </article>
@@ -404,5 +412,14 @@
     </section>
       <footer class="powered-footer">Powered by thIAguinho Soluções Digitais</footer>
   </main>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+      });
+    }
+  </script>
+
 </body>
 </html>

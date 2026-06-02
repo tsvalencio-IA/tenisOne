@@ -1,4 +1,4 @@
-﻿const CONFIG = window.APP_CONFIG || {};
+const CONFIG = window.APP_CONFIG || {};
 const campaign = CONFIG.campaign || {};
 const TEAMS = campaign.teams || {};
 const TRIAL_DAYS = Number(CONFIG.trialDays || 3);
@@ -524,10 +524,13 @@ function recomputeRoundForDate(date) {
   return round;
 }
 
-function buildAutomaticBonus(dezena) {
+function buildAutomaticBonus(dezena, options = {}) {
+  const shouldApply = options.apply === true;
+  const existing = state.data.bonuses?.[`dezena_${dezena}`] || {};
   const [start, end] = dateRangeForDezena(dezena);
   const totals = getTeamTotalsForRange(start, end);
   const winnerTeam = winnerFromTotals(totals);
+  const status = shouldApply ? "aplicado" : (existing.status === "aplicado" ? "aplicado" : "previa");
   return {
     id: `dezena_${dezena}`,
     dezena: Number(dezena),
@@ -535,37 +538,62 @@ function buildAutomaticBonus(dezena) {
     endDate: end,
     teamTotals: totals,
     winnerTeam,
-    goalsAwarded: winnerTeam ? 3 : 0,
+    goalsAwarded: winnerTeam && status === "aplicado" ? 3 : 0,
+    previewGoals: winnerTeam ? 3 : 0,
+    status,
     source: "automatico",
-    ruleUsed: "Automático: maior faturamento acumulado da dezena.",
-    closedBy: "sistema",
-    closedAt: new Date().toISOString()
+    ruleUsed: status === "aplicado"
+      ? "Bônus aplicado: maior faturamento acumulado da dezena."
+      : "Prévia: maior faturamento acumulado da dezena. Ainda não soma no placar.",
+    closedBy: status === "aplicado" ? "gerente" : "sistema",
+    closedAt: existing.closedAt || null,
+    updatedAt: new Date().toISOString()
   };
 }
 
-function recomputeBonusForDezena(dezena) {
+
+
+function recomputeBonusForDezena(dezena, options = {}) {
   if (!dezena || !hasSalesForDezena(dezena)) {
     if (dezena) delete state.data.bonuses[`dezena_${dezena}`];
     return null;
   }
-  const bonus = buildAutomaticBonus(dezena);
+  const bonus = buildAutomaticBonus(dezena, { apply: options.apply === true });
+  if (options.apply === true && bonus.winnerTeam) {
+    bonus.status = "aplicado";
+    bonus.goalsAwarded = 3;
+    bonus.closedBy = "gerente";
+    bonus.closedAt = new Date().toISOString();
+    bonus.appliedAt = bonus.closedAt;
+  }
   state.data.bonuses[`dezena_${dezena}`] = bonus;
   return bonus;
 }
 
+
+
 function recomputeAutomaticsForDate(date) {
   const round = recomputeRoundForDate(date);
-  const bonus = recomputeBonusForDezena(getDezena(date));
+  const bonus = recomputeBonusForDezena(getDezena(date), { apply: false });
   return { round, bonus };
 }
 
+
+
 function recomputeAllAutomatics() {
+  const appliedBonuses = {};
+  bonusesArray().forEach((bonus) => {
+    if (bonus.status === "aplicado") appliedBonuses[`dezena_${bonus.dezena}`] = true;
+  });
+
   state.data.rounds = {};
   state.data.bonuses = {};
   const dates = [...new Set(salesArray().map((sale) => sale.date).filter(Boolean))].sort();
   dates.forEach((date) => recomputeRoundForDate(date));
-  [1, 2, 3].forEach((dezena) => recomputeBonusForDezena(dezena));
+  [1, 2, 3].forEach((dezena) => recomputeBonusForDezena(dezena, { apply: appliedBonuses[`dezena_${dezena}`] === true }));
 }
+
+
 
 function calculateScore() {
   const score = { verde: { goals: 0, sales: 0, wins: 0 }, azul: { goals: 0, sales: 0, wins: 0 } };
@@ -581,12 +609,15 @@ function calculateScore() {
     }
   });
   bonusesArray().forEach((bonus) => {
-    if (bonus.winnerTeam && score[bonus.winnerTeam]) {
+    const applied = bonus.status === "aplicado" || bonus.status === "applied" || bonus.status === "finalizado";
+    if (applied && bonus.winnerTeam && score[bonus.winnerTeam]) {
       score[bonus.winnerTeam].goals += Number(bonus.goalsAwarded || 0);
     }
   });
   return score;
 }
+
+
 
 function calculateSellerRanking({ activeOnly = false } = {}) {
   const totals = {};
@@ -742,7 +773,13 @@ function renderSticker(vendor, mode = "full") {
           ${photo}
         </div>
 
-        <div class="official-sticker-footer-medal">CV</div>
+        <div class="official-sticker-footer-medal" aria-label="Copa das Vendas">
+          <svg class="official-cv-logo" viewBox="0 0 120 120" role="img" aria-hidden="true">
+            <circle cx="60" cy="60" r="54" class="cv-logo-ring"></circle>
+            <path class="cv-logo-shine" d="M31 34 C49 18, 84 19, 96 44"></path>
+            <text x="60" y="70" text-anchor="middle" class="cv-logo-text">CV</text>
+          </svg>
+        </div>
         <div class="official-sticker-footer-cup">26</div>
 
         <div class="official-sticker-footer">
@@ -880,8 +917,8 @@ function buildBoardVendorSlot(vendor, slotNumber) {
   }
 
   return `
-    <div class="race-vendor-slot ${escapeHtml(vendor.team)}">
-      ${renderSticker(vendor, "mini")}
+    <div class="race-vendor-slot ${escapeHtml(vendor.team)} dashboard-sticker-slot">
+      ${renderSticker(vendor, "full")}
     </div>
   `;
 }
@@ -929,12 +966,13 @@ function buildBoardDezena(dezena) {
   }
 
   const bonus = state.data.bonuses?.[`dezena_${dezena}`];
+  const bonusApplied = bonus?.status === 'aplicado' || bonus?.status === 'applied' || bonus?.status === 'finalizado';
   rows.push(`
-    <div class="race-day-row finish-row ${bonus?.winnerTeam ? 'has-winner' : ''}">
+    <div class="race-day-row finish-row ${bonusApplied && bonus?.winnerTeam ? 'has-winner' : ''}">
       <strong>Fim da Dezena</strong>
       <div class="race-day-markers">
-        ${buildBoardMarker('verde', bonus?.winnerTeam === 'verde', 'bonus')}
-        ${buildBoardMarker('azul', bonus?.winnerTeam === 'azul', 'bonus')}
+        ${buildBoardMarker('verde', bonusApplied && bonus?.winnerTeam === 'verde', 'bonus')}
+        ${buildBoardMarker('azul', bonusApplied && bonus?.winnerTeam === 'azul', 'bonus')}
       </div>
     </div>
   `);
@@ -1118,12 +1156,15 @@ function renderRounds() {
     </div>
   `).join("");
 
-  const bonusRows = bonusesArray().sort((a, b) => Number(b.dezena) - Number(a.dezena)).map((bonus) => `
-    <div class="timeline-row bonus">
-      <strong>Bônus automático ${bonus.dezena}ª dezena — ${bonus.winnerTeam ? teamName(bonus.winnerTeam) : "Sem vencedor"}</strong>
-      <span>${bonus.startDate} a ${bonus.endDate} • +${bonus.goalsAwarded || 0} gol(s) • ${escapeHtml(bonus.ruleUsed || "")}</span>
+  const bonusRows = bonusesArray().sort((a, b) => Number(b.dezena) - Number(a.dezena)).map((bonus) => {
+    const applied = bonus.status === "aplicado" || bonus.status === "applied" || bonus.status === "finalizado";
+    return `
+    <div class="timeline-row bonus ${applied ? "closed" : "preview"}">
+      <strong>${applied ? "Bônus aplicado" : "Prévia do bônus"} ${bonus.dezena}ª dezena — ${bonus.winnerTeam ? teamName(bonus.winnerTeam) : "Sem vencedor"}</strong>
+      <span>${bonus.startDate} a ${bonus.endDate} • ${applied ? `+${bonus.goalsAwarded || 0} gol(s) no placar` : `+${bonus.previewGoals || 3} gol(s) previstos, ainda sem somar`} • ${escapeHtml(bonus.ruleUsed || "")}</span>
     </div>
-  `).join("");
+  `;
+  }).join("");
 
   $("roundHistory").innerHTML = bonusRows + roundRows || `<p class="muted">Nenhuma rodada calculada ainda. Ao salvar vendas, o sistema atualiza automaticamente.</p>`;
 }
@@ -1449,15 +1490,20 @@ async function saveSale(event) {
   const amount = Number($("saleAmount").value || 0);
   if (!date || !vendorId || amount <= 0) return toast("Informe data, vendedor e valor válido.");
 
-  const id = `sale_${Date.now()}_${safeId()}`;
+  const existing = salesArray().find((sale) => sale.date === date && sale.vendorId === vendorId);
+  const id = existing?.id || `sale_${Date.now()}_${safeId()}`;
+
   state.data.sales[id] = {
+    ...(existing || {}),
     id,
     date,
     vendorId,
     amount,
     note: $("saleNote").value || "",
-    createdAt: new Date().toISOString(),
-    createdBy: "gerente",
+    createdAt: existing?.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    createdBy: existing?.createdBy || "gerente",
+    updatedBy: "gerente",
   };
 
   recomputeAutomaticsForDate(date);
@@ -1471,10 +1517,12 @@ async function saveSale(event) {
     ? `${teamName(round.winnerTeam)} recebeu ${round.goalsAwarded} gol(s) da rodada.`
     : "Rodada empatada no momento.";
   const bonusText = bonus?.winnerTeam
-    ? `Bônus da ${getDezena(date)}ª dezena recalculado para ${teamName(bonus.winnerTeam)}.`
-    : `Bônus da ${getDezena(date)}ª dezena sem vencedor no momento.`;
-  toast(`Venda salva. ${roundText} ${bonusText}`);
+    ? `Prévia da ${getDezena(date)}ª dezena: ${teamName(bonus.winnerTeam)} lidera o bônus, mas ele ainda não soma no placar.`
+    : `Prévia da ${getDezena(date)}ª dezena sem vencedor no momento.`;
+  toast(`${existing ? "Venda atualizada" : "Venda salva"}. ${roundText} ${bonusText}`);
 }
+
+
 
 async function deleteSale(saleId) {
   if (!ensureCanSave("excluir venda")) return;
@@ -1486,8 +1534,10 @@ async function deleteSale(saleId) {
   delete state.data.sales[saleId];
   recomputeAutomaticsForDate(sale.date);
   await persist();
-  toast("Venda excluída e placar recalculado.");
+  toast("Venda excluída e placar recalculado. Bônus da dezena fica apenas como prévia até ser aplicado pelo gerente.");
 }
+
+
 
 async function closeRound(date) {
   if (!ensureCanSave("finalizar dia")) return;
@@ -1505,19 +1555,23 @@ async function closeRound(date) {
     ? `${teamName(round.winnerTeam)} venceu o dia e recebeu ${round.goalsAwarded} gol(s).`
     : "Dia finalizado empatado. Nenhum gol aplicado.";
   const bonusText = bonus?.winnerTeam
-    ? ` Bônus da ${round.dezena}ª dezena atualizado para ${teamName(bonus.winnerTeam)}.`
-    : ` Bônus da ${round.dezena}ª dezena sem vencedor no momento.`;
+    ? ` Prévia da ${round.dezena}ª dezena: ${teamName(bonus.winnerTeam)} lidera o bônus de +3, mas esse bônus só entra quando o gerente aplicar no fim da dezena.`
+    : ` Prévia da ${round.dezena}ª dezena sem vencedor no momento.`;
   toast(`Dia ${date.split("-").reverse().join("/")} finalizado. ${roundText}${bonusText}`);
 }
 
+
+
 async function applyBonus() {
-  if (!ensureCanSave("recalcular bônus automático")) return;
+  if (!ensureCanSave("aplicar bônus da dezena")) return;
   const dezena = Number($("bonusDezena").value || 1);
-  const bonus = recomputeBonusForDezena(dezena);
+  const bonus = recomputeBonusForDezena(dezena, { apply: true });
   await persist();
   if (!bonus) return toast(`Nenhuma venda encontrada na ${dezena}ª dezena.`);
-  toast(bonus.winnerTeam ? `Bônus automático: ${teamName(bonus.winnerTeam)} recebeu +3 gols.` : "Bônus automático recalculado sem vencedor.");
+  toast(bonus.winnerTeam ? `Bônus aplicado: ${teamName(bonus.winnerTeam)} recebeu +3 gols.` : "Bônus recalculado sem vencedor.");
 }
+
+
 
 async function recalculateAllAutomatics() {
   if (!ensureCanSave("recalcular placar automático")) return;
