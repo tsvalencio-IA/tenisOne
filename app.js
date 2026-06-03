@@ -44,12 +44,27 @@ let realtimeUnsubscribe = null;
 
 const AUTH_CONFIG = CONFIG.auth || {};
 const AUTH_ENABLED = AUTH_CONFIG.enabled !== false;
-const managerEmailNormalized = String(AUTH_CONFIG.managerEmail || "").trim().toLowerCase();
-const sellerEmailMap = new Map(
-  (AUTH_CONFIG.sellers || [])
-    .filter((item) => item && item.email && item.vendorId)
-    .map((item) => [String(item.email).trim().toLowerCase(), String(item.vendorId).trim()])
-);
+
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function sellerAuthEmails(item) {
+  return [
+    ...(Array.isArray(item?.email) ? item.email : [item?.email]),
+    ...(Array.isArray(item?.emails) ? item.emails : []),
+    ...(Array.isArray(item?.aliases) ? item.aliases : [])
+  ].map(normalizeEmail).filter(Boolean);
+}
+
+const managerEmailNormalized = normalizeEmail(AUTH_CONFIG.managerEmail);
+const sellerEmailMap = new Map();
+(AUTH_CONFIG.sellers || []).forEach((item) => {
+  if (!item?.vendorId) return;
+  sellerAuthEmails(item).forEach((email) => {
+    sellerEmailMap.set(email, String(item.vendorId).trim());
+  });
+});
 
 const $ = (id) => document.getElementById(id);
 const brl = (value) => Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -1979,4 +1994,3 @@ window.addEventListener("DOMContentLoaded", async () => {
   updateTrialUI();
   render();
 });
-
